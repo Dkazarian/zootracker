@@ -63,6 +63,70 @@ The Better Auth NestJS integration is community-maintained. This dependency shou
 
 Database constraints and transactions should enforce important invariants rather than relying only on application validation.
 
+## Project Structure
+
+The frontend uses a lightweight feature-based structure:
+
+```text
+frontend/src/
+├── app/                  # Application shell, providers, and routing
+├── features/             # Product features and route-level behavior
+│   ├── home/
+│   ├── auth/
+│   ├── personnel/
+│   ├── animals/
+│   ├── feedings/
+│   ├── weights/
+│   └── feeding-plans/
+├── shared/
+│   ├── api/              # Shared API client and cross-feature endpoints
+│   ├── components/
+│   │   └── layout/       # Application-wide layout components
+│   └── styles/           # Global styles and design tokens
+├── test/                 # Shared frontend test setup
+└── main.tsx              # Browser entry point
+```
+
+Each frontend feature owns its business-specific components, API calls, hooks, types, and tests. Subdirectories are added only when a feature has enough files to need them.
+
+The backend follows NestJS feature modules:
+
+```text
+backend/
+├── prisma/
+│   ├── schema.prisma
+│   ├── migrations/
+│   └── seed.ts
+├── src/
+│   ├── common/           # Cross-cutting guards, decorators, and filters
+│   ├── health/
+│   ├── auth/
+│   ├── personnel/
+│   ├── animals/
+│   ├── feedings/
+│   ├── weights/
+│   ├── feeding-plans/
+│   ├── app.module.ts
+│   ├── app.setup.ts
+│   └── main.ts
+└── test/                 # Cross-module and API end-to-end tests
+```
+
+Backend feature modules keep their controllers, services, DTOs, and unit tests together. Prisma schema files and migrations remain outside `src/`.
+
+### Conventions
+
+- React component files use PascalCase, such as `AnimalCard.tsx`.
+- NestJS files use kebab-case with descriptive suffixes, such as `animals.controller.ts`.
+- Unit and component tests are colocated with the code they test.
+- Cross-application and API end-to-end tests live in the relevant `test/` directory.
+- Business-specific code stays within its feature.
+- `shared/` and `common/` contain only code used across multiple features.
+- Generic dumping grounds such as `utils/` are avoided.
+- Explicit filenames are preferred over ambiguous `index.tsx` barrel files.
+- Frontend API types will eventually be generated from OpenAPI rather than maintained in a manually shared package.
+- Empty directories are not created in advance; the structure grows with implemented features.
+
 ## Testing
 
 | Scope | Choice |

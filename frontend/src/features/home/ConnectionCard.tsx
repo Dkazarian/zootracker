@@ -1,5 +1,5 @@
-import { getApiHealth } from "../api/health";
 import { useQuery } from '@tanstack/react-query';
+import { getApiHealth } from '../../shared/api/health';
 
 function ConnectionCard() {
   const healthQuery = useQuery({
@@ -35,6 +35,12 @@ function ConnectionCard() {
           {status}
         </p>
       </div>
+
+      {healthQuery.isError && (
+        <button type="button" onClick={() => healthQuery.refetch()}>
+          Try again
+        </button>
+      )}
     </section>
   );
 }
