@@ -1,0 +1,22 @@
+{
+  "name": "zootracker",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently --kill-others --names frontend,backend --prefix-colors cyan,green \"npm run dev --workspace frontend\" \"npm run start:dev --workspace backend\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspace frontend && npm run test --workspace backend && npm run test:e2e --workspace backend",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "prettier": "^3.9.1"
+  }
+}
