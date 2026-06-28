@@ -13,6 +13,10 @@ footer {
 
 .site-header {
   padding-block: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .brand {
@@ -34,6 +38,14 @@ footer {
   color: white;
   background: var(--forest);
   box-shadow: 0 0.5rem 1.5rem rgb(26 75 55 / 18%);
+}
+
+.account-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .hero {
@@ -125,10 +137,111 @@ button:hover {
   background: var(--forest-dark);
 }
 
+button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.button-secondary {
+  min-height: 2.4rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--border);
+  color: var(--forest);
+  background: rgb(255 255 255 / 70%);
+}
+
+.button-secondary:hover {
+  color: white;
+}
+
 a:focus-visible,
-button:focus-visible {
+button:focus-visible,
+input:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
+}
+
+.session-state,
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.session-state {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.login-card {
+  width: min(100%, 29rem);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  display: grid;
+  gap: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 84%);
+  box-shadow: 0 1.5rem 4rem rgb(41 64 54 / 12%);
+  backdrop-filter: blur(12px);
+}
+
+.login-card h1 {
+  max-width: none;
+  margin: 0.65rem 0 0;
+  font-size: clamp(2rem, 8vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.login-intro {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.login-form,
+.form-field {
+  display: grid;
+}
+
+.login-form {
+  gap: 1.15rem;
+}
+
+.form-field {
+  gap: 0.45rem;
+}
+
+.form-field label {
+  font-weight: 750;
+}
+
+.form-field input {
+  width: 100%;
+  min-height: 2.9rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgb(23 51 41 / 24%);
+  border-radius: 0.65rem;
+  color: var(--ink);
+  background: white;
+}
+
+.form-field input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.field-error,
+.form-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.form-error {
+  padding: 0.75rem;
+  border-radius: 0.6rem;
+  background: rgb(181 67 57 / 9%);
 }
 
 footer {
@@ -143,12 +256,23 @@ footer p {
 }
 
 @media (max-width: 36rem) {
+  .site-header {
+    align-items: flex-start;
+  }
+
+  .account-actions {
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   .connection-card {
     align-items: stretch;
     flex-direction: column;
   }
 
-  button {
+  .connection-card button,
+  .login-form button {
     width: 100%;
   }
 }

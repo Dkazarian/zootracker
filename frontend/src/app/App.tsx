@@ -1,15 +1,17 @@
+import { Route, Routes } from 'react-router-dom';
+import AuthenticatedLayout from '../features/auth/AuthenticatedLayout';
+import LoginPage from '../features/auth/LoginPage';
 import HomePage from '../features/home/HomePage';
-import Footer from '../shared/components/layout/Footer';
-import Header from '../shared/components/layout/Header';
 import './App.css';
 
 function App() {
   return (
-    <div className="app-shell">
-      <Header />
-      <HomePage />
-      <Footer />
-    </div>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route element={<AuthenticatedLayout />}>
+        <Route index element={<HomePage />} />
+      </Route>
+    </Routes>
   );
 }
 

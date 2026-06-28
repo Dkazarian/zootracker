@@ -1,9 +1,46 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 
-function renderApp() {
+const authMocks = vi.hoisted(() => ({
+  getSession: vi.fn(),
+  signInEmail: vi.fn(),
+  signOut: vi.fn(),
+}));
+
+vi.mock('../shared/auth/auth-client', () => ({
+  authClient: {
+    getSession: authMocks.getSession,
+    signIn: {
+      email: authMocks.signInEmail,
+    },
+    signOut: authMocks.signOut,
+  },
+}));
+
+const authenticatedSession = {
+  session: {
+    id: 'session-1',
+    userId: 'user-1',
+    token: 'private-token',
+    expiresAt: new Date(Date.now() + 60_000),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  user: {
+    id: 'user-1',
+    name: 'Ada Keeper',
+    email: 'ada@example.com',
+    emailVerified: false,
+    image: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+};
+
+function renderApp(initialPath = '/') {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -14,17 +51,71 @@ function renderApp() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <App />
+      <MemoryRouter initialEntries={[initialPath]}>
+        <App />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
 
-describe('App', () => {
+describe('App authentication', () => {
+  beforeEach(() => {
+    authMocks.getSession.mockResolvedValue({ data: null, error: null });
+    authMocks.signInEmail.mockResolvedValue({
+      data: null,
+      error: { message: 'Invalid credentials' },
+    });
+    authMocks.signOut.mockResolvedValue({ data: null, error: null });
+  });
+
   afterEach(() => {
+    cleanup();
+    vi.clearAllMocks();
     vi.unstubAllGlobals();
   });
 
-  it('identifies Zootracker and reports an available API', async () => {
+  it('redirects an unauthenticated visitor to the login page', async () => {
+    renderApp('/');
+
+    expect(screen.getByText('Checking your session...')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Sign in to Zootracker' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('A reliable home for daily zoo care.'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('reports invalid credentials and preserves the email', async () => {
+    renderApp('/login');
+
+    const email = await screen.findByLabelText('Email');
+    fireEvent.change(email, { target: { value: 'keeper@example.com' } });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'incorrect-password' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+    expect(
+      await screen.findByText('Email or password is incorrect.'),
+    ).toBeInTheDocument();
+    expect(email).toHaveValue('keeper@example.com');
+  });
+
+  it('redirects into the application after successful authentication', async () => {
+    authMocks.getSession
+      .mockResolvedValueOnce({ data: null, error: null })
+      .mockResolvedValue({
+        data: authenticatedSession,
+        error: null,
+      });
+    authMocks.signInEmail.mockResolvedValue({
+      data: {
+        token: 'private-token',
+        user: authenticatedSession.user,
+      },
+      error: null,
+    });
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -37,27 +128,74 @@ describe('App', () => {
       }),
     );
 
-    renderApp();
+    renderApp('/login');
+
+    fireEvent.change(await screen.findByLabelText('Email'), {
+      target: { value: 'ada@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'correct-password' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
     expect(
-      screen.getByRole('heading', {
+      await screen.findByRole('heading', {
         name: 'A reliable home for daily zoo care.',
       }),
     ).toBeInTheDocument();
+  });
+
+  it('restores a session and renders the protected application', async () => {
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            status: 'ok',
+            service: 'zootracker-api',
+          }),
+      }),
+    );
+
+    renderApp('/');
+
     expect(
-      screen.getByText('Checking API availability...'),
+      await screen.findByRole('heading', {
+        name: 'A reliable home for daily zoo care.',
+      }),
     ).toBeInTheDocument();
+    expect(screen.getByText('Ada Keeper')).toBeInTheDocument();
     expect(await screen.findByText('API available')).toBeInTheDocument();
   });
 
-  it('reports an unavailable API without crashing', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+  it('signs out and returns to the login page', async () => {
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            status: 'ok',
+            service: 'zootracker-api',
+          }),
+      }),
+    );
 
-    renderApp();
+    renderApp('/');
+    fireEvent.click(await screen.findByRole('button', { name: 'Sign out' }));
 
-    expect(await screen.findByText('API unavailable')).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Try again' }),
+      await screen.findByRole('heading', { name: 'Sign in to Zootracker' }),
     ).toBeInTheDocument();
+    expect(authMocks.signOut).toHaveBeenCalledOnce();
   });
 });

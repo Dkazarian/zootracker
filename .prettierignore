@@ -5,3 +5,4 @@ package-lock.json
 outputs
 work
 specs
+backend/src/generated/prisma
