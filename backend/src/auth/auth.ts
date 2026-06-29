@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
+import { userAc } from 'better-auth/plugins/admin/access';
 import { requireEnvironment } from '../config/environment';
 import { prisma } from '../database/prisma.service';
 
@@ -20,5 +21,14 @@ export const auth = betterAuth({
     enabled: true,
     disableSignUp: true,
   },
-  plugins: [admin()],
+  plugins: [
+    admin({
+      defaultRole: 'keeper',
+      adminRoles: ['admin'],
+      roles: {
+        keeper: userAc,
+        admin: userAc,
+      },
+    }),
+  ],
 });

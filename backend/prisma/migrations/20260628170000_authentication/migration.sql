@@ -10,12 +10,13 @@ CREATE TABLE "user" (
     "image" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "role" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'keeper',
     "banned" BOOLEAN DEFAULT false,
     "banReason" TEXT,
     "banExpires" TIMESTAMP(3),
 
-    CONSTRAINT "user_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "user_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "user_role_check" CHECK ("role" IN ('keeper', 'admin'))
 );
 
 -- CreateTable

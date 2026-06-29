@@ -1,3 +1,4 @@
+import { ForbiddenException } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 
 describe('AuthController', () => {
@@ -39,5 +40,21 @@ describe('AuthController', () => {
       email: 'ada@example.com',
       role: 'admin',
     });
+  });
+
+  it('fails closed when the session contains an unknown role', () => {
+    type CurrentSession = Parameters<AuthController['getCurrentUser']>[0];
+    const session = {
+      user: {
+        id: 'user-1',
+        name: 'Unknown Role',
+        email: 'unknown@example.com',
+        role: 'user',
+      },
+    } as CurrentSession;
+
+    expect(() => controller.getCurrentUser(session)).toThrow(
+      ForbiddenException,
+    );
   });
 });
