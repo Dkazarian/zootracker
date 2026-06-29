@@ -7,6 +7,11 @@ import {
   sessionQueryKey,
   sessionQueryOptions,
 } from '../../shared/auth/session';
+import type { CurrentUser } from '../../shared/api/current-user';
+
+export interface AuthenticatedOutletContext {
+  currentUser: CurrentUser;
+}
 
 function AuthenticatedLayout() {
   const location = useLocation();
@@ -35,10 +40,11 @@ function AuthenticatedLayout() {
   return (
     <div className="app-shell">
       <Header
-        userName={sessionQuery.data.user.name}
+        userName={sessionQuery.data.name}
+        userRole={sessionQuery.data.role}
         onSignOut={() => void signOut()}
       />
-      <Outlet />
+      <Outlet context={{ currentUser: sessionQuery.data }} />
       <Footer />
     </div>
   );
