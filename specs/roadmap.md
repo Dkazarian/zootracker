@@ -24,7 +24,8 @@ Every phase receives its own `requirements.md`, `plan.md`, and `validation.md` b
 ## Phase 3 - Personnel and Roles
 
 - Add the keeper and administrator roles.
-- Allow administrators to create, update, and deactivate personnel.
+- Allow administrators to create personnel accounts and view the personnel
+  directory.
 - Enforce role permissions in both the API and user interface.
 - Show the signed-in user's identity and role.
 
