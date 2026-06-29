@@ -66,6 +66,20 @@ describeWithDatabase('Authentication flow (database e2e)', () => {
     expect(response.status).toBeGreaterThanOrEqual(400);
   });
 
+  it('does not grant an untrusted origin cross-origin access', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/auth/sign-in/email')
+      .set('origin', 'https://untrusted.example')
+      .send({
+        email: administrator.email,
+        password: administrator.password,
+      });
+
+    expect(response.headers['access-control-allow-origin']).not.toBe(
+      'https://untrusted.example',
+    );
+  });
+
   it('uses a cookie session for login, current user, and logout', async () => {
     const agent = request.agent(app.getHttpServer());
 
@@ -78,7 +92,16 @@ describeWithDatabase('Authentication flow (database e2e)', () => {
       })
       .expect(200);
 
-    expect(loginResponse.headers['set-cookie']).toBeDefined();
+    const setCookieHeader: unknown = loginResponse.headers['set-cookie'];
+    expect(Array.isArray(setCookieHeader)).toBe(true);
+
+    if (!Array.isArray(setCookieHeader)) {
+      throw new Error('Authentication did not return session cookies');
+    }
+
+    const cookieAttributes = setCookieHeader.join('; ');
+    expect(cookieAttributes).toContain('HttpOnly');
+    expect(cookieAttributes).toContain('SameSite=Lax');
 
     const currentUserResponse = await agent.get('/api/me').expect(200);
     const currentUser = currentUserResponse.body as {

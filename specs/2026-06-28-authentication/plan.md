@@ -7,7 +7,7 @@
 3. ✅ Add example development and test database connection settings.
 4. ✅ Configure the Better Auth Prisma adapter and generate the required authentication schema.
 5. ✅ Create the initial authentication migration.
-6. Apply the initial migration to the local `zootracker` database.
+6. ✅ Apply the initial migration to the local `zootracker` database.
 7. ✅ Add root scripts for Prisma generation and migration tasks.
 8. ✅ Document how to create the `zootracker` and `zootracker_test` databases on the existing local PostgreSQL installation.
 
@@ -60,7 +60,7 @@
 
 1. ✅ Update the README with PostgreSQL prerequisites, environment setup, database creation, migration, bootstrap, and sign-in instructions.
 2. ✅ Explain how to rotate or replace bootstrap environment values without committing them.
-3. Execute every automated validation command from the repository root.
-4. Perform the API and browser checks in `validation.md`.
+3. ✅ Execute every automated validation command from the repository root.
+4. ✅ Perform the API and browser checks in `validation.md`.
 5. ✅ Confirm deferred Phase 3 personnel and permission behavior has not leaked into this phase.
-6. Record any accepted deviation in the feature specification before merge.
+6. ✅ Record known upstream dependency limitations in the feature specification before merge.

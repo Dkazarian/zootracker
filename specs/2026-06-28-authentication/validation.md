@@ -66,6 +66,12 @@ With both applications started through `npm run dev`:
 6. Confirm database credentials, administrator credentials, and authentication secrets are ignored by Git.
 7. Confirm error responses and logs do not expose passwords, cookies, connection strings, or stack traces intended only for development.
 
+## Known Upstream Dependency Limitations
+
+- The community NestJS integration is ESM-only. Jest therefore runs backend tests with Node's VM modules support and currently prints Node's experimental-feature warning.
+- `npm audit --omit=dev` reports high-severity denial-of-service advisories in Multer 2.1.1, inherited through NestJS's Express platform adapter. No upstream fix is currently available. Zootracker exposes no file-upload or multipart endpoint in this phase, so the vulnerable parser is not reachable through an application route.
+- The audit also reports a moderate `@hono/node-server` advisory inherited through Prisma's development tooling. npm's proposed forced remediation downgrades Prisma from 7 to 6, which is a breaking and inappropriate automated change. Continue monitoring upstream releases.
+
 ## Merge Criteria
 
 The phase can be merged when:
