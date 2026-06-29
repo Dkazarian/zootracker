@@ -68,6 +68,29 @@ Copy `frontend/.env.example` to `frontend/.env.local` only when the API URL diff
 
 Open `http://localhost:5173/login` and sign in with the bootstrapped administrator. `GET /api/health` is public; application pages and other API routes require a valid cookie session. Public registration is disabled.
 
+## Personnel and roles
+
+Zootracker has exactly two application roles:
+
+- **Keeper** accounts can sign in and use animal-care features, but cannot
+  access personnel administration.
+- **Administrator** accounts can manage personnel in addition to using the
+  application.
+
+An administrator can open `http://localhost:5173/personnel` to view the
+directory and create accounts. Creating an account requires an initial password
+of at least 12 characters. Share that password with the person through a channel
+outside Zootracker; it is never returned by the API or shown in the personnel
+list. Profile editing and account lifecycle management are intentionally
+outside this phase.
+
+The backend is the authorization boundary. Personnel endpoints use the
+`@ApplicationRoles('admin')` metadata in
+`backend/src/common/authorization/`, enforced by a global NestJS guard after
+authentication. Later feature modules should use the same decorator for
+role-specific API operations. Hiding a navigation item in React is never a
+substitute for the backend check.
+
 ## Authentication tests
 
 Normal `npm test` runs unit, component, route-protection, and non-database endpoint tests.
@@ -84,10 +107,12 @@ Edit `backend/.env.test` so `DATABASE_URL` points only to `zootracker_test`. The
 $env:DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/zootracker_test?schema=public"
 npm run prisma:migrate:deploy
 npm run test:auth:e2e
+npm run test:personnel:e2e
 Remove-Item Env:DATABASE_URL
 ```
 
-The database-backed suite deletes only its own fixed test accounts. GitHub Actions provisions an isolated PostgreSQL service and runs this suite automatically.
+The database-backed suites delete only their own fixed test accounts. GitHub
+Actions provisions an isolated PostgreSQL service and runs them automatically.
 
 ## Verify
 
