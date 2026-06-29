@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
+import { AnimalsModule } from './animals/animals.module';
 import { auth } from './auth/auth';
 import { ZootrackerAuthModule } from './auth/auth.module';
 import { AuthorizationModule } from './common/authorization/authorization.module';
@@ -15,6 +16,7 @@ import { PersonnelModule } from './personnel/personnel.module';
     ZootrackerAuthModule,
     HealthModule,
     PersonnelModule,
+    AnimalsModule,
   ],
 })
 export class AppModule {}

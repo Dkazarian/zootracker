@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "prebuild": "prisma generate",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -21,9 +22,11 @@
     "test:e2e": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
     "test:auth:e2e": "cross-env RUN_DATABASE_TESTS=true node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand auth-flow.e2e-spec.ts",
     "test:personnel:e2e": "cross-env RUN_DATABASE_TESTS=true node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand personnel-flow.e2e-spec.ts",
+    "test:animals:e2e": "cross-env RUN_DATABASE_TESTS=true node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand animals-flow.e2e-spec.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:seed": "prisma db seed",
     "auth:schema": "auth generate --config src/auth/auth.ts --output prisma/schema.prisma --yes",
     "auth:bootstrap-admin": "tsx src/auth/bootstrap-admin.cli.ts"
   },

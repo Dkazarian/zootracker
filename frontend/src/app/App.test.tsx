@@ -19,6 +19,14 @@ const personnelMocks = vi.hoisted(() => ({
   createPersonnel: vi.fn(),
 }));
 
+const animalMocks = vi.hoisted(() => ({
+  listAnimals: vi.fn(),
+  getAnimal: vi.fn(),
+  createAnimal: vi.fn(),
+  updateAnimal: vi.fn(),
+  archiveAnimal: vi.fn(),
+}));
+
 vi.mock('../shared/auth/auth-client', () => ({
   authClient: {
     getSession: authMocks.getSession,
@@ -34,6 +42,19 @@ vi.mock('../shared/api/current-user', () => ({
 }));
 
 vi.mock('../features/personnel/personnel-api', () => personnelMocks);
+
+vi.mock('../features/animals/animal-api', async (importOriginal) => {
+  const original =
+    await importOriginal<typeof import('../features/animals/animal-api')>();
+  return {
+    ...original,
+    listAnimals: animalMocks.listAnimals,
+    getAnimal: animalMocks.getAnimal,
+    createAnimal: animalMocks.createAnimal,
+    updateAnimal: animalMocks.updateAnimal,
+    archiveAnimal: animalMocks.archiveAnimal,
+  };
+});
 
 const authenticatedSession = {
   session: {
@@ -86,6 +107,35 @@ const personnel = [
   },
 ];
 
+const animals = [
+  {
+    id: 'animal-1',
+    name: 'Amara',
+    species: 'African elephant',
+    sex: 'female' as const,
+    dateOfBirth: new Date('2004-05-12T00:00:00Z'),
+    arrivalDate: new Date('2018-03-20T00:00:00Z'),
+    currentLocation: 'Savanna Habitat',
+    notes: 'Enjoys fruit enrichment.',
+    createdAt: new Date('2026-01-01T00:00:00Z'),
+    updatedAt: new Date('2026-01-01T00:00:00Z'),
+    archivedAt: null,
+  },
+  {
+    id: 'animal-2',
+    name: 'Bruno',
+    species: 'Spectacled bear',
+    sex: 'male' as const,
+    dateOfBirth: null,
+    arrivalDate: null,
+    currentLocation: 'Andean Forest',
+    notes: null,
+    createdAt: new Date('2026-01-02T00:00:00Z'),
+    updatedAt: new Date('2026-01-02T00:00:00Z'),
+    archivedAt: null,
+  },
+];
+
 function renderApp(initialPath = '/') {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -123,6 +173,24 @@ describe('App authentication', () => {
         updatedAt: new Date(),
       }),
     );
+    animalMocks.listAnimals.mockResolvedValue(animals);
+    animalMocks.getAnimal.mockResolvedValue(animals[0]);
+    animalMocks.createAnimal.mockImplementation((input) =>
+      Promise.resolve({
+        id: 'animal-3',
+        ...input,
+        dateOfBirth: null,
+        arrivalDate: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        archivedAt: null,
+      }),
+    );
+    animalMocks.updateAnimal.mockResolvedValue(animals[0]);
+    animalMocks.archiveAnimal.mockResolvedValue({
+      ...animals[0],
+      archivedAt: new Date(),
+    });
   });
 
   afterEach(() => {
@@ -342,5 +410,195 @@ describe('App authentication', () => {
       role: 'keeper',
       password: 'mina-password-123',
     });
+  });
+
+  it('lets a keeper browse and search animals without admin controls', async () => {
+    currentUserMocks.getCurrentUser.mockResolvedValue({
+      id: 'keeper-1',
+      name: 'Kira Keeper',
+      email: 'kira@example.com',
+      role: 'keeper',
+    });
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+
+    renderApp('/animals');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Animals' }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText('Amara')).toBeInTheDocument();
+    expect(screen.getByText('Bruno')).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', {
+        name: 'Representative illustration of African elephant',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Add animal' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Registry status')).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Name or species'), {
+      target: { value: 'elephant' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+
+    expect(animalMocks.listAnimals).toHaveBeenLastCalledWith({
+      search: 'elephant',
+      status: 'active',
+    });
+  });
+
+  it('shows useful empty and archived-directory states', async () => {
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+    animalMocks.listAnimals.mockResolvedValue([]);
+    renderApp('/animals');
+
+    expect(
+      await screen.findByText('There are no active animals yet.'),
+    ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Registry status'), {
+      target: { value: 'archived' },
+    });
+    expect(
+      await screen.findByText('There are no archived animals.'),
+    ).toBeInTheDocument();
+    expect(animalMocks.listAnimals).toHaveBeenLastCalledWith({
+      search: '',
+      status: 'archived',
+    });
+  });
+
+  it('shows a recoverable animal-directory failure', async () => {
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+    animalMocks.listAnimals.mockRejectedValue(
+      new Error('Unable to load animals'),
+    );
+    renderApp('/animals');
+
+    expect(
+      await screen.findByText('Unable to load animals'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Try again' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows an animal profile without administration controls to a keeper', async () => {
+    currentUserMocks.getCurrentUser.mockResolvedValue({
+      id: 'keeper-1',
+      name: 'Kira Keeper',
+      email: 'kira@example.com',
+      role: 'keeper',
+    });
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+
+    renderApp('/animals/animal-1');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Amara' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Savanna Habitat')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Edit' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Archive' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('lets an administrator create an animal', async () => {
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+    renderApp('/animals/new');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Add animal' }),
+    ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Name'), {
+      target: { value: 'Nilo' },
+    });
+    fireEvent.change(screen.getByLabelText('Species'), {
+      target: { value: 'Capybara' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create animal' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Nilo' }),
+    ).toBeInTheDocument();
+    expect(animalMocks.createAnimal).toHaveBeenCalledWith({
+      name: 'Nilo',
+      species: 'Capybara',
+      sex: null,
+      dateOfBirth: null,
+      arrivalDate: null,
+      currentLocation: null,
+      notes: null,
+    });
+  });
+
+  it('lets an administrator edit an active animal', async () => {
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+    animalMocks.updateAnimal.mockImplementation((_id, input) =>
+      Promise.resolve({
+        ...animals[0],
+        ...input,
+        dateOfBirth: animals[0].dateOfBirth,
+        arrivalDate: animals[0].arrivalDate,
+      }),
+    );
+    renderApp('/animals/animal-1/edit');
+
+    expect(
+      await screen.findByRole('heading', { name: 'Edit animal' }),
+    ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Current location'), {
+      target: { value: 'North Savanna' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Amara' }),
+    ).toBeInTheDocument();
+    expect(animalMocks.updateAnimal).toHaveBeenCalledWith(
+      'animal-1',
+      expect.objectContaining({ currentLocation: 'North Savanna' }),
+    );
+  });
+
+  it('requires confirmation before an administrator archives an animal', async () => {
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+    renderApp('/animals/animal-1');
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Archive' }));
+    expect(
+      screen.getByRole('heading', { name: 'Archive Amara?' }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Archive animal' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Animals' }),
+    ).toBeInTheDocument();
+    expect(animalMocks.archiveAnimal).toHaveBeenCalledWith('animal-1');
   });
 });

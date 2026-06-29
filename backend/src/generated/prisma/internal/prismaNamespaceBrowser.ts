@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  Animal: 'Animal',
   User: 'User',
   Session: 'Session',
   Account: 'Account',
@@ -71,6 +72,23 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const AnimalScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  species: 'species',
+  sex: 'sex',
+  dateOfBirth: 'dateOfBirth',
+  arrivalDate: 'arrivalDate',
+  currentLocation: 'currentLocation',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type AnimalScalarFieldEnum = (typeof AnimalScalarFieldEnum)[keyof typeof AnimalScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

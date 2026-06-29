@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  Animal: 'Animal',
   User: 'User',
   Session: 'Session',
   Account: 'Account',
@@ -403,10 +404,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification"
+    modelProps: "animal" | "user" | "session" | "account" | "verification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    Animal: {
+      payload: Prisma.$AnimalPayload<ExtArgs>
+      fields: Prisma.AnimalFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AnimalFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AnimalFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload>
+        }
+        findFirst: {
+          args: Prisma.AnimalFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AnimalFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload>
+        }
+        findMany: {
+          args: Prisma.AnimalFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload>[]
+        }
+        create: {
+          args: Prisma.AnimalCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload>
+        }
+        createMany: {
+          args: Prisma.AnimalCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AnimalCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload>[]
+        }
+        delete: {
+          args: Prisma.AnimalDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload>
+        }
+        update: {
+          args: Prisma.AnimalUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload>
+        }
+        deleteMany: {
+          args: Prisma.AnimalDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AnimalUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AnimalUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload>[]
+        }
+        upsert: {
+          args: Prisma.AnimalUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnimalPayload>
+        }
+        aggregate: {
+          args: Prisma.AnimalAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnimal>
+        }
+        groupBy: {
+          args: Prisma.AnimalGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnimalGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AnimalCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnimalCountAggregateOutputType> | number
+        }
+      }
+    }
     User: {
       payload: Prisma.$UserPayload<ExtArgs>
       fields: Prisma.UserFieldRefs
@@ -742,6 +817,23 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const AnimalScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  species: 'species',
+  sex: 'sex',
+  dateOfBirth: 'dateOfBirth',
+  arrivalDate: 'arrivalDate',
+  currentLocation: 'currentLocation',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type AnimalScalarFieldEnum = (typeof AnimalScalarFieldEnum)[keyof typeof AnimalScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -850,9 +942,16 @@ export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMod
 
 
 /**
- * Reference to a field of type 'Boolean'
+ * Reference to a field of type 'AnimalSex'
  */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+export type EnumAnimalSexFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnimalSex'>
+    
+
+
+/**
+ * Reference to a field of type 'AnimalSex[]'
+ */
+export type ListEnumAnimalSexFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnimalSex[]'>
     
 
 
@@ -867,6 +966,13 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -993,6 +1099,7 @@ export type PrismaClientOptions = ({
   queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
+  animal?: Prisma.AnimalOmit
   user?: Prisma.UserOmit
   session?: Prisma.SessionOmit
   account?: Prisma.AccountOmit

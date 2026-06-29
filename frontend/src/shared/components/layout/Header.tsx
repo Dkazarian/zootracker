@@ -21,6 +21,7 @@ function Header({ userName, userRole, onSignOut }: HeaderProps) {
       </Link>
       <nav className="site-navigation" aria-label="Primary navigation">
         <Link to="/">Home</Link>
+        <Link to="/animals">Animals</Link>
         {userRole === 'admin' && <Link to="/personnel">Personnel</Link>}
       </nav>
       <div className="account-actions">

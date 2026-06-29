@@ -9,7 +9,7 @@ function AdminRoute() {
       <main className="forbidden-state">
         <p className="eyebrow">Access restricted</p>
         <h1>Administrator access required.</h1>
-        <p>Your keeper account does not have permission to manage personnel.</p>
+        <p>Your keeper account does not have permission to manage this area.</p>
       </main>
     );
   }

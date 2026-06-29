@@ -9,7 +9,10 @@
 * 🟢 You can import this file directly.
 */
 
+export const AnimalSex = {
+  female: 'female',
+  male: 'male',
+  unknown: 'unknown'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type AnimalSex = (typeof AnimalSex)[keyof typeof AnimalSex]

@@ -43,6 +43,14 @@ npm run prisma:migrate:deploy
 
 For schema changes during development, use `npm run prisma:migrate -- --name descriptive-name`.
 
+Load the fictional development animals after applying migrations:
+
+```powershell
+npm run prisma:seed
+```
+
+The animal seed uses stable identifiers and upserts, so it is safe to rerun.
+
 Create the initial administrator after applying the migration:
 
 ```powershell
@@ -91,6 +99,21 @@ authentication. Later feature modules should use the same decorator for
 role-specific API operations. Hiding a navigation item in React is never a
 substitute for the backend check.
 
+## Animal registry
+
+Every authenticated person can browse, search, and view active animals at
+`http://localhost:5173/animals`. Administrators can also create and update
+profiles, archive animals, and review the archived registry.
+
+An animal stores a stable identifier, name, species, optional sex, optional
+birth and arrival dates, optional current location and notes, timestamps, and
+an optional archive timestamp. Names are not unique. Species and current
+location are plain text in this phase.
+
+Archiving removes an animal from active results without deleting its record.
+Archived profiles remain read-only and visible only to administrators. There
+is no restore or permanent-delete endpoint.
+
 ## Authentication tests
 
 Normal `npm test` runs unit, component, route-protection, and non-database endpoint tests.
@@ -108,11 +131,12 @@ $env:DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/zootracker
 npm run prisma:migrate:deploy
 npm run test:auth:e2e
 npm run test:personnel:e2e
+npm run test:animals:e2e
 Remove-Item Env:DATABASE_URL
 ```
 
-The database-backed suites delete only their own fixed test accounts. GitHub
-Actions provisions an isolated PostgreSQL service and runs them automatically.
+The database-backed suites delete only their own test records. GitHub Actions
+provisions an isolated PostgreSQL service and runs them automatically.
 
 ## Verify
 
