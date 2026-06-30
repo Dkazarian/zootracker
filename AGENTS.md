@@ -3,7 +3,7 @@
 ## Source of truth
 
 - Read `specs/mission.md`, `specs/tech-stack.md`, and `specs/roadmap.md` before planning product work.
-- Each roadmap phase receives a dated directory under `specs/` containing `requirements.md`, `plan.md`, and `validation.md`.
+- Each new roadmap phase receives a dated directory under `specs/` containing `requirements.md`, `scope.md`, `plan.md`, and `validation.md`.
 - Agree on feature scope, decisions/context, and validation before writing a new feature specification.
 - Agree on the specification before implementation.
 - Add `✅` to a plan step only after that step is genuinely complete. Leave blocked or partially validated steps unchecked.
@@ -20,6 +20,16 @@
 - Keep Prisma schema and migrations under `backend/prisma/`.
 - Do not hand-edit files under `backend/src/generated/prisma/`.
 - Colocate focused unit/component tests with their source. Keep backend HTTP integration tests under `backend/test/`.
+
+## Context efficiency
+
+- Treat `.codexignore` as the default exclusion list for repository discovery and broad scans.
+- Do not inspect ignored dependencies, generated code, build outputs, or binary assets unless the active task specifically requires them.
+- Before implementing a phase, create and agree on its `scope.md`.
+- Use `scope.md` to define the initial context boundary: the active specification files, relevant frontend and backend feature folders, focused tests, and any required schema or shared infrastructure.
+- Begin discovery and implementation inside that boundary. Expand it only when requirements, imports, test failures, or other concrete evidence indicate another area is involved.
+- Record material scope expansions and their reason in `scope.md` so the context boundary remains reviewable.
+- Ignored files may still be read explicitly when needed, such as lockfiles during dependency work or generated output while diagnosing generation problems.
 
 ## Development rules
 
