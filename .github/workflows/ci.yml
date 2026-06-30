@@ -26,6 +26,7 @@ jobs:
       BETTER_AUTH_SECRET: github-actions-test-secret-that-is-at-least-32-characters
       BETTER_AUTH_URL: http://localhost:3000
       FRONTEND_URL: http://localhost:5173
+      ZOO_TIME_ZONE: America/Argentina/Buenos_Aires
       RUN_DATABASE_TESTS: 'true'
 
     steps:

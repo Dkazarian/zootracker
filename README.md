@@ -32,7 +32,10 @@ Copy the backend environment example and replace its placeholders:
 Copy-Item backend/.env.example backend/.env
 ```
 
-Set `DATABASE_URL` to the `zootracker` database and set a private `BETTER_AUTH_SECRET` containing at least 32 characters. The real `.env` file is ignored by Git.
+Set `DATABASE_URL` to the `zootracker` database and set a private
+`BETTER_AUTH_SECRET` containing at least 32 characters. `ZOO_TIME_ZONE`
+controls feeding-plan due calculations and defaults to
+`America/Argentina/Buenos_Aires`. The real `.env` file is ignored by Git.
 
 Generate Prisma Client and apply committed migrations:
 
@@ -114,6 +117,22 @@ Archiving removes an animal from active results without deleting its record.
 Archived profiles remain read-only and visible only to administrators. There
 is no restore or permanent-delete endpoint.
 
+## Feeding plans
+
+Authenticated personnel can view an animal's active feeding plans on its
+profile. Both keepers and administrators can create, update, and archive plans.
+
+Each plan has a short name, natural-language instructions, a morning,
+afternoon, or evening period, a positive repeat-every-N-days value, and a
+date-only next-due value. Periods begin at 06:00, 12:00, and 18:00 respectively
+in `ZOO_TIME_ZONE`. A plan is upcoming before its date-and-period boundary and
+remains due afterward.
+
+Plans are archived rather than deleted. An archived animal keeps its plans, and
+administrators can still review the active plans attached to its read-only
+profile. Feeding records, claims, assignments, and automatic advancement of the
+next-due date belong to later phases.
+
 ## Authentication tests
 
 Normal `npm test` runs unit, component, route-protection, and non-database endpoint tests.
@@ -132,6 +151,7 @@ npm run prisma:migrate:deploy
 npm run test:auth:e2e
 npm run test:personnel:e2e
 npm run test:animals:e2e
+npm run test:feeding-plans:e2e
 Remove-Item Env:DATABASE_URL
 ```
 

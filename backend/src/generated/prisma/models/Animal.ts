@@ -230,6 +230,7 @@ export type AnimalWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Animal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Animal"> | Date | string
   archivedAt?: Prisma.DateTimeNullableFilter<"Animal"> | Date | string | null
+  feedingPlans?: Prisma.FeedingPlanListRelationFilter
 }
 
 export type AnimalOrderByWithRelationInput = {
@@ -244,6 +245,7 @@ export type AnimalOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  feedingPlans?: Prisma.FeedingPlanOrderByRelationAggregateInput
 }
 
 export type AnimalWhereUniqueInput = Prisma.AtLeast<{
@@ -261,6 +263,7 @@ export type AnimalWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Animal"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Animal"> | Date | string
   archivedAt?: Prisma.DateTimeNullableFilter<"Animal"> | Date | string | null
+  feedingPlans?: Prisma.FeedingPlanListRelationFilter
 }, "id">
 
 export type AnimalOrderByWithAggregationInput = {
@@ -309,6 +312,7 @@ export type AnimalCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  feedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutAnimalInput
 }
 
 export type AnimalUncheckedCreateInput = {
@@ -323,6 +327,7 @@ export type AnimalUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   archivedAt?: Date | string | null
+  feedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutAnimalInput
 }
 
 export type AnimalUpdateInput = {
@@ -337,6 +342,7 @@ export type AnimalUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  feedingPlans?: Prisma.FeedingPlanUpdateManyWithoutAnimalNestedInput
 }
 
 export type AnimalUncheckedUpdateInput = {
@@ -351,6 +357,7 @@ export type AnimalUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  feedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutAnimalNestedInput
 }
 
 export type AnimalCreateManyInput = {
@@ -437,6 +444,11 @@ export type AnimalMinOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
 }
 
+export type AnimalScalarRelationFilter = {
+  is?: Prisma.AnimalWhereInput
+  isNot?: Prisma.AnimalWhereInput
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -457,6 +469,121 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type AnimalCreateNestedOneWithoutFeedingPlansInput = {
+  create?: Prisma.XOR<Prisma.AnimalCreateWithoutFeedingPlansInput, Prisma.AnimalUncheckedCreateWithoutFeedingPlansInput>
+  connectOrCreate?: Prisma.AnimalCreateOrConnectWithoutFeedingPlansInput
+  connect?: Prisma.AnimalWhereUniqueInput
+}
+
+export type AnimalUpdateOneRequiredWithoutFeedingPlansNestedInput = {
+  create?: Prisma.XOR<Prisma.AnimalCreateWithoutFeedingPlansInput, Prisma.AnimalUncheckedCreateWithoutFeedingPlansInput>
+  connectOrCreate?: Prisma.AnimalCreateOrConnectWithoutFeedingPlansInput
+  upsert?: Prisma.AnimalUpsertWithoutFeedingPlansInput
+  connect?: Prisma.AnimalWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AnimalUpdateToOneWithWhereWithoutFeedingPlansInput, Prisma.AnimalUpdateWithoutFeedingPlansInput>, Prisma.AnimalUncheckedUpdateWithoutFeedingPlansInput>
+}
+
+export type AnimalCreateWithoutFeedingPlansInput = {
+  id?: string
+  name: string
+  species: string
+  sex?: $Enums.AnimalSex | null
+  dateOfBirth?: Date | string | null
+  arrivalDate?: Date | string | null
+  currentLocation?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+}
+
+export type AnimalUncheckedCreateWithoutFeedingPlansInput = {
+  id?: string
+  name: string
+  species: string
+  sex?: $Enums.AnimalSex | null
+  dateOfBirth?: Date | string | null
+  arrivalDate?: Date | string | null
+  currentLocation?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  archivedAt?: Date | string | null
+}
+
+export type AnimalCreateOrConnectWithoutFeedingPlansInput = {
+  where: Prisma.AnimalWhereUniqueInput
+  create: Prisma.XOR<Prisma.AnimalCreateWithoutFeedingPlansInput, Prisma.AnimalUncheckedCreateWithoutFeedingPlansInput>
+}
+
+export type AnimalUpsertWithoutFeedingPlansInput = {
+  update: Prisma.XOR<Prisma.AnimalUpdateWithoutFeedingPlansInput, Prisma.AnimalUncheckedUpdateWithoutFeedingPlansInput>
+  create: Prisma.XOR<Prisma.AnimalCreateWithoutFeedingPlansInput, Prisma.AnimalUncheckedCreateWithoutFeedingPlansInput>
+  where?: Prisma.AnimalWhereInput
+}
+
+export type AnimalUpdateToOneWithWhereWithoutFeedingPlansInput = {
+  where?: Prisma.AnimalWhereInput
+  data: Prisma.XOR<Prisma.AnimalUpdateWithoutFeedingPlansInput, Prisma.AnimalUncheckedUpdateWithoutFeedingPlansInput>
+}
+
+export type AnimalUpdateWithoutFeedingPlansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.StringFieldUpdateOperationsInput | string
+  sex?: Prisma.NullableEnumAnimalSexFieldUpdateOperationsInput | $Enums.AnimalSex | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type AnimalUncheckedUpdateWithoutFeedingPlansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.StringFieldUpdateOperationsInput | string
+  sex?: Prisma.NullableEnumAnimalSexFieldUpdateOperationsInput | $Enums.AnimalSex | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  arrivalDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+
+/**
+ * Count Type AnimalCountOutputType
+ */
+
+export type AnimalCountOutputType = {
+  feedingPlans: number
+}
+
+export type AnimalCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  feedingPlans?: boolean | AnimalCountOutputTypeCountFeedingPlansArgs
+}
+
+/**
+ * AnimalCountOutputType without action
+ */
+export type AnimalCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AnimalCountOutputType
+   */
+  select?: Prisma.AnimalCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AnimalCountOutputType without action
+ */
+export type AnimalCountOutputTypeCountFeedingPlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FeedingPlanWhereInput
+}
 
 
 export type AnimalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -471,6 +598,8 @@ export type AnimalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   createdAt?: boolean
   updatedAt?: boolean
   archivedAt?: boolean
+  feedingPlans?: boolean | Prisma.Animal$feedingPlansArgs<ExtArgs>
+  _count?: boolean | Prisma.AnimalCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["animal"]>
 
 export type AnimalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -516,10 +645,18 @@ export type AnimalSelectScalar = {
 }
 
 export type AnimalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "species" | "sex" | "dateOfBirth" | "arrivalDate" | "currentLocation" | "notes" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["animal"]>
+export type AnimalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  feedingPlans?: boolean | Prisma.Animal$feedingPlansArgs<ExtArgs>
+  _count?: boolean | Prisma.AnimalCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type AnimalIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type AnimalIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $AnimalPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Animal"
-  objects: {}
+  objects: {
+    feedingPlans: Prisma.$FeedingPlanPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
@@ -926,6 +1063,7 @@ readonly fields: AnimalFieldRefs;
  */
 export interface Prisma__AnimalClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  feedingPlans<T extends Prisma.Animal$feedingPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Animal$feedingPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedingPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -983,6 +1121,10 @@ export type AnimalFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.AnimalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnimalInclude<ExtArgs> | null
+  /**
    * Filter, which Animal to fetch.
    */
   where: Prisma.AnimalWhereUniqueInput
@@ -1001,6 +1143,10 @@ export type AnimalFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.AnimalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnimalInclude<ExtArgs> | null
+  /**
    * Filter, which Animal to fetch.
    */
   where: Prisma.AnimalWhereUniqueInput
@@ -1018,6 +1164,10 @@ export type AnimalFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Animal
    */
   omit?: Prisma.AnimalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnimalInclude<ExtArgs> | null
   /**
    * Filter, which Animal to fetch.
    */
@@ -1067,6 +1217,10 @@ export type AnimalFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.AnimalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnimalInclude<ExtArgs> | null
+  /**
    * Filter, which Animal to fetch.
    */
   where?: Prisma.AnimalWhereInput
@@ -1114,6 +1268,10 @@ export type AnimalFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Animal
    */
   omit?: Prisma.AnimalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnimalInclude<ExtArgs> | null
   /**
    * Filter, which Animals to fetch.
    */
@@ -1163,6 +1321,10 @@ export type AnimalCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.AnimalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnimalInclude<ExtArgs> | null
+  /**
    * The data needed to create a Animal.
    */
   data: Prisma.XOR<Prisma.AnimalCreateInput, Prisma.AnimalUncheckedCreateInput>
@@ -1210,6 +1372,10 @@ export type AnimalUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Animal
    */
   omit?: Prisma.AnimalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnimalInclude<ExtArgs> | null
   /**
    * The data needed to update a Animal.
    */
@@ -1277,6 +1443,10 @@ export type AnimalUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.AnimalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnimalInclude<ExtArgs> | null
+  /**
    * The filter to search for the Animal to update in case it exists.
    */
   where: Prisma.AnimalWhereUniqueInput
@@ -1303,6 +1473,10 @@ export type AnimalDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.AnimalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnimalInclude<ExtArgs> | null
+  /**
    * Filter which Animal to delete.
    */
   where: Prisma.AnimalWhereUniqueInput
@@ -1323,6 +1497,30 @@ export type AnimalDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
+ * Animal.feedingPlans
+ */
+export type Animal$feedingPlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FeedingPlan
+   */
+  select?: Prisma.FeedingPlanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FeedingPlan
+   */
+  omit?: Prisma.FeedingPlanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeedingPlanInclude<ExtArgs> | null
+  where?: Prisma.FeedingPlanWhereInput
+  orderBy?: Prisma.FeedingPlanOrderByWithRelationInput | Prisma.FeedingPlanOrderByWithRelationInput[]
+  cursor?: Prisma.FeedingPlanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FeedingPlanScalarFieldEnum | Prisma.FeedingPlanScalarFieldEnum[]
+}
+
+/**
  * Animal without action
  */
 export type AnimalDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1334,4 +1532,8 @@ export type AnimalDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Animal
    */
   omit?: Prisma.AnimalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnimalInclude<ExtArgs> | null
 }

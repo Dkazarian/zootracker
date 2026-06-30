@@ -28,6 +28,11 @@ export type Animal = Prisma.AnimalModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model FeedingPlan
+ * 
+ */
+export type FeedingPlan = Prisma.FeedingPlanModel
+/**
  * Model Session
  * 
  */

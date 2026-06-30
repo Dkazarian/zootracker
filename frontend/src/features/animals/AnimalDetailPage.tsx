@@ -7,6 +7,7 @@ import {
   useParams,
 } from 'react-router-dom';
 import type { AuthenticatedOutletContext } from '../auth/AuthenticatedLayout';
+import FeedingPlansSection from '../feeding-plans/FeedingPlansSection';
 import { animalQueryKey, archiveAnimal, getAnimal } from './animal-api';
 import { formatAnimalDate, formatAnimalSex } from './animal-format';
 import SpeciesIllustration from './SpeciesIllustration';
@@ -159,6 +160,12 @@ function AnimalDetailPage() {
           <dd>{animal.notes ?? 'No notes recorded.'}</dd>
         </div>
       </dl>
+
+      <FeedingPlansSection
+        animalId={animal.id}
+        animalArchived={Boolean(animal.archivedAt)}
+        currentUserRole={currentUser.role}
+      />
     </main>
   );
 }

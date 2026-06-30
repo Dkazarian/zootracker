@@ -36,35 +36,54 @@ Every phase receives its own `requirements.md`, `plan.md`, and `validation.md` b
 - Allow administrators to create, update, and archive animal profiles.
 - Preserve archived animal history.
 
-## Phase 5 - Feeding History
+## Phase 5 - Feeding Plans
 
-- Add feeding records linked to animals and keepers.
+- Allow keepers to create and maintain an animal's feeding plan.
+- Define natural-language feeding instructions, a morning, afternoon, or
+  evening period, and a repeat-every-N-days schedule.
+- Track when each active plan is next due.
+- Show upcoming and due feeding needs without assigning them to a particular
+  keeper.
+
+## Phase 6 - Feeding History
+
+- Add feeding records linked to a feeding plan, animal, and keeper.
+- Copy the plan instructions into each completed record so later plan changes
+  do not alter history.
 - Show an animal's feeding history in chronological order.
-- Allow keepers to record and correct feedings.
+- Allow keepers to record and correct planned feedings.
 - Preserve creation and last-modification accountability.
+- Link completed feeding records to plans and advance the next due time.
 
-## Phase 6 - Weight History
+## Phase 7 - Shared Feeding Queue and Claims
+
+- Let keepers request the next available feeding needs from a shared queue.
+- Preview the next three needs without claiming all of them.
+- Allow a keeper to claim one feeding atomically so two people cannot take the
+  same work.
+- Allow claims to be released, expire after a global timeout, or be completed
+  by recording the feeding.
+- Preserve claim history for operational review.
+
+## Phase 8 - Role-Aware Dashboards
+
+- Replace the generic signed-in home with a dashboard suited to the user's
+  role.
+- Give keepers a feeding board with due work, active claims, and recent
+  completions.
+- Give administrators a concise operational overview of animals, personnel,
+  species, locations, and feeding activity.
+- Keep dashboards as views over existing workflows rather than introducing new
+  business rules.
+
+## Phase 9 - Weight History
 
 - Add weight records linked to animals and keepers.
 - Show an animal's chronological weight history.
 - Allow keepers to record and correct measurements.
 - Establish consistent units and validation rules.
 
-## Phase 7 - Feeding Plans
-
-- Allow keepers to create and maintain an animal's feeding plan.
-- Define recurring feeding expectations.
-- Assign feeding responsibility to a keeper.
-- Produce upcoming, due, and overdue feeding occurrences.
-
-## Phase 8 - My Feeding Work
-
-- Give each keeper a personalized list of animals they should feed.
-- Allow filtering by upcoming, due, overdue, and completed work.
-- Record a feeding directly from the personalized list.
-- Make the feeding record satisfy the related scheduled occurrence without a separate completion action.
-
-## Phase 9 - Integration-Ready API
+## Phase 10 - Integration-Ready API
 
 - Review the REST API as a stable interface for external clients.
 - Complete OpenAPI documentation and consistent error responses.
@@ -72,24 +91,28 @@ Every phase receives its own `requirements.md`, `plan.md`, and `validation.md` b
 - Add idempotency support for feeding-record requests that may be retried.
 - Verify that API and UI operations follow the same business rules.
 
-**Core MVP milestone:** At this point Zootracker supports authenticated personnel, animal management, feeding plans, assigned feeding work, feeding and weight records, and external API access.
+**Core MVP milestone:** At this point Zootracker supports authenticated
+personnel, animal management, feeding history, feeding plans, shared feeding
+work with temporary claims, role-aware dashboards, weight history, and external
+API access.
 
-## Phase 10 - Trends and Operational Summaries
+## Phase 11 - Trends and Operational Summaries
 
 - Visualize weight changes over time for an animal.
 - Summarize feeding activity over a selected period.
-- Show operational counts such as due, overdue, and completed feedings.
+- Show operational counts such as due and completed feedings, including how
+  long work has been due.
 - Add useful filters and CSV export where appropriate.
 - Present observations without veterinary diagnosis or prediction.
 
-## Phase 11 - Responsive and Accessible Experience
+## Phase 12 - Responsive and Accessible Experience
 
 - Refine the visual design and shared component patterns.
 - Support desktop and mobile layouts.
 - Review semantic structure, keyboard navigation, focus behavior, forms, and charts.
 - Add clear loading, empty, success, and error states.
 
-## Phase 12 - Production Readiness
+## Phase 13 - Production Readiness
 
 - Add structured logging, request identifiers, and health checks.
 - Review authentication, authorization, validation, rate limiting, and secure configuration.
@@ -104,6 +127,7 @@ Every phase receives its own `requirements.md`, `plan.md`, and `validation.md` b
 These are intentionally outside the current roadmap and require a future roadmap revision:
 
 - WhatsApp or other messaging integrations
+- Permanent assignment of feeding work to particular keepers
 - Notifications and reminders
 - Food inventory and purchasing
 - Veterinary and medical records

@@ -232,6 +232,8 @@ export type UserWhereInput = {
   banExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   sessions?: Prisma.SessionListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
+  createdFeedingPlans?: Prisma.FeedingPlanListRelationFilter
+  modifiedFeedingPlans?: Prisma.FeedingPlanListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -248,6 +250,8 @@ export type UserOrderByWithRelationInput = {
   banExpires?: Prisma.SortOrderInput | Prisma.SortOrder
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   accounts?: Prisma.AccountOrderByRelationAggregateInput
+  createdFeedingPlans?: Prisma.FeedingPlanOrderByRelationAggregateInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -267,6 +271,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   banExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   sessions?: Prisma.SessionListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
+  createdFeedingPlans?: Prisma.FeedingPlanListRelationFilter
+  modifiedFeedingPlans?: Prisma.FeedingPlanListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -317,6 +323,8 @@ export type UserCreateInput = {
   banExpires?: Date | string | null
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -333,6 +341,8 @@ export type UserUncheckedCreateInput = {
   banExpires?: Date | string | null
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
 }
 
 export type UserUpdateInput = {
@@ -349,6 +359,8 @@ export type UserUpdateInput = {
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -365,6 +377,8 @@ export type UserUncheckedUpdateInput = {
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -464,6 +478,34 @@ export type NullableBoolFieldUpdateOperationsInput = {
   set?: boolean | null
 }
 
+export type UserCreateNestedOneWithoutCreatedFeedingPlansInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedFeedingPlansInput, Prisma.UserUncheckedCreateWithoutCreatedFeedingPlansInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedFeedingPlansInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutModifiedFeedingPlansInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutModifiedFeedingPlansInput, Prisma.UserUncheckedCreateWithoutModifiedFeedingPlansInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutModifiedFeedingPlansInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCreatedFeedingPlansNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedFeedingPlansInput, Prisma.UserUncheckedCreateWithoutCreatedFeedingPlansInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedFeedingPlansInput
+  upsert?: Prisma.UserUpsertWithoutCreatedFeedingPlansInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedFeedingPlansInput, Prisma.UserUpdateWithoutCreatedFeedingPlansInput>, Prisma.UserUncheckedUpdateWithoutCreatedFeedingPlansInput>
+}
+
+export type UserUpdateOneRequiredWithoutModifiedFeedingPlansNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutModifiedFeedingPlansInput, Prisma.UserUncheckedCreateWithoutModifiedFeedingPlansInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutModifiedFeedingPlansInput
+  upsert?: Prisma.UserUpsertWithoutModifiedFeedingPlansInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutModifiedFeedingPlansInput, Prisma.UserUpdateWithoutModifiedFeedingPlansInput>, Prisma.UserUncheckedUpdateWithoutModifiedFeedingPlansInput>
+}
+
 export type UserCreateNestedOneWithoutSessionsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutSessionsInput, Prisma.UserUncheckedCreateWithoutSessionsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSessionsInput
@@ -492,6 +534,174 @@ export type UserUpdateOneRequiredWithoutAccountsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAccountsInput, Prisma.UserUpdateWithoutAccountsInput>, Prisma.UserUncheckedUpdateWithoutAccountsInput>
 }
 
+export type UserCreateWithoutCreatedFeedingPlansInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role?: string
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
+}
+
+export type UserUncheckedCreateWithoutCreatedFeedingPlansInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role?: string
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
+}
+
+export type UserCreateOrConnectWithoutCreatedFeedingPlansInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedFeedingPlansInput, Prisma.UserUncheckedCreateWithoutCreatedFeedingPlansInput>
+}
+
+export type UserCreateWithoutModifiedFeedingPlansInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role?: string
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutModifiedFeedingPlansInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role?: string
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutModifiedFeedingPlansInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutModifiedFeedingPlansInput, Prisma.UserUncheckedCreateWithoutModifiedFeedingPlansInput>
+}
+
+export type UserUpsertWithoutCreatedFeedingPlansInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedFeedingPlansInput, Prisma.UserUncheckedUpdateWithoutCreatedFeedingPlansInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedFeedingPlansInput, Prisma.UserUncheckedCreateWithoutCreatedFeedingPlansInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedFeedingPlansInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedFeedingPlansInput, Prisma.UserUncheckedUpdateWithoutCreatedFeedingPlansInput>
+}
+
+export type UserUpdateWithoutCreatedFeedingPlansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedFeedingPlansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
+}
+
+export type UserUpsertWithoutModifiedFeedingPlansInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutModifiedFeedingPlansInput, Prisma.UserUncheckedUpdateWithoutModifiedFeedingPlansInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutModifiedFeedingPlansInput, Prisma.UserUncheckedCreateWithoutModifiedFeedingPlansInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutModifiedFeedingPlansInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutModifiedFeedingPlansInput, Prisma.UserUncheckedUpdateWithoutModifiedFeedingPlansInput>
+}
+
+export type UserUpdateWithoutModifiedFeedingPlansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutModifiedFeedingPlansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
 export type UserCreateWithoutSessionsInput = {
   id: string
   name: string
@@ -505,6 +715,8 @@ export type UserCreateWithoutSessionsInput = {
   banReason?: string | null
   banExpires?: Date | string | null
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -520,6 +732,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   banReason?: string | null
   banExpires?: Date | string | null
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -551,6 +765,8 @@ export type UserUpdateWithoutSessionsInput = {
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -566,6 +782,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -581,6 +799,8 @@ export type UserCreateWithoutAccountsInput = {
   banReason?: string | null
   banExpires?: Date | string | null
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -596,6 +816,8 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   banReason?: string | null
   banExpires?: Date | string | null
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -627,6 +849,8 @@ export type UserUpdateWithoutAccountsInput = {
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -642,6 +866,8 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
 }
 
 
@@ -652,11 +878,15 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
 export type UserCountOutputType = {
   sessions: number
   accounts: number
+  createdFeedingPlans: number
+  modifiedFeedingPlans: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
+  createdFeedingPlans?: boolean | UserCountOutputTypeCountCreatedFeedingPlansArgs
+  modifiedFeedingPlans?: boolean | UserCountOutputTypeCountModifiedFeedingPlansArgs
 }
 
 /**
@@ -683,6 +913,20 @@ export type UserCountOutputTypeCountAccountsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.AccountWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedFeedingPlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FeedingPlanWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountModifiedFeedingPlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FeedingPlanWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -698,6 +942,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   banExpires?: boolean
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
+  createdFeedingPlans?: boolean | Prisma.User$createdFeedingPlansArgs<ExtArgs>
+  modifiedFeedingPlans?: boolean | Prisma.User$modifiedFeedingPlansArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -747,6 +993,8 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
+  createdFeedingPlans?: boolean | Prisma.User$createdFeedingPlansArgs<ExtArgs>
+  modifiedFeedingPlans?: boolean | Prisma.User$modifiedFeedingPlansArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -757,6 +1005,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     sessions: Prisma.$SessionPayload<ExtArgs>[]
     accounts: Prisma.$AccountPayload<ExtArgs>[]
+    createdFeedingPlans: Prisma.$FeedingPlanPayload<ExtArgs>[]
+    modifiedFeedingPlans: Prisma.$FeedingPlanPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1166,6 +1416,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdFeedingPlans<T extends Prisma.User$createdFeedingPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdFeedingPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedingPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  modifiedFeedingPlans<T extends Prisma.User$modifiedFeedingPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$modifiedFeedingPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedingPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1644,6 +1896,54 @@ export type User$accountsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.AccountScalarFieldEnum | Prisma.AccountScalarFieldEnum[]
+}
+
+/**
+ * User.createdFeedingPlans
+ */
+export type User$createdFeedingPlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FeedingPlan
+   */
+  select?: Prisma.FeedingPlanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FeedingPlan
+   */
+  omit?: Prisma.FeedingPlanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeedingPlanInclude<ExtArgs> | null
+  where?: Prisma.FeedingPlanWhereInput
+  orderBy?: Prisma.FeedingPlanOrderByWithRelationInput | Prisma.FeedingPlanOrderByWithRelationInput[]
+  cursor?: Prisma.FeedingPlanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FeedingPlanScalarFieldEnum | Prisma.FeedingPlanScalarFieldEnum[]
+}
+
+/**
+ * User.modifiedFeedingPlans
+ */
+export type User$modifiedFeedingPlansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FeedingPlan
+   */
+  select?: Prisma.FeedingPlanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FeedingPlan
+   */
+  omit?: Prisma.FeedingPlanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeedingPlanInclude<ExtArgs> | null
+  where?: Prisma.FeedingPlanWhereInput
+  orderBy?: Prisma.FeedingPlanOrderByWithRelationInput | Prisma.FeedingPlanOrderByWithRelationInput[]
+  cursor?: Prisma.FeedingPlanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FeedingPlanScalarFieldEnum | Prisma.FeedingPlanScalarFieldEnum[]
 }
 
 /**

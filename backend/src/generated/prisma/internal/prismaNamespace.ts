@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Animal: 'Animal',
   User: 'User',
+  FeedingPlan: 'FeedingPlan',
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification'
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "animal" | "user" | "session" | "account" | "verification"
+    modelProps: "animal" | "user" | "feedingPlan" | "session" | "account" | "verification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +554,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    FeedingPlan: {
+      payload: Prisma.$FeedingPlanPayload<ExtArgs>
+      fields: Prisma.FeedingPlanFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FeedingPlanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FeedingPlanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload>
+        }
+        findFirst: {
+          args: Prisma.FeedingPlanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FeedingPlanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload>
+        }
+        findMany: {
+          args: Prisma.FeedingPlanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload>[]
+        }
+        create: {
+          args: Prisma.FeedingPlanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload>
+        }
+        createMany: {
+          args: Prisma.FeedingPlanCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FeedingPlanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload>[]
+        }
+        delete: {
+          args: Prisma.FeedingPlanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload>
+        }
+        update: {
+          args: Prisma.FeedingPlanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload>
+        }
+        deleteMany: {
+          args: Prisma.FeedingPlanDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FeedingPlanUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FeedingPlanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload>[]
+        }
+        upsert: {
+          args: Prisma.FeedingPlanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingPlanPayload>
+        }
+        aggregate: {
+          args: Prisma.FeedingPlanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFeedingPlan>
+        }
+        groupBy: {
+          args: Prisma.FeedingPlanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FeedingPlanGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FeedingPlanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FeedingPlanCountAggregateOutputType> | number
         }
       }
     }
@@ -851,6 +926,24 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const FeedingPlanScalarFieldEnum = {
+  id: 'id',
+  animalId: 'animalId',
+  name: 'name',
+  instructions: 'instructions',
+  period: 'period',
+  repeatEveryDays: 'repeatEveryDays',
+  nextDueDate: 'nextDueDate',
+  createdById: 'createdById',
+  lastModifiedById: 'lastModifiedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type FeedingPlanScalarFieldEnum = (typeof FeedingPlanScalarFieldEnum)[keyof typeof FeedingPlanScalarFieldEnum]
+
+
 export const SessionScalarFieldEnum = {
   id: 'id',
   expiresAt: 'expiresAt',
@@ -977,6 +1070,20 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'FeedingPeriod'
+ */
+export type EnumFeedingPeriodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedingPeriod'>
+    
+
+
+/**
+ * Reference to a field of type 'FeedingPeriod[]'
+ */
+export type ListEnumFeedingPeriodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedingPeriod[]'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -987,6 +1094,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -1101,6 +1222,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   animal?: Prisma.AnimalOmit
   user?: Prisma.UserOmit
+  feedingPlan?: Prisma.FeedingPlanOmit
   session?: Prisma.SessionOmit
   account?: Prisma.AccountOmit
   verification?: Prisma.VerificationOmit

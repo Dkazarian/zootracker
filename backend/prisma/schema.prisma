@@ -15,18 +15,25 @@ enum AnimalSex {
   unknown
 }
 
+enum FeedingPeriod {
+  morning
+  afternoon
+  evening
+}
+
 model Animal {
-  id              String     @id @default(uuid())
+  id              String        @id @default(uuid())
   name            String
   species         String
   sex             AnimalSex?
-  dateOfBirth     DateTime?  @db.Date
-  arrivalDate     DateTime?  @db.Date
+  dateOfBirth     DateTime?     @db.Date
+  arrivalDate     DateTime?     @db.Date
   currentLocation String?
   notes           String?
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
   archivedAt      DateTime?
+  feedingPlans    FeedingPlan[]
 
   @@index([name])
   @@index([species])
@@ -35,22 +42,48 @@ model Animal {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  role          String    @default("keeper")
-  banned        Boolean?  @default(false)
-  banReason     String?
-  banExpires    DateTime?
-  sessions      Session[]
-  accounts      Account[]
+  id                   String        @id
+  name                 String
+  email                String
+  emailVerified        Boolean       @default(false)
+  image                String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  role                 String        @default("keeper")
+  banned               Boolean?      @default(false)
+  banReason            String?
+  banExpires           DateTime?
+  sessions             Session[]
+  accounts             Account[]
+  createdFeedingPlans  FeedingPlan[] @relation("FeedingPlanCreator")
+  modifiedFeedingPlans FeedingPlan[] @relation("FeedingPlanModifier")
 
   @@unique([email])
   @@map("user")
+}
+
+model FeedingPlan {
+  id               String        @id @default(uuid())
+  animalId         String
+  animal           Animal        @relation(fields: [animalId], references: [id], onDelete: Restrict)
+  name             String
+  instructions     String
+  period           FeedingPeriod
+  repeatEveryDays  Int
+  nextDueDate      DateTime      @db.Date
+  createdById      String
+  createdBy        User          @relation("FeedingPlanCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  lastModifiedById String
+  lastModifiedBy   User          @relation("FeedingPlanModifier", fields: [lastModifiedById], references: [id], onDelete: Restrict)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  archivedAt       DateTime?
+
+  @@index([animalId, archivedAt, nextDueDate, period])
+  @@index([archivedAt, nextDueDate, period])
+  @@index([createdById])
+  @@index([lastModifiedById])
+  @@map("feeding_plan")
 }
 
 model Session {

@@ -16,3 +16,12 @@ export const AnimalSex = {
 } as const
 
 export type AnimalSex = (typeof AnimalSex)[keyof typeof AnimalSex]
+
+
+export const FeedingPeriod = {
+  morning: 'morning',
+  afternoon: 'afternoon',
+  evening: 'evening'
+} as const
+
+export type FeedingPeriod = (typeof FeedingPeriod)[keyof typeof FeedingPeriod]

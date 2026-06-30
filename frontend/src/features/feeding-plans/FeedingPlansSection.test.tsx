@@ -1,0 +1,215 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { FeedingPlan } from './feeding-plan-api';
+import FeedingPlansSection from './FeedingPlansSection';
+
+const apiMocks = vi.hoisted(() => ({
+  listFeedingPlans: vi.fn(),
+  createFeedingPlan: vi.fn(),
+  updateFeedingPlan: vi.fn(),
+  archiveFeedingPlan: vi.fn(),
+}));
+
+vi.mock('./feeding-plan-api', async (importOriginal) => {
+  const original = await importOriginal<typeof import('./feeding-plan-api')>();
+  return { ...original, ...apiMocks };
+});
+
+const plan: FeedingPlan = {
+  id: 'plan-1',
+  animalId: 'animal-1',
+  name: 'Morning fruit',
+  instructions: '3 bananas and an apple',
+  period: 'morning',
+  repeatEveryDays: 1,
+  nextDueDate: '2030-07-01',
+  createdBy: { id: 'keeper-1', name: 'Kira Keeper' },
+  lastModifiedBy: { id: 'keeper-2', name: 'Mina Keeper' },
+  createdAt: new Date('2026-06-30T12:00:00.000Z'),
+  updatedAt: new Date('2026-06-30T13:00:00.000Z'),
+  archivedAt: null,
+  status: 'upcoming',
+  minutesPastDue: null,
+};
+
+function renderSection(role: 'keeper' | 'admin' = 'keeper') {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <FeedingPlansSection
+        animalId="animal-1"
+        animalArchived={false}
+        currentUserRole={role}
+      />
+    </QueryClientProvider>,
+  );
+}
+
+describe('FeedingPlansSection', () => {
+  beforeEach(() => {
+    apiMocks.listFeedingPlans.mockResolvedValue([plan]);
+    apiMocks.createFeedingPlan.mockResolvedValue(plan);
+    apiMocks.updateFeedingPlan.mockResolvedValue(plan);
+    apiMocks.archiveFeedingPlan.mockResolvedValue({
+      ...plan,
+      archivedAt: new Date(),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.clearAllMocks();
+  });
+
+  it('shows plan details and accountability', async () => {
+    renderSection();
+
+    expect(await screen.findByText('Morning fruit')).toBeInTheDocument();
+    expect(screen.getByText('3 bananas and an apple')).toBeInTheDocument();
+    expect(screen.getByText('Every day')).toBeInTheDocument();
+    expect(screen.getByText('Upcoming')).toBeInTheDocument();
+    expect(
+      screen.getByText('Created by Kira Keeper · Last changed by Mina Keeper'),
+    ).toBeInTheDocument();
+  });
+
+  it('lets a keeper create a natural-language plan', async () => {
+    apiMocks.listFeedingPlans.mockResolvedValue([]);
+    renderSection();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Add feeding plan' }),
+    );
+    fireEvent.change(screen.getByLabelText('Plan name'), {
+      target: { value: ' Evening meal ' },
+    });
+    fireEvent.change(screen.getByLabelText('Feeding period'), {
+      target: { value: 'evening' },
+    });
+    fireEvent.change(screen.getByLabelText('Repeat every'), {
+      target: { value: '2' },
+    });
+    fireEvent.change(screen.getByLabelText('Next due date'), {
+      target: { value: '2030-07-02' },
+    });
+    fireEvent.change(screen.getByLabelText('Feeding instructions'), {
+      target: { value: ' Hay and leafy greens ' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create plan' }));
+
+    await waitFor(() =>
+      expect(apiMocks.createFeedingPlan).toHaveBeenCalledWith('animal-1', {
+        name: 'Evening meal',
+        instructions: 'Hay and leafy greens',
+        period: 'evening',
+        repeatEveryDays: 2,
+        nextDueDate: '2030-07-02',
+      }),
+    );
+  });
+
+  it('validates required fields before creating a plan', async () => {
+    apiMocks.listFeedingPlans.mockResolvedValue([]);
+    renderSection();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Add feeding plan' }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Create plan' }));
+
+    expect(await screen.findByText('Enter a plan name')).toBeInTheDocument();
+    expect(screen.getByText('Enter feeding instructions')).toBeInTheDocument();
+    expect(screen.getByText('Choose the next due date')).toBeInTheDocument();
+    expect(apiMocks.createFeedingPlan).not.toHaveBeenCalled();
+  });
+
+  it('lets a keeper update an existing plan', async () => {
+    renderSection();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Edit Morning fruit' }),
+    );
+    fireEvent.change(screen.getByLabelText('Feeding instructions'), {
+      target: { value: '4 bananas and an apple' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save plan' }));
+
+    await waitFor(() =>
+      expect(apiMocks.updateFeedingPlan).toHaveBeenCalledWith(
+        'animal-1',
+        'plan-1',
+        expect.objectContaining({
+          instructions: '4 bananas and an apple',
+        }),
+      ),
+    );
+  });
+
+  it('requires confirmation before archiving a plan', async () => {
+    renderSection();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Archive Morning fruit' }),
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Archive Morning fruit?' }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Archive plan' }));
+
+    await waitFor(() =>
+      expect(apiMocks.archiveFeedingPlan).toHaveBeenCalledWith(
+        'animal-1',
+        'plan-1',
+      ),
+    );
+  });
+
+  it('lets administrators manage feeding plans', async () => {
+    renderSection('admin');
+
+    expect(await screen.findByText('Morning fruit')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Add feeding plan' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Edit Morning fruit' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Archive Morning fruit' }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add feeding plan' }));
+    expect(
+      screen.getByRole('heading', { name: 'New feeding plan' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows an empty state and a recoverable error state', async () => {
+    apiMocks.listFeedingPlans.mockResolvedValueOnce([]);
+    const firstRender = renderSection();
+    expect(
+      await screen.findByText('No active feeding plans yet.'),
+    ).toBeInTheDocument();
+    firstRender.unmount();
+
+    apiMocks.listFeedingPlans.mockRejectedValueOnce(
+      new Error('Unable to load feeding plans'),
+    );
+    renderSection();
+    expect(
+      await screen.findByText('Unable to load feeding plans'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Try again' }),
+    ).toBeInTheDocument();
+  });
+});

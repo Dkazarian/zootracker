@@ -5,6 +5,7 @@ import { auth } from './auth/auth';
 import { ZootrackerAuthModule } from './auth/auth.module';
 import { AuthorizationModule } from './common/authorization/authorization.module';
 import { DatabaseModule } from './database/database.module';
+import { FeedingPlansModule } from './feeding-plans/feeding-plans.module';
 import { HealthModule } from './health/health.module';
 import { PersonnelModule } from './personnel/personnel.module';
 
@@ -17,6 +18,7 @@ import { PersonnelModule } from './personnel/personnel.module';
     HealthModule,
     PersonnelModule,
     AnimalsModule,
+    FeedingPlansModule,
   ],
 })
 export class AppModule {}

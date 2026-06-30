@@ -27,6 +27,13 @@ const animalMocks = vi.hoisted(() => ({
   archiveAnimal: vi.fn(),
 }));
 
+const feedingPlanMocks = vi.hoisted(() => ({
+  listFeedingPlans: vi.fn(),
+  createFeedingPlan: vi.fn(),
+  updateFeedingPlan: vi.fn(),
+  archiveFeedingPlan: vi.fn(),
+}));
+
 vi.mock('../shared/auth/auth-client', () => ({
   authClient: {
     getSession: authMocks.getSession,
@@ -55,6 +62,20 @@ vi.mock('../features/animals/animal-api', async (importOriginal) => {
     archiveAnimal: animalMocks.archiveAnimal,
   };
 });
+
+vi.mock(
+  '../features/feeding-plans/feeding-plan-api',
+  async (importOriginal) => {
+    const original =
+      await importOriginal<
+        typeof import('../features/feeding-plans/feeding-plan-api')
+      >();
+    return {
+      ...original,
+      ...feedingPlanMocks,
+    };
+  },
+);
 
 const authenticatedSession = {
   session: {
@@ -191,6 +212,7 @@ describe('App authentication', () => {
       ...animals[0],
       archivedAt: new Date(),
     });
+    feedingPlanMocks.listFeedingPlans.mockResolvedValue([]);
   });
 
   afterEach(() => {

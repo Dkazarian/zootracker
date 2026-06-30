@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Animal: 'Animal',
   User: 'User',
+  FeedingPlan: 'FeedingPlan',
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification'
@@ -106,6 +107,24 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const FeedingPlanScalarFieldEnum = {
+  id: 'id',
+  animalId: 'animalId',
+  name: 'name',
+  instructions: 'instructions',
+  period: 'period',
+  repeatEveryDays: 'repeatEveryDays',
+  nextDueDate: 'nextDueDate',
+  createdById: 'createdById',
+  lastModifiedById: 'lastModifiedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  archivedAt: 'archivedAt'
+} as const
+
+export type FeedingPlanScalarFieldEnum = (typeof FeedingPlanScalarFieldEnum)[keyof typeof FeedingPlanScalarFieldEnum]
 
 
 export const SessionScalarFieldEnum = {
