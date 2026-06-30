@@ -48,6 +48,51 @@ From the repository root, all of the following must succeed:
    confirm there is no horizontal overflow.
 10. Confirm no unexpected browser console errors.
 
+## Account Lifecycle Amendment Validation
+
+### API and data
+
+1. As an administrator, deactivate an active keeper and confirm the response
+   reports the account as inactive.
+2. Confirm every existing session for the deactivated keeper is revoked.
+3. Confirm the deactivated keeper cannot sign in or use a previously issued
+   session.
+4. Confirm the keeper's identifier, role, credentials, and related historical
+   records remain stored.
+5. Reactivate the keeper and confirm the same credentials can sign in again.
+6. Deactivate and reactivate an administrator while another active
+   administrator remains.
+7. Attempt to deactivate the signed-in administrator and confirm the request is
+   rejected.
+8. Attempt to deactivate the last active administrator and confirm the request
+   is rejected.
+9. Send concurrent requests that could remove all active administrators and
+   confirm at least one active administrator remains.
+10. Attempt to deactivate an inactive account, reactivate an active account,
+    and manage a missing account and confirm useful conflict or not-found
+    responses.
+11. Attempt every lifecycle endpoint without authentication and as a keeper and
+    confirm `401` and `403` respectively.
+12. Confirm no lifecycle endpoint deletes users or changes their roles,
+    profiles, or passwords.
+
+### Frontend
+
+1. Confirm the personnel directory clearly distinguishes active and inactive
+   accounts of both roles.
+2. Deactivate an eligible keeper through an accessible confirmation step and
+   confirm its status and available action update without a full reload.
+3. Reactivate the keeper and confirm the directory returns to its active state.
+4. Deactivate and reactivate an eligible administrator.
+5. Confirm the signed-in administrator cannot initiate self-deactivation.
+6. Confirm the last active administrator cannot be offered as an eligible
+   deactivation target.
+7. Confirm useful pending, success, conflict, and failure feedback.
+8. Complete the lifecycle flow using keyboard controls.
+9. Repeat the lifecycle flow at a narrow mobile viewport without horizontal
+   overflow.
+10. Confirm there are no unexpected browser console errors.
+
 ## Security and Data Check
 
 1. Confirm backend role checks protect every personnel endpoint.
@@ -59,6 +104,11 @@ From the repository root, all of the following must succeed:
    Auth administration internals.
 7. Confirm credentials, cookies, database URLs, and authentication secrets are
    absent from committed files and logs.
+8. Confirm deactivation revokes existing sessions rather than only hiding
+   interface access.
+9. Confirm self-deactivation and last-active-administrator protection are
+   enforced by the API.
+10. Confirm deactivation and reactivation preserve historical attribution.
 
 ## Validation Results - 2026-06-29
 
@@ -73,8 +123,13 @@ From the repository root, all of the following must succeed:
 - Browser validation confirmed administrator identity and navigation,
   personnel listing and creation, keeper route protection, a 375-pixel layout
   without horizontal overflow, and no console errors.
-- Automated coverage confirms personnel profiles expose no edit or deactivate
-  controls.
+- At original Phase 3 validation, automated coverage confirmed personnel
+  profiles exposed no edit or deactivate controls. The 2026-06-30 amendment
+  intentionally supersedes the deactivation portion of that result.
+
+## Amendment Validation Results
+
+Not yet implemented or validated.
 
 ## Merge Criteria
 
@@ -83,10 +138,16 @@ The phase can be merged when:
 - All automated and manual validation checks pass.
 - Every account used by the application has one valid role.
 - Keepers cannot access personnel through the UI or direct API requests.
-- Administrators can list and create personnel.
+- Administrators can list, create, deactivate, and reactivate personnel of
+  either role.
+- Existing sessions are revoked when an account is deactivated.
+- Administrators cannot deactivate themselves or the last active
+  administrator.
+- Deactivation and reactivation preserve accounts and historical attribution.
 - The signed-in user's identity and role are visible.
 - Public registration remains unavailable.
-- Personnel editing and account lifecycle management remain out of scope.
+- Personnel profile editing, role changes, and permanent deletion remain out of
+  scope.
 - Phase 4 animal-registry work remains deferred.
 - `requirements.md`, `plan.md`, and `validation.md` agree with the
   implementation.

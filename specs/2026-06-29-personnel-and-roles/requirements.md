@@ -33,20 +33,45 @@ animal-care features will reuse.
 - Never expose password values, password hashes, sessions, or authentication
   internals in personnel responses or logs.
 
+### Account lifecycle
+
+- Allow an administrator to deactivate either a keeper or administrator
+  account.
+- Require confirmation before deactivating an account.
+- Immediately revoke all sessions belonging to a deactivated account.
+- Prevent deactivated accounts from signing in or accessing authenticated
+  routes.
+- Keep deactivated personnel in the directory with a clear inactive status.
+- Preserve the stable user record and all historical attribution; deactivation
+  must never delete a person or their related records.
+- Do not allow an administrator to deactivate their own account.
+- Do not allow the last active administrator to be deactivated.
+- Allow an administrator to reactivate a deactivated keeper or administrator.
+- Reactivation restores sign-in eligibility without recreating the account,
+  changing its role, or resetting its password.
+- Return useful conflict responses when an account is already in the requested
+  state.
+
 ### User interface
 
 - Show the signed-in user's name and role in the application header.
 - Show personnel navigation and screens only to administrators.
 - Provide an administrator page that lists each person's name, email, and role.
 - Provide an accessible account-creation form.
+- Show whether each account is active or inactive.
+- Provide administrator controls to deactivate and reactivate eligible
+  accounts.
+- Hide or disable actions that would deactivate the signed-in administrator or
+  the last active administrator.
 - Show clear loading, empty, success, validation, and failure states.
 - Show a forbidden experience without personnel data when a keeper directly
   requests an administrator route.
 
 ### Quality and documentation
 
-- Add automated coverage for role enforcement, personnel listing, and account
-  creation.
+- Add automated coverage for role enforcement, personnel listing, account
+  creation, deactivation, reactivation, session revocation, and administrator
+  safeguards.
 - Document how administrator-created accounts receive their initial
   credentials.
 - Preserve formatting, linting, type-checking, testing, build, database-test,
@@ -64,8 +89,14 @@ animal-care features will reuse.
 - Administrators choose an initial password and communicate it outside
   Zootracker.
 - Personnel profiles are read-only after creation in this phase.
-- Account activation, deactivation, reactivation, and deletion are not part of
-  this phase.
+- Deactivation changes account access without deleting or replacing the Better
+  Auth user record.
+- Better Auth's account administration fields represent active and inactive
+  status; Zootracker does not introduce a second lifecycle model.
+- Administrators may manage either application role but cannot deactivate
+  themselves or the last active administrator.
+- Reactivation is the inverse of deactivation and does not edit profile fields,
+  roles, credentials, or historical records.
 - The backend enforces every permission; conditional navigation is only a user
   experience improvement.
 - The personnel directory is small enough that pagination and search are not
@@ -84,7 +115,7 @@ animal-care features will reuse.
 ## Out of Scope
 
 - Editing personnel profiles or changing roles after creation
-- Account activation, deactivation, reactivation, or deletion
+- Permanent account deletion
 - Public registration or invitations
 - Email delivery or verification
 - Password reset, recovery, or forced first-login password changes

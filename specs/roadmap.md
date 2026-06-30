@@ -26,6 +26,11 @@ Every phase receives its own `requirements.md`, `plan.md`, and `validation.md` b
 - Add the keeper and administrator roles.
 - Allow administrators to create personnel accounts and view the personnel
   directory.
+- Allow administrators to deactivate and reactivate keeper or administrator
+  accounts.
+- Prevent self-deactivation and preserve at least one active administrator.
+- Revoke sessions when an account is deactivated while preserving its
+  historical records.
 - Enforce role permissions in both the API and user interface.
 - Show the signed-in user's identity and role.
 
@@ -38,7 +43,8 @@ Every phase receives its own `requirements.md`, `plan.md`, and `validation.md` b
 
 ## Phase 5 - Feeding Plans
 
-- Allow keepers to create and maintain an animal's feeding plan.
+- Allow keepers and administrators to create and maintain an animal's feeding
+  plan.
 - Define natural-language feeding instructions, a morning, afternoon, or
   evening period, and a repeat-every-N-days schedule.
 - Track when each active plan is next due.
