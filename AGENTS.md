@@ -66,6 +66,8 @@
 - Run focused checks while implementing.
 - Do not rerun the same successful focused check unless relevant code changed.
 - At task-group checkpoints, run broader checks relevant to affected workspaces.
+- At each task-group checkpoint, run the checks assigned to that task group in
+  the active phase's `validation.md`.
 - Before marking a phase complete, run:
 
 ```powershell

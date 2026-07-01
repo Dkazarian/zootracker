@@ -12,6 +12,7 @@ phase. An item must be moved into a phase specification before implementation.
 
 ## Technical debt
 
-- Establish a clean repository-wide Prettier baseline. `npm run format:check`
-  currently reports existing drift across 54 files. Handle this as a dedicated
-  formatting-only change so functional phase diffs remain reviewable.
+- Run `npm run format` across the repository to fix the 56 files currently
+  reported by `npm run format:check`. Review and commit the result as a
+  formatting-only change, then confirm `npm run format:check`, `npm run lint`,
+  and `npm run typecheck` pass.
