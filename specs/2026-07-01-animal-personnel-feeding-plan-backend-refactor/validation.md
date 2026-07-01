@@ -39,9 +39,7 @@ npm test
 npm run build
 ```
 
-All commands except a documented repository-wide baseline failure must succeed
-before the refactor is complete. Pre-existing baseline work must be recorded in
-`specs/backlog.md`, and every file changed by this refactor must be formatted.
+All commands must succeed before the refactor is complete.
 
 ## Architecture validation
 
@@ -180,6 +178,7 @@ Passed on 2026-07-01:
 
 - `npm run lint`
 - `npm run typecheck`
+- `npm run format:check`
 - `npm test`
   - frontend: 3 suites and 27 tests passed
   - backend: 12 suites and 63 tests passed
@@ -194,23 +193,14 @@ Passed on 2026-07-01:
 - Architecture inspection found no direct Prisma or HTTP DTO dependencies in
   the three refactored services.
 
-Deferred baseline issue:
-
-- `npm run format:check` reports 56 pre-existing formatting differences across
-  unrelated configuration, authentication, frontend, and guide files. All
-  files changed by this refactor were formatted directly. The unrelated files
-  were not rewritten because they are outside the approved scope. Repository
-  cleanup is recorded under Technical debt in `specs/backlog.md`.
-
-The inherited formatting baseline is intentionally deferred and does not block
-this focused refactor. All in-scope formatting and other required checks pass.
+The repository-wide formatting baseline was normalized with `npm run format`.
+All required checks pass.
 
 ## Merge criteria
 
 The refactor is ready to merge when:
 
-- all focused and final automated checks pass, excluding documented inherited
-  baseline work moved to `specs/backlog.md`;
+- all focused and final automated checks pass;
 - animal, personnel, and feeding-plan API behavior remains compatible;
 - each feature follows the approved controller, service, repository, mapper,
   and type boundaries;

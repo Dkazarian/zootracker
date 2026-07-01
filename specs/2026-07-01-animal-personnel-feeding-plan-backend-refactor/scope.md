@@ -2,9 +2,8 @@
 
 ## Status
 
-Implementation is approved. Task Groups 1-4 are implemented and validated.
-The pre-existing repository-wide formatting baseline is recorded in
-`specs/backlog.md` and does not block this focused refactor.
+Implementation is approved. Task Groups 1-4 are implemented and validated,
+including the repository-wide formatting baseline.
 
 The pre-existing uncommitted animal changes were reviewed and completed
 against this specification.
