@@ -5,48 +5,26 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { auth } from '../auth/auth';
-import { isApplicationRole } from '../common/authorization/application-role';
-import { PrismaService } from '../database/prisma.service';
-import type { Prisma, User } from '../generated/prisma/client';
-import type { CreatePersonnelDto } from './dto/create-personnel.dto';
-import type { PersonnelResponse } from './personnel.types';
-
-const safePersonnelSelect = {
-  id: true,
-  name: true,
-  email: true,
-  role: true,
-  banned: true,
-  createdAt: true,
-  updatedAt: true,
-} as const;
-
-type SafePersonnelRecord = Pick<
-  User,
-  'id' | 'name' | 'email' | 'role' | 'banned' | 'createdAt' | 'updatedAt'
->;
+import { toPersonnelResponse, toPersonnelResponses } from './personnel.mappers';
+import { PersonnelRepository } from './personnel.repository';
+import type {
+  CreatePersonnelInput,
+  PersonnelRecord,
+  PersonnelResponse,
+} from './personnel.types';
 
 @Injectable()
 export class PersonnelService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly repository: PersonnelRepository) {}
 
   async list(): Promise<PersonnelResponse[]> {
-    const personnel = await this.prisma.user.findMany({
-      select: safePersonnelSelect,
-      orderBy: [{ name: 'asc' }, { email: 'asc' }],
-    });
-
-    return personnel.map((person) => this.toResponse(person));
+    return toPersonnelResponses(await this.repository.list());
   }
 
-  async create(input: CreatePersonnelDto): Promise<PersonnelResponse> {
+  async create(input: CreatePersonnelInput): Promise<PersonnelResponse> {
     const email = input.email.trim().toLowerCase();
 
-    const existing = await this.prisma.user.findUnique({
-      where: { email },
-      select: { id: true },
-    });
-    if (existing) {
+    if (await this.repository.findByEmail(email)) {
       throw new ConflictException('A person with this email already exists');
     }
 
@@ -59,28 +37,21 @@ export class PersonnelService {
           role: input.role,
         },
       });
+      const person = await this.repository.findById(result.user.id);
 
-      const person = await this.prisma.user.findUnique({
-        where: { id: result.user.id },
-        select: safePersonnelSelect,
-      });
       if (!person) {
         throw new InternalServerErrorException(
           'The account was created but could not be loaded',
         );
       }
 
-      return this.toResponse(person);
+      return toPersonnelResponse(person);
     } catch (error) {
       if (error instanceof InternalServerErrorException) {
         throw error;
       }
 
-      const duplicate = await this.prisma.user.findUnique({
-        where: { email },
-        select: { id: true },
-      });
-      if (duplicate) {
+      if (await this.repository.findByEmail(email)) {
         throw new ConflictException('A person with this email already exists');
       }
 
@@ -96,53 +67,32 @@ export class PersonnelService {
       throw new ConflictException('You cannot deactivate your own account');
     }
 
-    return this.withLifecycleLock(async (transaction) => {
-      const person = await transaction.user.findUnique({
-        where: { id: personId },
-        select: safePersonnelSelect,
-      });
+    return this.repository.withLifecycleLock(async (operations) => {
+      const person = await operations.findById(personId);
       if (!person) {
         throw new NotFoundException('Personnel account not found');
       }
       if (person.banned === true) {
         throw new ConflictException('Personnel account is already inactive');
       }
-
-      if (person.role === 'admin') {
-        const activeAdministratorCount = await transaction.user.count({
-          where: {
-            role: 'admin',
-            OR: [{ banned: false }, { banned: null }],
-          },
-        });
-        if (activeAdministratorCount <= 1) {
-          throw new ConflictException(
-            'The last active administrator cannot be deactivated',
-          );
-        }
+      if (
+        person.role === 'admin' &&
+        (await operations.countActiveAdministrators()) <= 1
+      ) {
+        throw new ConflictException(
+          'The last active administrator cannot be deactivated',
+        );
       }
 
-      await transaction.user.update({
-        where: { id: personId },
-        data: {
-          banned: true,
-          banReason: 'Deactivated by a Zootracker administrator',
-        },
-      });
-      await transaction.session.deleteMany({
-        where: { userId: personId },
-      });
-
-      return this.loadResponse(transaction, personId);
+      await operations.deactivate(personId);
+      await operations.deleteSessions(personId);
+      return this.loadLifecycleResponse(operations.findById(personId));
     });
   }
 
   async reactivate(personId: string): Promise<PersonnelResponse> {
-    return this.withLifecycleLock(async (transaction) => {
-      const person = await transaction.user.findUnique({
-        where: { id: personId },
-        select: safePersonnelSelect,
-      });
+    return this.repository.withLifecycleLock(async (operations) => {
+      const person = await operations.findById(personId);
       if (!person) {
         throw new NotFoundException('Personnel account not found');
       }
@@ -150,68 +100,20 @@ export class PersonnelService {
         throw new ConflictException('Personnel account is already active');
       }
 
-      await transaction.user.update({
-        where: { id: personId },
-        data: {
-          banned: false,
-          banReason: null,
-          banExpires: null,
-        },
-      });
-
-      return this.loadResponse(transaction, personId);
+      await operations.reactivate(personId);
+      return this.loadLifecycleResponse(operations.findById(personId));
     });
   }
 
-  private async withLifecycleLock<T>(
-    operation: (transaction: Prisma.TransactionClient) => Promise<T>,
-  ): Promise<T> {
-    return this.prisma.$transaction(
-      async (transaction) => {
-        // Serialize lifecycle changes so concurrent requests cannot remove every admin.
-        await transaction.$executeRaw`
-          SELECT pg_advisory_xact_lock(
-            hashtext('zootracker_personnel_lifecycle')
-          )
-        `;
-        return operation(transaction);
-      },
-      { maxWait: 10_000, timeout: 10_000 },
-    );
-  }
-
-  private async loadResponse(
-    transaction: Prisma.TransactionClient,
-    personId: string,
+  private async loadLifecycleResponse(
+    record: Promise<PersonnelRecord | null>,
   ): Promise<PersonnelResponse> {
-    const person = await transaction.user.findUnique({
-      where: { id: personId },
-      select: safePersonnelSelect,
-    });
+    const person = await record;
     if (!person) {
       throw new InternalServerErrorException(
         'Personnel account could not be loaded',
       );
     }
-
-    return this.toResponse(person);
-  }
-
-  private toResponse(person: SafePersonnelRecord): PersonnelResponse {
-    if (!isApplicationRole(person.role)) {
-      throw new InternalServerErrorException(
-        'A personnel account has an invalid role',
-      );
-    }
-
-    return {
-      id: person.id,
-      name: person.name,
-      email: person.email,
-      role: person.role,
-      active: person.banned !== true,
-      createdAt: person.createdAt,
-      updatedAt: person.updatedAt,
-    };
+    return toPersonnelResponse(person);
   }
 }
