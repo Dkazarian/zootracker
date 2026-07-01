@@ -7,6 +7,7 @@ const personnelSchema = z.object({
   name: z.string().min(1),
   email: z.email(),
   role: applicationRoleSchema,
+  active: z.boolean(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
@@ -33,6 +34,22 @@ export async function createPersonnel(
     await apiRequest<unknown>('/personnel', {
       method: 'POST',
       body: JSON.stringify(input),
+    }),
+  );
+}
+
+export async function deactivatePersonnel(id: string): Promise<Personnel> {
+  return personnelSchema.parse(
+    await apiRequest<unknown>(`/personnel/${id}/deactivate`, {
+      method: 'PATCH',
+    }),
+  );
+}
+
+export async function reactivatePersonnel(id: string): Promise<Personnel> {
+  return personnelSchema.parse(
+    await apiRequest<unknown>(`/personnel/${id}/reactivate`, {
+      method: 'PATCH',
     }),
   );
 }
