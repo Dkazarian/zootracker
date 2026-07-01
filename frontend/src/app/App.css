@@ -738,7 +738,20 @@ textarea:focus-visible {
   color: var(--muted);
 }
 
-.role-badge {
+.personnel-badges,
+.personnel-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.personnel-actions {
+  justify-content: flex-end;
+}
+
+.role-badge,
+.status-badge {
   padding: 0.3rem 0.55rem;
   border-radius: 999px;
   font-size: 0.75rem;
@@ -748,6 +761,43 @@ textarea:focus-visible {
 .role-badge {
   color: var(--forest);
   background: rgb(26 90 66 / 9%);
+}
+
+.status-badge--active {
+  color: #14633e;
+  background: #daf2e3;
+}
+
+.status-badge--inactive {
+  color: #7a3427;
+  background: #f8dfd7;
+}
+
+.personnel-confirmation {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid rgb(149 59 43 / 28%);
+  border-radius: 1rem;
+  background: #fff8f4;
+}
+
+.personnel-confirmation h2,
+.personnel-confirmation p,
+.personnel-safeguard {
+  margin: 0;
+}
+
+.personnel-confirmation p,
+.personnel-safeguard {
+  color: var(--muted);
+}
+
+.personnel-safeguard {
+  font-size: 0.9rem;
 }
 
 footer {
@@ -781,6 +831,7 @@ footer p {
   .animal-filters,
   .profile-actions,
   .archive-confirmation,
+  .personnel-confirmation,
   .feeding-plan-summary {
     align-items: stretch;
     flex-direction: column;
@@ -788,6 +839,12 @@ footer p {
 
   .page-heading button {
     width: 100%;
+  }
+
+  .personnel-actions {
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
   }
 
   .personnel-form {

@@ -17,6 +17,8 @@ const currentUserMocks = vi.hoisted(() => ({
 const personnelMocks = vi.hoisted(() => ({
   listPersonnel: vi.fn(),
   createPersonnel: vi.fn(),
+  deactivatePersonnel: vi.fn(),
+  reactivatePersonnel: vi.fn(),
 }));
 
 const animalMocks = vi.hoisted(() => ({
@@ -107,6 +109,7 @@ const administrator = {
 const personnel = [
   {
     ...administrator,
+    active: true,
     createdAt: new Date('2026-01-01T00:00:00Z'),
     updatedAt: new Date('2026-01-01T00:00:00Z'),
   },
@@ -115,6 +118,7 @@ const personnel = [
     name: 'Kai Keeper',
     email: 'kai@example.com',
     role: 'keeper' as const,
+    active: true,
     createdAt: new Date('2026-01-02T00:00:00Z'),
     updatedAt: new Date('2026-01-02T00:00:00Z'),
   },
@@ -123,6 +127,7 @@ const personnel = [
     name: 'Mina Keeper',
     email: 'mina@example.com',
     role: 'keeper' as const,
+    active: true,
     createdAt: new Date('2026-01-03T00:00:00Z'),
     updatedAt: new Date('2026-01-03T00:00:00Z'),
   },
@@ -190,7 +195,22 @@ describe('App authentication', () => {
         id: 'user-4',
         ...input,
         password: undefined,
+        active: true,
         createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+    );
+    personnelMocks.deactivatePersonnel.mockImplementation((id) =>
+      Promise.resolve({
+        ...personnel.find((person) => person.id === id)!,
+        active: false,
+        updatedAt: new Date(),
+      }),
+    );
+    personnelMocks.reactivatePersonnel.mockImplementation((id) =>
+      Promise.resolve({
+        ...personnel.find((person) => person.id === id)!,
+        active: true,
         updatedAt: new Date(),
       }),
     );
@@ -387,12 +407,16 @@ describe('App authentication', () => {
     ).toBeInTheDocument();
     expect(await screen.findByText('Kai Keeper')).toBeInTheDocument();
     expect(screen.getByText('Mina Keeper')).toBeInTheDocument();
+    expect(screen.getAllByText('Active')).toHaveLength(3);
+    expect(
+      screen.getByText('Your signed-in account cannot be deactivated.'),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Edit' }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Deactivate' }),
-    ).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Deactivate' })).toHaveLength(
+      2,
+    );
   });
 
   it('validates and creates a personnel account', async () => {
@@ -432,6 +456,67 @@ describe('App authentication', () => {
       role: 'keeper',
       password: 'mina-password-123',
     });
+  });
+
+  it('confirms deactivation and can reactivate an inactive account', async () => {
+    const inactivePersonnel = personnel.map((person) =>
+      person.id === 'user-2' ? { ...person, active: false } : person,
+    );
+    personnelMocks.listPersonnel
+      .mockReset()
+      .mockResolvedValueOnce(personnel)
+      .mockResolvedValueOnce(inactivePersonnel)
+      .mockResolvedValueOnce(personnel);
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+
+    renderApp('/personnel');
+
+    fireEvent.click(
+      (await screen.findAllByRole('button', { name: 'Deactivate' }))[0],
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Deactivate Kai Keeper?' }),
+    ).toBeInTheDocument();
+    expect(personnelMocks.deactivatePersonnel).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Deactivate account' }));
+    expect(
+      await screen.findByText("Kai Keeper's account was deactivated."),
+    ).toBeInTheDocument();
+    expect(personnelMocks.deactivatePersonnel).toHaveBeenCalledWith('user-2');
+    expect(await screen.findByText('Inactive')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reactivate' }));
+    expect(
+      await screen.findByText("Kai Keeper's account was reactivated."),
+    ).toBeInTheDocument();
+    expect(personnelMocks.reactivatePersonnel).toHaveBeenCalledWith('user-2');
+    expect(await screen.findAllByText('Active')).toHaveLength(3);
+  });
+
+  it('shows lifecycle mutation failures without changing account state', async () => {
+    personnelMocks.deactivatePersonnel.mockRejectedValueOnce(
+      new Error('The account could not be deactivated.'),
+    );
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+
+    renderApp('/personnel');
+
+    fireEvent.click(
+      (await screen.findAllByRole('button', { name: 'Deactivate' }))[0],
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Deactivate account' }));
+
+    expect(
+      await screen.findByText('The account could not be deactivated.'),
+    ).toHaveAttribute('role', 'alert');
+    expect(screen.getAllByText('Active')).toHaveLength(3);
   });
 
   it('lets a keeper browse and search animals without admin controls', async () => {

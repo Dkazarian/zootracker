@@ -118,6 +118,8 @@ API access.
 - Refine the visual design and shared component patterns.
 - Support desktop and mobile layouts.
 - Review semantic structure, keyboard navigation, focus behavior, forms, and charts.
+- Complete focus management and keyboard dismissal for confirmation dialogs,
+  including the personnel deactivation confirmation deferred from Phase 3.
 - Add clear loading, empty, success, and error states.
 
 ## Phase 13 - Production Readiness

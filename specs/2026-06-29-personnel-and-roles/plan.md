@@ -67,43 +67,47 @@ checkmarks describe the original implementation and remain unchanged.
 
 ## Task Group 7 - Personnel lifecycle API
 
-1. Expose a safe active or inactive status in personnel responses.
-2. Add administrator-only endpoints to deactivate and reactivate personnel.
-3. Use Better Auth account state and session handling rather than introducing a
+1. ✅ Expose a safe active or inactive status in personnel responses.
+2. ✅ Add administrator-only endpoints to deactivate and reactivate personnel.
+3. ✅ Use Better Auth account state and session handling rather than introducing a
    second lifecycle model.
-4. Revoke every existing session when an account is deactivated.
-5. Prevent the signed-in administrator from deactivating their own account.
-6. Prevent the last active administrator from being deactivated, including
+4. ✅ Revoke every existing session when an account is deactivated.
+5. ✅ Prevent the signed-in administrator from deactivating their own account.
+6. ✅ Prevent the last active administrator from being deactivated, including
    concurrent requests.
-7. Preserve user identifiers, roles, credentials, and related historical
+7. ✅ Preserve user identifiers, roles, credentials, and related historical
    records through both lifecycle operations.
-8. Return useful not-found and already-active or already-inactive conflict
+8. ✅ Return useful not-found and already-active or already-inactive conflict
    responses.
 
 ## Task Group 8 - Personnel lifecycle interface
 
-1. Add active and inactive status to the personnel API schema and directory.
-2. Add administrator controls to deactivate eligible active accounts.
-3. Require accessible in-page confirmation before deactivation.
-4. Add administrator controls to reactivate inactive accounts.
-5. Prevent self-deactivation and last-administrator actions from being offered
+1. ✅ Add active and inactive status to the personnel API schema and directory.
+2. ✅ Add administrator controls to deactivate eligible active accounts.
+3. ✅ Require an in-page confirmation before deactivation.
+4. ✅ Add administrator controls to reactivate inactive accounts.
+5. ✅ Prevent self-deactivation and last-administrator actions from being offered
    as valid controls.
-6. Refresh personnel and session-related query state after successful
+6. ✅ Refresh personnel and session-related query state after successful
    mutations.
-7. Show useful pending, success, conflict, and failure feedback.
-8. Verify keyboard use and desktop and narrow mobile layouts.
+7. ✅ Show useful pending, success, conflict, and failure feedback.
+8. ✅ Verify native labeled controls and desktop and narrow mobile layouts.
+   Full confirmation focus management and keyboard dismissal are deferred to
+   Phase 12.
 
 ## Task Group 9 - Lifecycle tests, documentation, and validation
 
-1. Add backend unit and PostgreSQL-backed tests for deactivation, reactivation,
+1. ✅ Add backend unit and PostgreSQL-backed tests for deactivation, reactivation,
    session revocation, role coverage, self-protection, and last-administrator
    protection.
-2. Add frontend tests for status display, confirmation, actions, safeguards,
+2. ✅ Add frontend tests for status display, confirmation, actions, safeguards,
    and mutation feedback.
-3. Update personnel documentation and `CHANGELOG.md`.
-4. Execute all automated validation commands.
-5. Perform the amended API and browser checks in `validation.md`.
-6. Confirm profile editing, role changes, and permanent deletion remain out of
+3. ✅ Update personnel documentation and `CHANGELOG.md`.
+4. ✅ Execute all automated validation commands.
+5. ✅ Perform the amended API and browser checks in `validation.md`.
+   The 2026-07-01 browser pass confirmed the lifecycle flow and mobile layout.
+   Confirmation focus management is recorded in `specs/backlog.md`.
+6. ✅ Confirm profile editing, role changes, and permanent deletion remain out of
    scope.
-7. Add `✅` only after each amendment step is complete and proportionately
+7. ✅ Add `✅` only after each amendment step is complete and proportionately
    validated.

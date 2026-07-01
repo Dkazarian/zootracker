@@ -5,6 +5,7 @@ export interface PersonnelResponse {
   name: string;
   email: string;
   role: ApplicationRole;
+  active: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
