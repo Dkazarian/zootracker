@@ -4,7 +4,8 @@
 
 - Implement Phase 5 feeding plans with recurring periods, due-status tracking,
   and keeper and administrator management.
-- Replan Phase 3 to add safe personnel deactivation and reactivation.
+- Add safe personnel deactivation and reactivation with session revocation,
+  preserved account history, and administrator safeguards.
 
 ## 2026-06-29
 

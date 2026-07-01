@@ -23,6 +23,12 @@ describeWithDatabase('Personnel and roles (database e2e)', () => {
     password: 'personnel-keeper-password-123',
     role: 'keeper' as const,
   };
+  const secondAdministrator = {
+    name: 'Second Personnel Admin',
+    email: 'personnel-second-admin@example.com',
+    password: 'second-admin-password-123',
+    role: 'admin' as const,
+  };
   const createdEmail = 'personnel-created@example.com';
   let app: INestApplication<App>;
   let administratorId: string;
@@ -54,7 +60,12 @@ describeWithDatabase('Personnel and roles (database e2e)', () => {
     await prisma.user.deleteMany({
       where: {
         email: {
-          in: [administrator.email, keeper.email, createdEmail],
+          in: [
+            administrator.email,
+            keeper.email,
+            secondAdministrator.email,
+            createdEmail,
+          ],
         },
       },
     });
@@ -75,9 +86,21 @@ describeWithDatabase('Personnel and roles (database e2e)', () => {
 
     await unauthenticated.get('/api/personnel').expect(401);
     await unauthenticated.post('/api/personnel').send({}).expect(401);
+    await unauthenticated
+      .patch(`/api/personnel/${keeperId}/deactivate`)
+      .expect(401);
+    await unauthenticated
+      .patch(`/api/personnel/${keeperId}/reactivate`)
+      .expect(401);
 
     await keeperAgent.get('/api/personnel').expect(403);
     await keeperAgent.post('/api/personnel').send({}).expect(403);
+    await keeperAgent
+      .patch(`/api/personnel/${administratorId}/deactivate`)
+      .expect(403);
+    await keeperAgent
+      .patch(`/api/personnel/${administratorId}/reactivate`)
+      .expect(403);
 
     await keeperAgent.get('/api/me').expect(200).expect({
       id: keeperId,
@@ -99,11 +122,13 @@ describeWithDatabase('Personnel and roles (database e2e)', () => {
           id: administratorId,
           email: administrator.email,
           role: 'admin',
+          active: true,
         }),
         expect.objectContaining({
           id: keeperId,
           email: keeper.email,
           role: 'keeper',
+          active: true,
         }),
       ]),
     );
@@ -135,6 +160,7 @@ describeWithDatabase('Personnel and roles (database e2e)', () => {
       name: 'Created Keeper',
       email: createdEmail,
       role: 'keeper',
+      active: true,
     });
 
     await administratorAgent
@@ -177,6 +203,119 @@ describeWithDatabase('Personnel and roles (database e2e)', () => {
     ).resolves.not.toBeNull();
   });
 
+  it('deactivates, revokes sessions, and reactivates the same account', async () => {
+    const administratorAgent = await signIn(administrator);
+    const keeperAgent = await signIn(keeper);
+    const accountBefore = await prisma.account.findFirstOrThrow({
+      where: { userId: keeperId },
+      select: { id: true, password: true },
+    });
+
+    await administratorAgent
+      .patch(`/api/personnel/${keeperId}/deactivate`)
+      .expect(200)
+      .expect(({ body }) => {
+        expect(body).toMatchObject({
+          id: keeperId,
+          role: 'keeper',
+          active: false,
+        });
+      });
+
+    await keeperAgent.get('/api/me').expect(401);
+    await request(app.getHttpServer())
+      .post('/api/auth/sign-in/email')
+      .set('origin', 'http://localhost:5173')
+      .send({ email: keeper.email, password: keeper.password })
+      .expect(403);
+
+    const inactiveAccount = await prisma.user.findUniqueOrThrow({
+      where: { id: keeperId },
+      select: { id: true, role: true, banned: true },
+    });
+    const accountAfterDeactivation = await prisma.account.findFirstOrThrow({
+      where: { userId: keeperId },
+      select: { id: true, password: true },
+    });
+    expect(inactiveAccount).toEqual({
+      id: keeperId,
+      role: 'keeper',
+      banned: true,
+    });
+    expect(accountAfterDeactivation).toEqual(accountBefore);
+
+    await administratorAgent
+      .patch(`/api/personnel/${keeperId}/reactivate`)
+      .expect(200)
+      .expect(({ body }) => {
+        expect(body).toMatchObject({
+          id: keeperId,
+          role: 'keeper',
+          active: true,
+        });
+      });
+
+    await signIn(keeper);
+    await expect(
+      prisma.account.findFirstOrThrow({
+        where: { userId: keeperId },
+        select: { id: true, password: true },
+      }),
+    ).resolves.toEqual(accountBefore);
+  });
+
+  it('protects self, missing accounts, and existing lifecycle states', async () => {
+    const administratorAgent = await signIn(administrator);
+
+    await administratorAgent
+      .patch(`/api/personnel/${administratorId}/deactivate`)
+      .expect(409);
+    await administratorAgent
+      .patch('/api/personnel/missing-person/deactivate')
+      .expect(404);
+    await administratorAgent
+      .patch('/api/personnel/missing-person/reactivate')
+      .expect(404);
+    await administratorAgent
+      .patch(`/api/personnel/${keeperId}/reactivate`)
+      .expect(409);
+
+    await administratorAgent
+      .patch(`/api/personnel/${keeperId}/deactivate`)
+      .expect(200);
+    await administratorAgent
+      .patch(`/api/personnel/${keeperId}/deactivate`)
+      .expect(409);
+  });
+
+  it('preserves an active administrator under concurrent deactivation', async () => {
+    const secondResult = await auth.api.createUser({
+      body: secondAdministrator,
+    });
+    const secondAdministratorId = secondResult.user.id;
+    const firstAgent = await signIn(administrator);
+    const secondAgent = await signIn(secondAdministrator);
+
+    const [firstResponse, secondResponse] = await Promise.all([
+      firstAgent.patch(`/api/personnel/${secondAdministratorId}/deactivate`),
+      secondAgent.patch(`/api/personnel/${administratorId}/deactivate`),
+    ]);
+
+    const statuses = [firstResponse.status, secondResponse.status];
+    expect(statuses.filter((status) => status === 200)).toHaveLength(1);
+    expect(
+      statuses.filter((status) => status === 401 || status === 409),
+    ).toHaveLength(1);
+    await expect(
+      prisma.user.count({
+        where: {
+          role: 'admin',
+          OR: [{ banned: false }, { banned: null }],
+        },
+      }),
+    ).resolves.toBeGreaterThanOrEqual(1);
+  });
+
   afterAll(async () => {
     await prisma.user.deleteMany({
       where: {
@@ -184,6 +323,7 @@ describeWithDatabase('Personnel and roles (database e2e)', () => {
           in: [
             administrator.email,
             keeper.email,
+            secondAdministrator.email,
             createdEmail,
             'invalid-role@example.com',
           ],

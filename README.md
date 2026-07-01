@@ -92,8 +92,15 @@ An administrator can open `http://localhost:5173/personnel` to view the
 directory and create accounts. Creating an account requires an initial password
 of at least 12 characters. Share that password with the person through a channel
 outside Zootracker; it is never returned by the API or shown in the personnel
-list. Profile editing and account lifecycle management are intentionally
-outside this phase.
+list.
+
+The directory shows whether each account is active or inactive. Administrators
+can deactivate eligible keeper or administrator accounts after confirmation,
+which immediately revokes that person's sessions without deleting their
+account or historical attribution. Reactivation restores sign-in with the same
+credentials and role. Administrators cannot deactivate their own account or the
+last active administrator. Profile editing, role changes, and permanent account
+deletion remain unavailable.
 
 The backend is the authorization boundary. Personnel endpoints use the
 `@ApplicationRoles('admin')` metadata in

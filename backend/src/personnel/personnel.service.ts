@@ -2,11 +2,12 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { auth } from '../auth/auth';
 import { isApplicationRole } from '../common/authorization/application-role';
-import type { User } from '../generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
+import type { Prisma, User } from '../generated/prisma/client';
 import type { CreatePersonnelDto } from './dto/create-personnel.dto';
 import type { PersonnelResponse } from './personnel.types';
 
@@ -15,13 +16,14 @@ const safePersonnelSelect = {
   name: true,
   email: true,
   role: true,
+  banned: true,
   createdAt: true,
   updatedAt: true,
 } as const;
 
 type SafePersonnelRecord = Pick<
   User,
-  'id' | 'name' | 'email' | 'role' | 'createdAt' | 'updatedAt'
+  'id' | 'name' | 'email' | 'role' | 'banned' | 'createdAt' | 'updatedAt'
 >;
 
 @Injectable()
@@ -86,6 +88,124 @@ export class PersonnelService {
     }
   }
 
+  async deactivate(
+    personId: string,
+    currentAdministratorId: string,
+    headers: Headers,
+  ): Promise<PersonnelResponse> {
+    if (personId === currentAdministratorId) {
+      throw new ConflictException('You cannot deactivate your own account');
+    }
+
+    return this.withLifecycleLock(async (transaction) => {
+      const person = await transaction.user.findUnique({
+        where: { id: personId },
+        select: safePersonnelSelect,
+      });
+      if (!person) {
+        throw new NotFoundException('Personnel account not found');
+      }
+      if (person.banned === true) {
+        throw new ConflictException('Personnel account is already inactive');
+      }
+
+      if (person.role === 'admin') {
+        const activeAdministratorCount = await transaction.user.count({
+          where: {
+            role: 'admin',
+            OR: [{ banned: false }, { banned: null }],
+          },
+        });
+        if (activeAdministratorCount <= 1) {
+          throw new ConflictException(
+            'The last active administrator cannot be deactivated',
+          );
+        }
+      }
+
+      try {
+        await auth.api.banUser({
+          body: {
+            userId: personId,
+            banReason: 'Deactivated by a Zootracker administrator',
+          },
+          headers,
+        });
+      } catch {
+        throw new InternalServerErrorException(
+          'Unable to deactivate personnel account',
+        );
+      }
+
+      return this.loadResponse(transaction, personId);
+    });
+  }
+
+  async reactivate(
+    personId: string,
+    headers: Headers,
+  ): Promise<PersonnelResponse> {
+    return this.withLifecycleLock(async (transaction) => {
+      const person = await transaction.user.findUnique({
+        where: { id: personId },
+        select: safePersonnelSelect,
+      });
+      if (!person) {
+        throw new NotFoundException('Personnel account not found');
+      }
+      if (person.banned !== true) {
+        throw new ConflictException('Personnel account is already active');
+      }
+
+      try {
+        await auth.api.unbanUser({
+          body: { userId: personId },
+          headers,
+        });
+      } catch {
+        throw new InternalServerErrorException(
+          'Unable to reactivate personnel account',
+        );
+      }
+
+      return this.loadResponse(transaction, personId);
+    });
+  }
+
+  private async withLifecycleLock<T>(
+    operation: (transaction: Prisma.TransactionClient) => Promise<T>,
+  ): Promise<T> {
+    return this.prisma.$transaction(
+      async (transaction) => {
+        // Serialize lifecycle changes so concurrent requests cannot remove every admin.
+        await transaction.$queryRaw`
+          SELECT pg_advisory_xact_lock(
+            hashtext('zootracker_personnel_lifecycle')
+          )
+        `;
+        return operation(transaction);
+      },
+      { maxWait: 10_000, timeout: 10_000 },
+    );
+  }
+
+  private async loadResponse(
+    transaction: Prisma.TransactionClient,
+    personId: string,
+  ): Promise<PersonnelResponse> {
+    const person = await transaction.user.findUnique({
+      where: { id: personId },
+      select: safePersonnelSelect,
+    });
+    if (!person) {
+      throw new InternalServerErrorException(
+        'Personnel account could not be loaded',
+      );
+    }
+
+    return this.toResponse(person);
+  }
+
   private toResponse(person: SafePersonnelRecord): PersonnelResponse {
     if (!isApplicationRole(person.role)) {
       throw new InternalServerErrorException(
@@ -98,6 +218,7 @@ export class PersonnelService {
       name: person.name,
       email: person.email,
       role: person.role,
+      active: person.banned !== true,
       createdAt: person.createdAt,
       updatedAt: person.updatedAt,
     };
