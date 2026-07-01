@@ -6,32 +6,43 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { ApplicationRole } from '../common/authorization/application-role';
-import type { Animal } from '../generated/prisma/client';
-import type { AnimalResponse } from './animal.types';
-import type { CreateAnimalDto } from './dto/create-animal.dto';
-import type { ListAnimalsDto } from './dto/list-animals.dto';
-import type { UpdateAnimalDto } from './dto/update-animal.dto';
+import type {
+  AnimalRecord,
+  AnimalResponse,
+  CreateAnimalInput,
+  ListAnimalsInput,
+  UpdateAnimalInput,
+} from './animal.types';
+import {
+  toAnimalResponse,
+  toAnimalResponses,
+  toCreateAnimalData,
+  toUpdateAnimalData,
+} from './animal.mappers';
 import { AnimalsRepository } from './animals.repository';
 
-// TODO: Separate controller DTO and DB's
 @Injectable()
 export class AnimalsService {
   constructor(private readonly repository: AnimalsRepository) {}
 
   async list(
-    query: ListAnimalsDto,
+    query: ListAnimalsInput,
     role: ApplicationRole,
   ): Promise<AnimalResponse[]> {
-    if (query.status !== 'active' && role !== 'admin') {
+    const status = query.status ?? 'active';
+
+    if (status !== 'active' && role !== 'admin') {
       throw new ForbiddenException(
         'You do not have permission to view archived animals',
       );
     }
 
-    return this.repository.getAnimalsByQuery({
+    const animals = await this.repository.getAnimalsByQuery({
       search: query.search,
-      status: query.status,
+      status,
     });
+
+    return toAnimalResponses(animals);
   }
 
   async get(id: string, role: ApplicationRole): Promise<AnimalResponse> {
@@ -41,19 +52,26 @@ export class AnimalsService {
       throw new NotFoundException('Animal not found');
     }
 
-    return animal;
+    return toAnimalResponse(animal);
   }
 
-  async create(input: CreateAnimalDto): Promise<AnimalResponse> {
-    return this.repository.createAnimal(input);
+  async create(input: CreateAnimalInput): Promise<AnimalResponse> {
+    validateAnimalDates(input.dateOfBirth ?? null, input.arrivalDate ?? null);
+
+    const animal = await this.repository.createAnimal(
+      toCreateAnimalData(input),
+    );
+
+    return toAnimalResponse(animal);
   }
 
-  async update(id: string, input: UpdateAnimalDto): Promise<AnimalResponse> {
+  async update(id: string, input: UpdateAnimalInput): Promise<AnimalResponse> {
     if (Object.keys(input).length === 0) {
       throw new BadRequestException('Provide at least one field to update');
     }
 
     const animal = await this.repository.getAnimalById(id, true);
+
     if (!animal) {
       throw new NotFoundException('Animal not found');
     }
@@ -62,7 +80,17 @@ export class AnimalsService {
       throw new ConflictException('Cannot update an archived animal');
     }
 
-    return await this.repository.updateAnimal(id, input);
+    validateAnimalDates(
+      input.dateOfBirth === undefined ? animal.dateOfBirth : input.dateOfBirth,
+      input.arrivalDate === undefined ? animal.arrivalDate : input.arrivalDate,
+    );
+
+    const updatedAnimal = await this.repository.updateAnimal(
+      id,
+      toUpdateAnimalData(input),
+    );
+
+    return toAnimalResponse(updatedAnimal);
   }
 
   async archive(id: string): Promise<AnimalResponse> {
@@ -76,10 +104,33 @@ export class AnimalsService {
       throw new ConflictException('Animal is already archived');
     }
 
-    return this.repository.archiveAnimal(id);
+    const archivedAnimal = await this.repository.archiveAnimal(id);
+
+    return toAnimalResponse(archivedAnimal);
   }
 }
 
-function isAnimalArchived(animal: Animal): boolean {
+function isAnimalArchived(animal: AnimalRecord): boolean {
   return animal.archivedAt !== null;
+}
+
+function validateAnimalDates(
+  dateOfBirth: Date | null,
+  arrivalDate: Date | null,
+): void {
+  const now = new Date();
+
+  if (dateOfBirth && dateOfBirth > now) {
+    throw new BadRequestException('Date of birth cannot be in the future');
+  }
+
+  if (arrivalDate && arrivalDate > now) {
+    throw new BadRequestException('Arrival date cannot be in the future');
+  }
+
+  if (dateOfBirth && arrivalDate && arrivalDate < dateOfBirth) {
+    throw new BadRequestException(
+      'Arrival date cannot be earlier than date of birth',
+    );
+  }
 }

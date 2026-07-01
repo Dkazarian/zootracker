@@ -1,25 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { ListAnimalsDto } from './dto/list-animals.dto';
-import { Animal, Prisma } from 'src/generated/prisma/browser';
-import { PrismaService } from 'src/database/prisma.service';
-import { UpdateAnimalDto } from './dto/update-animal.dto';
-import { CreateAnimalDto } from './dto/create-animal.dto';
-
-export interface AnimalFilterOptions {
-  search?: string;
-  status?: 'active' | 'archived' | 'all';
-}
+import type { Prisma } from '../generated/prisma/client';
+import { PrismaService } from '../database/prisma.service';
+import type {
+  CreateAnimalData,
+  AnimalRecord,
+  ListAnimalsQuery,
+  UpdateAnimalData,
+} from './animal.types';
 
 @Injectable()
 export class AnimalsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createAnimal(input: CreateAnimalDto): Promise<Animal> {
-    return this.prisma.animal.create({ data: input });
+  async createAnimal(data: CreateAnimalData): Promise<AnimalRecord> {
+    return this.prisma.animal.create({
+      data,
+    });
   }
 
-  async getAnimalsByQuery(query: ListAnimalsDto): Promise<Animal[]> {
-    const archiveFilter =
+  async getAnimalsByQuery(query: ListAnimalsQuery): Promise<AnimalRecord[]> {
+    const archiveFilter: Prisma.AnimalWhereInput =
       query.status === 'active'
         ? { archivedAt: null }
         : query.status === 'archived'
@@ -29,8 +29,24 @@ export class AnimalsRepository {
     const searchFilter: Prisma.AnimalWhereInput = query.search
       ? {
           OR: [
-            { name: { contains: query.search, mode: 'insensitive' } },
-            { species: { contains: query.search, mode: 'insensitive' } },
+            {
+              name: {
+                contains: query.search,
+                mode: 'insensitive',
+              },
+            },
+            {
+              species: {
+                contains: query.search,
+                mode: 'insensitive',
+              },
+            },
+            {
+              currentLocation: {
+                contains: query.search,
+                mode: 'insensitive',
+              },
+            },
           ],
         }
       : {};
@@ -44,24 +60,35 @@ export class AnimalsRepository {
     });
   }
 
-  async getAnimalById(id: string, includeArchived: boolean): Promise<Animal | null> {
-    const whereClause: Prisma.AnimalWhereInput = includeArchived
+  async getAnimalById(
+    id: string,
+    includeArchived: boolean,
+  ): Promise<AnimalRecord | null> {
+    const where: Prisma.AnimalWhereInput = includeArchived
       ? { id }
       : { id, archivedAt: null };
 
     return this.prisma.animal.findFirst({
-      where: whereClause,
+      where,
     });
   }
 
-  async archiveAnimal(id: string): Promise<Animal> {
+  async updateAnimal(
+    id: string,
+    data: UpdateAnimalData,
+  ): Promise<AnimalRecord> {
     return this.prisma.animal.update({
       where: { id },
-      data: { archivedAt: new Date() },
+      data,
     });
   }
 
-  async updateAnimal(id: string, data: UpdateAnimalDto): Promise<Animal> {
-    return this.prisma.animal.update({ where: { id }, data });
+  async archiveAnimal(id: string): Promise<AnimalRecord> {
+    return this.prisma.animal.update({
+      where: { id },
+      data: {
+        archivedAt: new Date(),
+      },
+    });
   }
 }

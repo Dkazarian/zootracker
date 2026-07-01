@@ -2,13 +2,14 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { jest } from '@jest/globals';
-import { PrismaService } from '../database/prisma.service';
-import type { Animal } from '../generated/prisma/client';
+import type { AnimalRecord } from './animal.types';
+import { AnimalsRepository } from './animals.repository';
 import { AnimalsService } from './animals.service';
 
-const activeAnimal: Animal = {
+const activeAnimal: AnimalRecord = {
   id: 'animal-1',
   name: 'Amara',
   species: 'African elephant',
@@ -23,40 +24,96 @@ const activeAnimal: Animal = {
 };
 
 describe('AnimalsService', () => {
-  const animal = {
-    findMany: jest.fn<(input: unknown) => Promise<Animal[]>>(),
-    findFirst: jest.fn<(input: unknown) => Promise<Animal | null>>(),
-    findUnique: jest.fn<(input: unknown) => Promise<Animal | null>>(),
-    create: jest.fn<(input: unknown) => Promise<Animal>>(),
-    update: jest.fn<(input: unknown) => Promise<Animal>>(),
+  const repository = {
+    createAnimal: jest.fn<AnimalsRepository['createAnimal']>(),
+    getAnimalsByQuery: jest.fn<AnimalsRepository['getAnimalsByQuery']>(),
+    getAnimalById: jest.fn<AnimalsRepository['getAnimalById']>(),
+    updateAnimal: jest.fn<AnimalsRepository['updateAnimal']>(),
+    archiveAnimal: jest.fn<AnimalsRepository['archiveAnimal']>(),
   };
-  const service = new AnimalsService({ animal } as unknown as PrismaService);
+  const service = new AnimalsService(
+    repository as unknown as AnimalsRepository,
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('defaults lists to active animals and maps repository records', async () => {
+    repository.getAnimalsByQuery.mockResolvedValueOnce([activeAnimal]);
+
+    await expect(service.list({}, 'keeper')).resolves.toEqual([activeAnimal]);
+    expect(repository.getAnimalsByQuery).toHaveBeenCalledWith({
+      search: undefined,
+      status: 'active',
+    });
   });
 
   it('does not let a keeper request archived animals', async () => {
     await expect(
       service.list({ status: 'archived' }, 'keeper'),
     ).rejects.toBeInstanceOf(ForbiddenException);
-    expect(animal.findMany).not.toHaveBeenCalled();
+    expect(repository.getAnimalsByQuery).not.toHaveBeenCalled();
   });
 
-  it('rejects inconsistent dates before creating an animal', async () => {
+  it('returns not found when an animal is not visible', async () => {
+    repository.getAnimalById.mockResolvedValueOnce(null);
+
+    await expect(service.get('missing', 'keeper')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(repository.getAnimalById).toHaveBeenCalledWith('missing', false);
+  });
+
+  it.each([
+    {
+      dateOfBirth: new Date('2999-01-01T00:00:00.000Z'),
+      arrivalDate: null,
+    },
+    {
+      dateOfBirth: null,
+      arrivalDate: new Date('2999-01-01T00:00:00.000Z'),
+    },
+    {
+      dateOfBirth: new Date('2025-01-02T00:00:00.000Z'),
+      arrivalDate: new Date('2025-01-01T00:00:00.000Z'),
+    },
+  ])('rejects invalid dates before creating an animal', async (dates) => {
     await expect(
       service.create({
         name: 'Nilo',
         species: 'Capybara',
-        dateOfBirth: new Date('2025-01-02T00:00:00.000Z'),
-        arrivalDate: new Date('2025-01-01T00:00:00.000Z'),
+        ...dates,
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
-    expect(animal.create).not.toHaveBeenCalled();
+    expect(repository.createAnimal).not.toHaveBeenCalled();
+  });
+
+  it('maps omitted nullable fields when creating an animal', async () => {
+    repository.createAnimal.mockResolvedValueOnce(activeAnimal);
+
+    await service.create({ name: 'Amara', species: 'African elephant' });
+
+    expect(repository.createAnimal).toHaveBeenCalledWith({
+      name: 'Amara',
+      species: 'African elephant',
+      sex: null,
+      dateOfBirth: null,
+      arrivalDate: null,
+      currentLocation: null,
+      notes: null,
+    });
+  });
+
+  it('rejects an empty update', async () => {
+    await expect(service.update(activeAnimal.id, {})).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(repository.getAnimalById).not.toHaveBeenCalled();
   });
 
   it('does not edit an archived animal', async () => {
-    animal.findUnique.mockResolvedValueOnce({
+    repository.getAnimalById.mockResolvedValueOnce({
       ...activeAnimal,
       archivedAt: new Date(),
     });
@@ -64,21 +121,51 @@ describe('AnimalsService', () => {
     await expect(
       service.update(activeAnimal.id, { name: 'Updated' }),
     ).rejects.toBeInstanceOf(ConflictException);
-    expect(animal.update).not.toHaveBeenCalled();
+    expect(repository.updateAnimal).not.toHaveBeenCalled();
+  });
+
+  it('validates updated dates together with stored dates', async () => {
+    repository.getAnimalById.mockResolvedValueOnce(activeAnimal);
+
+    await expect(
+      service.update(activeAnimal.id, {
+        arrivalDate: new Date('2000-01-01T00:00:00.000Z'),
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repository.updateAnimal).not.toHaveBeenCalled();
+  });
+
+  it('maps only fields supplied by an update', async () => {
+    const updated = { ...activeAnimal, currentLocation: null };
+    repository.getAnimalById.mockResolvedValueOnce(activeAnimal);
+    repository.updateAnimal.mockResolvedValueOnce(updated);
+
+    await expect(
+      service.update(activeAnimal.id, { currentLocation: null }),
+    ).resolves.toEqual(updated);
+    expect(repository.updateAnimal).toHaveBeenCalledWith(activeAnimal.id, {
+      currentLocation: null,
+    });
   });
 
   it('archives an active animal without deleting it', async () => {
     const archived = { ...activeAnimal, archivedAt: new Date() };
-    animal.findUnique.mockResolvedValueOnce(activeAnimal);
-    animal.update.mockResolvedValueOnce(archived);
+    repository.getAnimalById.mockResolvedValueOnce(activeAnimal);
+    repository.archiveAnimal.mockResolvedValueOnce(archived);
 
     await expect(service.archive(activeAnimal.id)).resolves.toEqual(archived);
-    expect(animal.update).toHaveBeenCalledTimes(1);
-    const updateInput = animal.update.mock.calls[0]?.[0] as {
-      where: { id: string };
-      data: { archivedAt: Date };
-    };
-    expect(updateInput.where).toEqual({ id: activeAnimal.id });
-    expect(updateInput.data.archivedAt).toBeInstanceOf(Date);
+    expect(repository.archiveAnimal).toHaveBeenCalledWith(activeAnimal.id);
+  });
+
+  it('does not archive an animal twice', async () => {
+    repository.getAnimalById.mockResolvedValueOnce({
+      ...activeAnimal,
+      archivedAt: new Date(),
+    });
+
+    await expect(service.archive(activeAnimal.id)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+    expect(repository.archiveAnimal).not.toHaveBeenCalled();
   });
 });
