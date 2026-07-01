@@ -2,18 +2,20 @@
 
 Phases are intentionally small. Each phase should be independently reviewable, testable, and leave the application in a working state.
 
-Every phase receives its own `requirements.md`, `plan.md`, and `validation.md` before implementation begins. Testing is part of each phase rather than postponed until the end.
+Every phase receives its own `requirements.md`, `scope.md`, `plan.md`, and
+`validation.md` before implementation begins. Testing is part of each phase
+rather than postponed until the end.
 
 ---
 
-## Phase 1 - Hello Zootracker
+## ✅ Phase 1 - Hello Zootracker
 
 - Create the `frontend/` React application and `backend/` NestJS application.
 - Display a minimal Zootracker home page.
 - Add a NestJS health endpoint and call it from the frontend.
 - Configure formatting, linting, type-checking, and initial CI.
 
-## Phase 2 - Authentication
+## ✅ Phase 2 - Authentication
 
 - Connect Better Auth to PostgreSQL through Prisma.
 - Validate the community-maintained NestJS integration.
@@ -21,7 +23,7 @@ Every phase receives its own `requirements.md`, `plan.md`, and `validation.md` b
 - Protect the application and API from unauthenticated access.
 - Seed the first administrator account; do not expose public registration.
 
-## Phase 3 - Personnel and Roles
+## ✅ Phase 3 - Personnel and Roles
 
 - Add the keeper and administrator roles.
 - Allow administrators to create personnel accounts and view the personnel
@@ -34,7 +36,7 @@ Every phase receives its own `requirements.md`, `plan.md`, and `validation.md` b
 - Enforce role permissions in both the API and user interface.
 - Show the signed-in user's identity and role.
 
-## Phase 4 - Animal Registry
+## ✅ Phase 4 - Animal Registry
 
 - Add the animal database model and seed representative animals.
 - Allow all authenticated personnel to browse, search, and view active animals.
