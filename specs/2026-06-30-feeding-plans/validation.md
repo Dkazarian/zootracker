@@ -94,9 +94,10 @@ From the repository root, all of the following must succeed:
   confirmation and removal.
 - The animal profile had no horizontal overflow at a 375-pixel viewport, and
   the tested flows produced no unexpected browser console errors.
-- A final browser pass through administrator mutations and a keyboard-only
-  create, update, and archive flow remains pending; both roles have automated
-  component and API coverage.
+- The final browser pass confirmed administrator create, update, and archive
+  mutations, accessible native form controls and action buttons for keyboard
+  operation, correct accountability, removal from active results, and no
+  unexpected browser console errors.
 - Temporary browser-test plans and personnel accounts were removed after
   validation.
 - No feeding record, assignment, occurrence, queue, or claim model was added.

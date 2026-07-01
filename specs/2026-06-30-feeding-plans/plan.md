@@ -41,7 +41,7 @@
 5. ✅ Add an accessible plan-creation form for keepers and administrators.
 6. ✅ Add accessible update and archive flows for keepers and administrators.
 7. ✅ Refresh affected plan data after successful mutations.
-8. Verify complete keyboard use; desktop and narrow mobile layouts are
+8. ✅ Verify complete keyboard use; desktop and narrow mobile layouts are
    validated.
 
 ## Task Group 4 - Tests, documentation, and validation
@@ -56,7 +56,7 @@
 5. ✅ Document feeding periods, recurrence, timezone behavior, and the local test
    workflow.
 6. ✅ Execute all automated validation commands.
-7. Perform the remaining keyboard-only browser check in `validation.md`; API
+7. ✅ Perform the remaining keyboard-only browser check in `validation.md`; API
    and other browser checks are validated.
 8. ✅ Confirm feeding records, assignments, and claims have not leaked into this
    phase.

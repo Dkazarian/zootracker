@@ -43,7 +43,7 @@ rather than postponed until the end.
 - Allow administrators to create, update, and archive animal profiles.
 - Preserve archived animal history.
 
-## Phase 5 - Feeding Plans
+## ✅ Phase 5 - Feeding Plans
 
 - Allow keepers and administrators to create and maintain an animal's feeding
   plan.
