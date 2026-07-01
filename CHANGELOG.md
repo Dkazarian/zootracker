@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-07-01
+
+- Finalize personnel deactivation and reactivation with direct account-state
+  updates, session revocation, and administrator safeguards.
+
 ## 2026-06-30
 
 - Implement Phase 5 feeding plans with recurring periods, due-status tracking,

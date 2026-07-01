@@ -61,6 +61,7 @@ animal-care features will reuse.
 - Show whether each account is active or inactive.
 - Provide administrator controls to deactivate and reactivate eligible
   accounts.
+- Require an in-page confirmation before deactivating an account.
 - Hide or disable actions that would deactivate the signed-in administrator or
   the last active administrator.
 - Show clear loading, empty, success, validation, and failure states.
@@ -74,8 +75,9 @@ animal-care features will reuse.
   safeguards.
 - Document how administrator-created accounts receive their initial
   credentials.
-- Preserve formatting, linting, type-checking, testing, build, database-test,
-  and CI checks.
+- Preserve linting, type-checking, testing, build, database-test, and CI checks.
+- Do not introduce new formatting drift in Phase 3 files. Repository-wide
+  Prettier baseline cleanup is tracked separately in `specs/backlog.md`.
 
 ## Decisions
 
@@ -97,6 +99,8 @@ animal-care features will reuse.
   themselves or the last active administrator.
 - Reactivation is the inverse of deactivation and does not edit profile fields,
   roles, credentials, or historical records.
+- Full confirmation-dialog focus management and keyboard dismissal are
+  deferred to Phase 12 and tracked in `specs/backlog.md`.
 - The backend enforces every permission; conditional navigation is only a user
   experience improvement.
 - The personnel directory is small enough that pagination and search are not

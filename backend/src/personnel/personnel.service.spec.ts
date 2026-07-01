@@ -1,6 +1,5 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { jest } from '@jest/globals';
-import { auth } from '../auth/auth';
 import { PrismaService } from '../database/prisma.service';
 import type { User } from '../generated/prisma/client';
 import { PersonnelService } from './personnel.service';
@@ -32,10 +31,14 @@ describe('PersonnelService lifecycle', () => {
   const user = {
     findUnique: jest.fn<(input: unknown) => Promise<SafePersonnel | null>>(),
     count: jest.fn<(input: unknown) => Promise<number>>(),
+    update: jest.fn<(input: unknown) => Promise<SafePersonnel>>(),
   };
   const transaction = {
     user,
-    $queryRaw: jest.fn<(query: TemplateStringsArray) => Promise<unknown>>(),
+    session: {
+      deleteMany: jest.fn<(input: unknown) => Promise<unknown>>(),
+    },
+    $executeRaw: jest.fn<(query: TemplateStringsArray) => Promise<number>>(),
   };
   const prisma = {
     $transaction: jest.fn(
@@ -48,7 +51,9 @@ describe('PersonnelService lifecycle', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    transaction.$queryRaw.mockResolvedValue([]);
+    transaction.$executeRaw.mockResolvedValue(1);
+    user.update.mockReset();
+    transaction.session.deleteMany.mockReset();
   });
 
   afterEach(() => {
@@ -73,7 +78,7 @@ describe('PersonnelService lifecycle', () => {
 
   it('prevents self-deactivation before changing account state', async () => {
     await expect(
-      service.deactivate('admin-1', 'admin-1', new Headers()),
+      service.deactivate('admin-1', 'admin-1'),
     ).rejects.toBeInstanceOf(ConflictException);
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
@@ -81,46 +86,44 @@ describe('PersonnelService lifecycle', () => {
   it('prevents the last active administrator from being deactivated', async () => {
     user.findUnique.mockResolvedValueOnce(activeAdministrator);
     user.count.mockResolvedValueOnce(1);
-    const banUser = jest.spyOn(auth.api, 'banUser');
 
     await expect(
-      service.deactivate(activeAdministrator.id, 'admin-1', new Headers()),
+      service.deactivate(activeAdministrator.id, 'admin-1'),
     ).rejects.toBeInstanceOf(ConflictException);
-    expect(banUser).not.toHaveBeenCalled();
+    expect(user.update).not.toHaveBeenCalled();
   });
 
   it('deactivates through Better Auth and returns safe inactive status', async () => {
     user.findUnique
       .mockResolvedValueOnce(activeKeeper)
       .mockResolvedValueOnce({ ...activeKeeper, banned: true });
-    const banUser = jest
-      .spyOn(auth.api, 'banUser')
-      .mockResolvedValue(undefined as never);
+    user.update.mockResolvedValueOnce({ ...activeKeeper, banned: true });
+    transaction.session.deleteMany.mockResolvedValueOnce({ count: 1 });
 
     await expect(
-      service.deactivate(activeKeeper.id, 'admin-1', new Headers()),
+      service.deactivate(activeKeeper.id, 'admin-1'),
     ).resolves.toEqual(
       expect.objectContaining({ id: activeKeeper.id, active: false }),
     );
-    expect(banUser).toHaveBeenCalledTimes(1);
-    expect(banUser.mock.calls[0]?.[0]?.body).toEqual({
-      userId: activeKeeper.id,
-      banReason: 'Deactivated by a Zootracker administrator',
+    expect(user.update).toHaveBeenCalledWith({
+      where: { id: activeKeeper.id },
+      data: {
+        banned: true,
+        banReason: 'Deactivated by a Zootracker administrator',
+      },
     });
-    expect(banUser.mock.calls[0]?.[0]?.headers).toBeInstanceOf(Headers);
+    expect(transaction.session.deleteMany).toHaveBeenCalledWith({
+      where: { userId: activeKeeper.id },
+    });
   });
 
-  it('reactivates through Better Auth without changing identity fields', async () => {
+  it('reactivates without changing identity fields', async () => {
     user.findUnique
       .mockResolvedValueOnce({ ...activeKeeper, banned: true })
       .mockResolvedValueOnce(activeKeeper);
-    const unbanUser = jest
-      .spyOn(auth.api, 'unbanUser')
-      .mockResolvedValue(undefined as never);
+    user.update.mockResolvedValueOnce(activeKeeper);
 
-    await expect(
-      service.reactivate(activeKeeper.id, new Headers()),
-    ).resolves.toEqual(
+    await expect(service.reactivate(activeKeeper.id)).resolves.toEqual(
       expect.objectContaining({
         id: activeKeeper.id,
         email: activeKeeper.email,
@@ -128,30 +131,33 @@ describe('PersonnelService lifecycle', () => {
         active: true,
       }),
     );
-    expect(unbanUser).toHaveBeenCalledTimes(1);
-    expect(unbanUser.mock.calls[0]?.[0]?.body).toEqual({
-      userId: activeKeeper.id,
+    expect(user.update).toHaveBeenCalledWith({
+      where: { id: activeKeeper.id },
+      data: {
+        banned: false,
+        banReason: null,
+        banExpires: null,
+      },
     });
-    expect(unbanUser.mock.calls[0]?.[0]?.headers).toBeInstanceOf(Headers);
   });
 
   it('returns useful missing and existing-state conflicts', async () => {
     user.findUnique.mockResolvedValueOnce(null);
-    await expect(
-      service.reactivate('missing', new Headers()),
-    ).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.reactivate('missing')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
 
     user.findUnique.mockResolvedValueOnce(activeKeeper);
-    await expect(
-      service.reactivate(activeKeeper.id, new Headers()),
-    ).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.reactivate(activeKeeper.id)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
 
     user.findUnique.mockResolvedValueOnce({
       ...activeKeeper,
       banned: true,
     });
     await expect(
-      service.deactivate(activeKeeper.id, 'admin-1', new Headers()),
+      service.deactivate(activeKeeper.id, 'admin-1'),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 });

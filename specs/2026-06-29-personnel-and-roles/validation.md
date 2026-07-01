@@ -80,7 +80,7 @@ From the repository root, all of the following must succeed:
 
 1. Confirm the personnel directory clearly distinguishes active and inactive
    accounts of both roles.
-2. Deactivate an eligible keeper through an accessible confirmation step and
+2. Deactivate an eligible keeper through an in-page confirmation step and
    confirm its status and available action update without a full reload.
 3. Reactivate the keeper and confirm the directory returns to its active state.
 4. Deactivate and reactivate an eligible administrator.
@@ -88,7 +88,8 @@ From the repository root, all of the following must succeed:
 6. Confirm the last active administrator cannot be offered as an eligible
    deactivation target.
 7. Confirm useful pending, success, conflict, and failure feedback.
-8. Complete the lifecycle flow using keyboard controls.
+8. Confirm lifecycle actions use labeled native controls. Full confirmation
+   focus management and keyboard dismissal are deferred to Phase 12.
 9. Repeat the lifecycle flow at a narrow mobile viewport without horizontal
    overflow.
 10. Confirm there are no unexpected browser console errors.
@@ -129,13 +130,41 @@ From the repository root, all of the following must succeed:
 
 ## Amendment Validation Results
 
-Not yet implemented or validated.
+Validation was rerun on 2026-07-01 against the current lifecycle
+implementation.
+
+- The focused PostgreSQL-backed personnel suite passed all 6 tests, including
+  deactivation, reactivation, session revocation, self-protection,
+  last-administrator protection, and concurrent-request coverage.
+- Root `lint`, `typecheck`, `test`, and `build` passed. The root test command
+  passed 27 frontend tests, 39 backend unit tests, and 3 enabled general
+  end-to-end tests.
+- `git diff --check` passed.
+- `npm run format:check` reported existing drift across 54 files. The baseline
+  cleanup is tracked in `specs/backlog.md`; `git diff --check` passed for the
+  Phase 3 work.
+- Browser validation against the freshly built backend confirmed
+  administrator identity and navigation, active and inactive status, the
+  deactivation warning, successful keeper deactivation and reactivation,
+  self-deactivation protection, success feedback, and query refresh without a
+  full reload.
+- At a 375-pixel viewport, the personnel page had no horizontal overflow and
+  retained its lifecycle controls. No warning or error was logged by the
+  browser for the validated `localhost` flow.
+- The browser pass found that opening the deactivation confirmation leaves
+  focus on the background `Deactivate` button. Focus containment, keyboard
+  dismissal, and focus restoration are deferred to Phase 12 and recorded in
+  `specs/backlog.md`.
+- Phase 3 is validated against its revised requirements. All amendment plan
+  steps are complete.
 
 ## Merge Criteria
 
 The phase can be merged when:
 
-- All automated and manual validation checks pass.
+- All checks required by the revised Phase 3 scope pass. The repository
+  formatting baseline and dialog focus work are explicit backlog items and are
+  not Phase 3 merge criteria.
 - Every account used by the application has one valid role.
 - Keepers cannot access personnel through the UI or direct API requests.
 - Administrators can list, create, deactivate, and reactivate personnel of

@@ -91,7 +91,6 @@ export class PersonnelService {
   async deactivate(
     personId: string,
     currentAdministratorId: string,
-    headers: Headers,
   ): Promise<PersonnelResponse> {
     if (personId === currentAdministratorId) {
       throw new ConflictException('You cannot deactivate your own account');
@@ -123,28 +122,22 @@ export class PersonnelService {
         }
       }
 
-      try {
-        await auth.api.banUser({
-          body: {
-            userId: personId,
-            banReason: 'Deactivated by a Zootracker administrator',
-          },
-          headers,
-        });
-      } catch {
-        throw new InternalServerErrorException(
-          'Unable to deactivate personnel account',
-        );
-      }
+      await transaction.user.update({
+        where: { id: personId },
+        data: {
+          banned: true,
+          banReason: 'Deactivated by a Zootracker administrator',
+        },
+      });
+      await transaction.session.deleteMany({
+        where: { userId: personId },
+      });
 
       return this.loadResponse(transaction, personId);
     });
   }
 
-  async reactivate(
-    personId: string,
-    headers: Headers,
-  ): Promise<PersonnelResponse> {
+  async reactivate(personId: string): Promise<PersonnelResponse> {
     return this.withLifecycleLock(async (transaction) => {
       const person = await transaction.user.findUnique({
         where: { id: personId },
@@ -157,16 +150,14 @@ export class PersonnelService {
         throw new ConflictException('Personnel account is already active');
       }
 
-      try {
-        await auth.api.unbanUser({
-          body: { userId: personId },
-          headers,
-        });
-      } catch {
-        throw new InternalServerErrorException(
-          'Unable to reactivate personnel account',
-        );
-      }
+      await transaction.user.update({
+        where: { id: personId },
+        data: {
+          banned: false,
+          banReason: null,
+          banExpires: null,
+        },
+      });
 
       return this.loadResponse(transaction, personId);
     });
@@ -178,7 +169,7 @@ export class PersonnelService {
     return this.prisma.$transaction(
       async (transaction) => {
         // Serialize lifecycle changes so concurrent requests cannot remove every admin.
-        await transaction.$queryRaw`
+        await transaction.$executeRaw`
           SELECT pg_advisory_xact_lock(
             hashtext('zootracker_personnel_lifecycle')
           )

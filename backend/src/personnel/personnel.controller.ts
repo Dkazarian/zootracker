@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Headers as RequestHeader,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { auth } from '../auth/auth';
 import { ApplicationRoles } from '../common/authorization/application-roles.decorator';
@@ -33,24 +25,12 @@ export class PersonnelController {
   deactivate(
     @Param('id') id: string,
     @Session() session: UserSession<typeof auth>,
-    @RequestHeader('cookie') cookie?: string,
   ): Promise<PersonnelResponse> {
-    return this.personnelService.deactivate(
-      id,
-      session.user.id,
-      this.authHeaders(cookie),
-    );
+    return this.personnelService.deactivate(id, session.user.id);
   }
 
   @Patch(':id/reactivate')
-  reactivate(
-    @Param('id') id: string,
-    @RequestHeader('cookie') cookie?: string,
-  ): Promise<PersonnelResponse> {
-    return this.personnelService.reactivate(id, this.authHeaders(cookie));
-  }
-
-  private authHeaders(cookie?: string): Headers {
-    return new Headers(cookie ? { cookie } : undefined);
+  reactivate(@Param('id') id: string): Promise<PersonnelResponse> {
+    return this.personnelService.reactivate(id);
   }
 }

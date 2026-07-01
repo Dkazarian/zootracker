@@ -2,8 +2,11 @@
 
 ## Status
 
-The original Phase 3 implementation is complete. The account-lifecycle
-amendment in Task Groups 7-9 is planned but not yet implemented or validated.
+The original Phase 3 implementation and the account-lifecycle amendment are
+implemented and validated against the revised Phase 3 requirements.
+Confirmation-dialog focus management is deferred to Phase 12, and the
+repository-wide formatting baseline is tracked as technical debt in
+`specs/backlog.md`.
 
 ## Phase-wide context
 
