@@ -30,7 +30,6 @@ describe('FeedingPlansService', () => {
     findPlanForMutation:
       jest.fn<FeedingPlansRepository['findPlanForMutation']>(),
     create: jest.fn<FeedingPlansRepository['create']>(),
-    update: jest.fn<FeedingPlansRepository['update']>(),
     archive: jest.fn<FeedingPlansRepository['archive']>(),
   };
   const service = new FeedingPlansService(
@@ -99,36 +98,26 @@ describe('FeedingPlansService', () => {
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
-  it('does not update an archived plan', async () => {
+  it('does not archive an already archived plan', async () => {
     repository.findPlanForMutation.mockResolvedValueOnce({
       archivedAt: new Date(),
       animal: { archivedAt: null },
     });
     await expect(
-      service.update(
-        activePlan.animalId,
-        activePlan.id,
-        { name: 'Changed' },
-        person.id,
-      ),
+      service.archive(activePlan.animalId, activePlan.id, person.id),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
-  it('maps only supplied update fields and the modifier', async () => {
+  it('archives an active plan with modifier accountability', async () => {
     repository.findPlanForMutation.mockResolvedValueOnce({
       archivedAt: null,
       animal: { archivedAt: null },
     });
-    repository.update.mockResolvedValueOnce(activePlan);
-    await service.update(
-      activePlan.animalId,
-      activePlan.id,
-      { name: 'Changed' },
-      person.id,
-    );
-    expect(repository.update).toHaveBeenCalledWith(activePlan.id, {
-      name: 'Changed',
-      lastModifiedById: person.id,
+    repository.archive.mockResolvedValueOnce({
+      ...activePlan,
+      archivedAt: new Date('2026-07-01T12:00:00.000Z'),
     });
+    await service.archive(activePlan.animalId, activePlan.id, person.id);
+    expect(repository.archive).toHaveBeenCalledWith(activePlan.id, person.id);
   });
 });

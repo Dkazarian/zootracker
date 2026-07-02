@@ -9,14 +9,13 @@ import { getZooTimeZone } from '../config/environment';
 import {
   toCreateFeedingPlanData,
   toFeedingPlanResponse,
-  toUpdateFeedingPlanData,
 } from './feeding-plan.mappers';
 import { getFeedingPlanTiming, parseDateOnly } from './feeding-plan-schedule';
 import type {
   CreateFeedingPlanInput,
+  FeedingPlanListStatus,
   FeedingPlanRecord,
   FeedingPlanResponse,
-  UpdateFeedingPlanInput,
 } from './feeding-plan.types';
 import { FeedingPlansRepository } from './feeding-plans.repository';
 
@@ -27,10 +26,11 @@ export class FeedingPlansService {
   async list(
     animalId: string,
     role: ApplicationRole,
+    status: FeedingPlanListStatus = 'active',
   ): Promise<FeedingPlanResponse[]> {
     await this.requireVisibleAnimal(animalId, role);
     const now = new Date();
-    return (await this.repository.list(animalId)).map((plan) =>
+    return (await this.repository.list(animalId, status)).map((plan) =>
       this.toResponse(plan, now),
     );
   }
@@ -48,27 +48,6 @@ export class FeedingPlansService {
         this.parseNextDueDate(input.nextDueDate),
         userId,
       ),
-    );
-    return this.toResponse(plan, new Date());
-  }
-
-  async update(
-    animalId: string,
-    planId: string,
-    input: UpdateFeedingPlanInput,
-    userId: string,
-  ): Promise<FeedingPlanResponse> {
-    if (Object.keys(input).length === 0) {
-      throw new BadRequestException('Provide at least one field to update');
-    }
-    await this.requireMutablePlan(animalId, planId);
-    const nextDueDate =
-      input.nextDueDate === undefined
-        ? undefined
-        : this.parseNextDueDate(input.nextDueDate);
-    const plan = await this.repository.update(
-      planId,
-      toUpdateFeedingPlanData(input, nextDueDate, userId),
     );
     return this.toResponse(plan, new Date());
   }
@@ -133,6 +112,12 @@ export class FeedingPlansService {
   }
 
   private toResponse(plan: FeedingPlanRecord, now: Date): FeedingPlanResponse {
+    if (plan.archivedAt) {
+      return toFeedingPlanResponse(plan, {
+        status: null,
+        minutesPastDue: null,
+      });
+    }
     return toFeedingPlanResponse(
       plan,
       getFeedingPlanTiming(

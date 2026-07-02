@@ -97,12 +97,12 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
     const basePath = `/api/animals/${activeAnimalId}/feeding-plans`;
 
     await unauthenticated.get(basePath).expect(401);
+    await unauthenticated.get(`${basePath}?status=archived`).expect(401);
     await unauthenticated.post(basePath).send({}).expect(401);
-    await unauthenticated.patch(`${basePath}/missing`).send({}).expect(401);
     await unauthenticated.post(`${basePath}/missing/archive`).expect(401);
   });
 
-  it('creates, orders, updates, and archives plans with accountability', async () => {
+  it('creates, orders, archives, and lists plan history with accountability', async () => {
     const keeperAgent = await signIn(keeper);
     const secondKeeperAgent = await signIn(secondKeeper);
     const basePath = `/api/animals/${activeAnimalId}/feeding-plans`;
@@ -146,36 +146,62 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
     expect(plans.map((plan) => plan.id)).toEqual([morning.id, evening.id]);
     expect(plans.every((plan) => plan.status === 'upcoming')).toBe(true);
 
-    const update = await secondKeeperAgent
-      .patch(`${basePath}/${evening.id}`)
+    await secondKeeperAgent
+      .post(`${basePath}/${evening.id}/archive`)
+      .expect(201)
+      .expect((response) => {
+        expect(response.body).toMatchObject({
+          id: evening.id,
+          lastModifiedBy: { name: secondKeeper.name },
+        });
+      });
+    const newPlanResponse = await secondKeeperAgent
+      .post(basePath)
       .send({
+        name: 'Revised evening meal',
         instructions: 'Hay, leafy greens, and branches',
+        period: 'evening',
         repeatEveryDays: 2,
+        nextDueDate: '2030-07-03',
       })
-      .expect(200);
-    expect(update.body).toMatchObject({
-      id: evening.id,
-      createdAt: evening.createdAt,
-      createdBy: { name: keeper.name },
+      .expect(201);
+    const newPlan = newPlanResponse.body as { id: string };
+    expect(newPlanResponse.body).toMatchObject({
+      animalId: activeAnimalId,
+      createdBy: { name: secondKeeper.name },
       lastModifiedBy: { name: secondKeeper.name },
       repeatEveryDays: 2,
     });
 
-    await secondKeeperAgent
-      .post(`${basePath}/${evening.id}/archive`)
-      .expect(201);
     const afterArchive = await keeperAgent.get(basePath).expect(200);
+    expect(afterArchive.body).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: newPlan.id })]),
+    );
     expect(afterArchive.body).not.toEqual(
       expect.arrayContaining([expect.objectContaining({ id: evening.id })]),
     );
+    const history = await keeperAgent
+      .get(`${basePath}?status=archived`)
+      .expect(200);
+    expect(history.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: evening.id, status: null }),
+      ]),
+    );
+    await keeperAgent.post(`${basePath}/${evening.id}/archive`).expect(409);
     await keeperAgent
-      .patch(`${basePath}/${evening.id}`)
-      .send({ name: 'Cannot change' })
-      .expect(409);
+      .patch(`${basePath}/${morning.id}`)
+      .send({ name: 'No patch route' })
+      .expect(404);
+    await keeperAgent
+      .post(`${basePath}/${morning.id}/replacements`)
+      .send({ name: 'No replacement route' })
+      .expect(404);
+    await keeperAgent.get(`${basePath}?status=unknown`).expect(400);
     await keeperAgent.delete(`${basePath}/${morning.id}`).expect(404);
   });
 
-  it('lets administrators create, update, and archive plans', async () => {
+  it('lets administrators create and archive plans', async () => {
     const administratorAgent = await signIn(administrator);
     const basePath = `/api/animals/${activeAnimalId}/feeding-plans`;
 
@@ -194,18 +220,6 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       createdBy: { name: administrator.name },
       lastModifiedBy: { name: administrator.name },
     });
-
-    await administratorAgent
-      .patch(`${basePath}/${created.id}`)
-      .send({ instructions: 'Browse, fresh fruit, and water' })
-      .expect(200)
-      .expect((response) => {
-        expect(response.body).toMatchObject({
-          id: created.id,
-          instructions: 'Browse, fresh fruit, and water',
-          lastModifiedBy: { name: administrator.name },
-        });
-      });
 
     await administratorAgent
       .post(`${basePath}/${created.id}/archive`)
@@ -288,8 +302,7 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       ]),
     );
     await keeperAgent
-      .patch(`${basePath}/${(create.body as { id: string }).id}`)
-      .send({ name: 'Cannot change' })
+      .post(`${basePath}/${(create.body as { id: string }).id}/archive`)
       .expect(409);
   });
 

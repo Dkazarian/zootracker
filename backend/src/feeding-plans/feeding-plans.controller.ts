@@ -4,8 +4,8 @@ import {
   ForbiddenException,
   Get,
   Param,
-  Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { auth } from '../auth/auth';
@@ -15,7 +15,7 @@ import {
 } from '../common/authorization/application-role';
 import { ApplicationRoles } from '../common/authorization/application-roles.decorator';
 import { CreateFeedingPlanDto } from './dto/create-feeding-plan.dto';
-import { UpdateFeedingPlanDto } from './dto/update-feeding-plan.dto';
+import { ListFeedingPlansQueryDto } from './dto/list-feeding-plans-query.dto';
 import type { FeedingPlanResponse } from './feeding-plan.types';
 import { FeedingPlansService } from './feeding-plans.service';
 
@@ -27,11 +27,13 @@ export class FeedingPlansController {
   @Get()
   list(
     @Param('animalId') animalId: string,
+    @Query() query: ListFeedingPlansQueryDto,
     @Session() session: UserSession<typeof auth>,
   ): Promise<FeedingPlanResponse[]> {
     return this.feedingPlansService.list(
       animalId,
       getSessionRole(session.user.role),
+      query.status,
     );
   }
 
@@ -43,22 +45,6 @@ export class FeedingPlansController {
     @Session() session: UserSession<typeof auth>,
   ): Promise<FeedingPlanResponse> {
     return this.feedingPlansService.create(animalId, input, session.user.id);
-  }
-
-  @Patch(':planId')
-  @ApplicationRoles('keeper', 'admin')
-  update(
-    @Param('animalId') animalId: string,
-    @Param('planId') planId: string,
-    @Body() input: UpdateFeedingPlanDto,
-    @Session() session: UserSession<typeof auth>,
-  ): Promise<FeedingPlanResponse> {
-    return this.feedingPlansService.update(
-      animalId,
-      planId,
-      input,
-      session.user.id,
-    );
   }
 
   @Post(':planId/archive')

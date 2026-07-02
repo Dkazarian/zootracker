@@ -22,7 +22,7 @@ describe('FeedingPlansRepository', () => {
 
   it('lists active plans with people and stable ordering', async () => {
     feedingPlan.findMany.mockResolvedValueOnce([]);
-    await repository.list('animal-1');
+    await repository.list('animal-1', 'active');
     expect(feedingPlan.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { animalId: 'animal-1', archivedAt: null },
@@ -54,5 +54,16 @@ describe('FeedingPlansRepository', () => {
         animal: { select: { archivedAt: true } },
       },
     });
+  });
+
+  it('lists archived plan history newest first', async () => {
+    feedingPlan.findMany.mockResolvedValueOnce([]);
+    await repository.list('animal-1', 'archived');
+    expect(feedingPlan.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { animalId: 'animal-1', archivedAt: { not: null } },
+        orderBy: [{ archivedAt: 'desc' }, { createdAt: 'desc' }],
+      }),
+    );
   });
 });
