@@ -1,5 +1,9 @@
 # Phase 5: Feeding Plans - Implementation Plan
 
+The checked task groups below record the original Phase 5 delivery. The
+2026-07-01 amendment at the end supersedes in-place definition editing without
+rewriting that implementation history.
+
 ## Task Group 1 - Feeding-plan data model
 
 1. ✅ Add the Prisma feeding-plan model and its animal and personnel relations.
@@ -61,3 +65,26 @@
 8. ✅ Confirm feeding records, assignments, and claims have not leaked into this
    phase.
 9. ✅ Add `✅` only to steps that are complete and proportionately validated.
+
+## Amendment - Immutable feeding plans (2026-07-01)
+
+1. ✅ Keep animal, name, instructions, period, and recurrence immutable after
+   creation while retaining `nextDueDate` as mutable operational state.
+2. ✅ Remove the general feeding-plan `PATCH` endpoint, update DTO, in-place
+   service and repository workflow, frontend API consumer, edit form, and
+   obsolete update tests.
+3. ✅ Do not add a replacement endpoint, replacement relation, or version chain.
+4. ✅ Do not add a manual reschedule endpoint; leave `nextDueDate` advancement to
+   the later feeding-completion workflow.
+5. ✅ Preserve archive behavior and keep creation as a separate operation.
+6. ✅ Remove frontend edit actions, keep active plans prominent, and add a
+   collapsible plan-history section that fetches archived plans only when
+   requested.
+7. ✅ Filter the feeding-plan collection with `status=archived` instead of adding
+   a separate history endpoint.
+8. ✅ Update backend unit, repository, PostgreSQL API, and frontend component
+   coverage for immutable definitions and archived-plan history.
+9. ✅ Make archived plans readable through plan history, keep them available
+   for future feeding-record relations, and introduce no deletion path.
+10. ✅ Run the amendment validation in `validation.md` and add `✅` only after each
+   step is implemented and directly validated.
