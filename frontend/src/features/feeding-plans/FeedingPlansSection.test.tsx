@@ -7,13 +7,14 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { getTomorrowUiDate } from '../../shared/date/date-format';
 import type { FeedingPlan } from './feeding-plan-api';
 import FeedingPlansSection from './FeedingPlansSection';
 
 const apiMocks = vi.hoisted(() => ({
   listFeedingPlans: vi.fn(),
+  listFeedingPlanHistory: vi.fn(),
   createFeedingPlan: vi.fn(),
-  updateFeedingPlan: vi.fn(),
   archiveFeedingPlan: vi.fn(),
 }));
 
@@ -57,8 +58,8 @@ function renderSection(role: 'keeper' | 'admin' = 'keeper') {
 describe('FeedingPlansSection', () => {
   beforeEach(() => {
     apiMocks.listFeedingPlans.mockResolvedValue([plan]);
+    apiMocks.listFeedingPlanHistory.mockResolvedValue([]);
     apiMocks.createFeedingPlan.mockResolvedValue(plan);
-    apiMocks.updateFeedingPlan.mockResolvedValue(plan);
     apiMocks.archiveFeedingPlan.mockResolvedValue({
       ...plan,
       archivedAt: new Date(),
@@ -76,6 +77,8 @@ describe('FeedingPlansSection', () => {
     expect(await screen.findByText('Morning fruit')).toBeInTheDocument();
     expect(screen.getByText('3 bananas and an apple')).toBeInTheDocument();
     expect(screen.getByText('Every day')).toBeInTheDocument();
+    expect(screen.getByText('Next feeding')).toBeInTheDocument();
+    expect(screen.getByText('01/07/2030 · Morning')).toBeInTheDocument();
     expect(screen.getByText('Upcoming')).toBeInTheDocument();
     expect(
       screen.getByText('Created by Kira Keeper · Last changed by Mina Keeper'),
@@ -98,8 +101,11 @@ describe('FeedingPlansSection', () => {
     fireEvent.change(screen.getByLabelText('Repeat every'), {
       target: { value: '2' },
     });
-    fireEvent.change(screen.getByLabelText('Next due date'), {
-      target: { value: '2030-07-02' },
+    expect(screen.getByLabelText('Next feeding')).toHaveValue(
+      getTomorrowUiDate(),
+    );
+    fireEvent.change(screen.getByLabelText('Next feeding'), {
+      target: { value: '02/07/2030' },
     });
     fireEvent.change(screen.getByLabelText('Feeding instructions'), {
       target: { value: ' Hay and leafy greens ' },
@@ -128,30 +134,57 @@ describe('FeedingPlansSection', () => {
 
     expect(await screen.findByText('Enter a plan name')).toBeInTheDocument();
     expect(screen.getByText('Enter feeding instructions')).toBeInTheDocument();
-    expect(screen.getByText('Choose the next due date')).toBeInTheDocument();
     expect(apiMocks.createFeedingPlan).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByLabelText('Next feeding'), {
+      target: { value: '31/02/2030' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create plan' }));
+    expect(
+      await screen.findByText('Use dd/mm/yyyy and enter a valid date'),
+    ).toBeInTheDocument();
   });
 
-  it('lets a keeper update an existing plan', async () => {
+  it('does not offer in-place editing', async () => {
     renderSection();
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Edit Morning fruit' }),
-    );
-    fireEvent.change(screen.getByLabelText('Feeding instructions'), {
-      target: { value: '4 bananas and an apple' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Save plan' }));
+    expect(await screen.findByText('Morning fruit')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /edit|replace/i }),
+    ).not.toBeInTheDocument();
+  });
 
-    await waitFor(() =>
-      expect(apiMocks.updateFeedingPlan).toHaveBeenCalledWith(
-        'animal-1',
-        'plan-1',
-        expect.objectContaining({
-          instructions: '4 bananas and an apple',
-        }),
-      ),
+  it('shows archived plans in a separate history section', async () => {
+    apiMocks.listFeedingPlanHistory.mockResolvedValue([
+      {
+        ...plan,
+        id: 'archived-plan',
+        name: 'Old morning fruit',
+        archivedAt: new Date('2026-07-01T12:00:00.000Z'),
+        status: null,
+      },
+    ]);
+    renderSection();
+
+    expect(await screen.findByText('Morning fruit')).toBeInTheDocument();
+    expect(apiMocks.listFeedingPlanHistory).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Show archived plans' }),
     );
+    expect(
+      await screen.findByRole('heading', { name: 'Plan history' }),
+    ).toBeInTheDocument();
+    expect(apiMocks.listFeedingPlanHistory).toHaveBeenCalledWith('animal-1');
+    expect(screen.getByText('Old morning fruit')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Archive Old morning fruit' }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Hide archived plans' }),
+    );
+    expect(
+      screen.queryByRole('heading', { name: 'Plan history' }),
+    ).not.toBeInTheDocument();
   });
 
   it('requires confirmation before archiving a plan', async () => {
@@ -179,9 +212,6 @@ describe('FeedingPlansSection', () => {
     expect(await screen.findByText('Morning fruit')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Add feeding plan' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Edit Morning fruit' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Archive Morning fruit' }),

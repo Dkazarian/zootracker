@@ -4,8 +4,8 @@ import type {
   AnimalStateRecord,
   CreateFeedingPlanData,
   FeedingPlanMutationRecord,
+  FeedingPlanListStatus,
   FeedingPlanRecord,
-  UpdateFeedingPlanData,
 } from './feeding-plan.types';
 import { feedingPlanPeople } from './feeding-plan.types';
 
@@ -13,7 +13,17 @@ import { feedingPlanPeople } from './feeding-plan.types';
 export class FeedingPlansRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(animalId: string): Promise<FeedingPlanRecord[]> {
+  list(
+    animalId: string,
+    status: FeedingPlanListStatus,
+  ): Promise<FeedingPlanRecord[]> {
+    if (status === 'archived') {
+      return this.prisma.feedingPlan.findMany({
+        where: { animalId, archivedAt: { not: null } },
+        include: feedingPlanPeople,
+        orderBy: [{ archivedAt: 'desc' }, { createdAt: 'desc' }],
+      });
+    }
     return this.prisma.feedingPlan.findMany({
       where: { animalId, archivedAt: null },
       include: feedingPlanPeople,
@@ -56,17 +66,6 @@ export class FeedingPlansRepository {
 
   create(data: CreateFeedingPlanData): Promise<FeedingPlanRecord> {
     return this.prisma.feedingPlan.create({
-      data,
-      include: feedingPlanPeople,
-    });
-  }
-
-  update(
-    planId: string,
-    data: UpdateFeedingPlanData,
-  ): Promise<FeedingPlanRecord> {
-    return this.prisma.feedingPlan.update({
-      where: { id: planId },
       data,
       include: feedingPlanPeople,
     });

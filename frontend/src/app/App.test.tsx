@@ -618,6 +618,8 @@ describe('App authentication', () => {
       await screen.findByRole('heading', { name: 'Amara' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Savanna Habitat')).toBeInTheDocument();
+    expect(screen.getByText('12/05/2004')).toBeInTheDocument();
+    expect(screen.getByText('20/03/2018')).toBeInTheDocument();
     expect(
       screen.queryByRole('link', { name: 'Edit' }),
     ).not.toBeInTheDocument();
@@ -642,6 +644,12 @@ describe('App authentication', () => {
     fireEvent.change(screen.getByLabelText('Species'), {
       target: { value: 'Capybara' },
     });
+    fireEvent.change(screen.getByLabelText('Date of birth'), {
+      target: { value: '10/04/2020' },
+    });
+    fireEvent.change(screen.getByLabelText('Arrival date'), {
+      target: { value: '15/06/2020' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Create animal' }));
 
     expect(
@@ -651,8 +659,8 @@ describe('App authentication', () => {
       name: 'Nilo',
       species: 'Capybara',
       sex: null,
-      dateOfBirth: null,
-      arrivalDate: null,
+      dateOfBirth: '2020-04-10',
+      arrivalDate: '2020-06-15',
       currentLocation: null,
       notes: null,
     });
@@ -676,6 +684,8 @@ describe('App authentication', () => {
     expect(
       await screen.findByRole('heading', { name: 'Edit animal' }),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText('Date of birth')).toHaveValue('12/05/2004');
+    expect(screen.getByLabelText('Arrival date')).toHaveValue('20/03/2018');
     fireEvent.change(screen.getByLabelText('Current location'), {
       target: { value: 'North Savanna' },
     });

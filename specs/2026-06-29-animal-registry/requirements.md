@@ -28,6 +28,8 @@ and weight records will reference in later phases.
 - Reject future birth and arrival dates.
 - When both dates are known, reject an arrival date earlier than the date of
   birth.
+- Display and enter animal profile dates as `dd/mm/yyyy` while preserving ISO
+  date-only values in API requests.
 
 ### Animal directory
 

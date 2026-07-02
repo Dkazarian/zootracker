@@ -1,9 +1,17 @@
 # Changelog
 
+## 2026-07-02
+
+- Standardize user-facing dates as `dd/mm/yyyy`, rename the feeding-plan date
+  label to `Next feeding`, and default new feeding plans to tomorrow.
+
 ## 2026-07-01
 
 - Finalize personnel deactivation and reactivation with direct account-state
   updates, session revocation, and administrator safeguards.
+- Amend feeding-plan maintenance so definitions are immutable: personnel
+  archive an old plan and create a new independent plan when care instructions
+  change. Remove in-place updates and exclude manual rescheduling.
 
 ## 2026-06-30
 

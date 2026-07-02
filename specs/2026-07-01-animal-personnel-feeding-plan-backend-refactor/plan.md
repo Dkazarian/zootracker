@@ -3,7 +3,7 @@
 ## Execution rules
 
 - Implement only one task group at a time.
-- Read the task group's paths from `scope.md` and avoid broad repository scans.
+- Read the task group's paths from `paths.md` and avoid broad repository scans.
 - Preserve existing public behavior and error messages.
 - Do not discard or regenerate already-correct uncommitted work. Review it
   incrementally against the requirements and repair only what is missing or
@@ -114,5 +114,5 @@
 
 No task group is complete merely because files exist. Its relevant focused
 tests must pass, behavior must remain compatible with the approved feature
-requirements, and any necessary scope expansion must be documented and
-approved.
+requirements, and any necessary path-boundary expansion must be documented
+and approved.

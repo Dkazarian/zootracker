@@ -4,14 +4,15 @@ import type { ApplicationRole } from '../../shared/auth/application-role';
 import {
   archiveFeedingPlan,
   createFeedingPlan,
+  feedingPlanHistoryQueryKey,
   feedingPlanQueryKey,
+  listFeedingPlanHistory,
   listFeedingPlans,
-  updateFeedingPlan,
   type FeedingPlan,
   type FeedingPlanInput,
 } from './feeding-plan-api';
 import {
-  formatDueDate,
+  formatFeedingDate,
   formatFeedingPeriod,
   formatPlanStatus,
   formatRecurrence,
@@ -23,8 +24,6 @@ interface FeedingPlansSectionProps {
   animalArchived: boolean;
   currentUserRole: ApplicationRole;
 }
-
-type FormState = { mode: 'create' } | { mode: 'edit'; plan: FeedingPlan };
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error
@@ -38,33 +37,32 @@ function FeedingPlansSection({
   currentUserRole,
 }: FeedingPlansSectionProps) {
   const queryClient = useQueryClient();
-  const [formState, setFormState] = useState<FormState | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [archiveTarget, setArchiveTarget] = useState<FeedingPlan | null>(null);
   const plansQuery = useQuery({
     queryKey: feedingPlanQueryKey(animalId),
     queryFn: () => listFeedingPlans(animalId),
   });
-  const refreshPlans = () =>
-    queryClient.invalidateQueries({
-      queryKey: feedingPlanQueryKey(animalId),
-    });
+  const historyQuery = useQuery({
+    queryKey: feedingPlanHistoryQueryKey(animalId),
+    queryFn: () => listFeedingPlanHistory(animalId),
+    enabled: showHistory,
+  });
+  const refreshPlans = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: feedingPlanQueryKey(animalId),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: feedingPlanHistoryQueryKey(animalId),
+      }),
+    ]);
+  };
   const createMutation = useMutation({
     mutationFn: (input: FeedingPlanInput) => createFeedingPlan(animalId, input),
     onSuccess: async () => {
-      setFormState(null);
-      await refreshPlans();
-    },
-  });
-  const updateMutation = useMutation({
-    mutationFn: ({
-      planId,
-      input,
-    }: {
-      planId: string;
-      input: FeedingPlanInput;
-    }) => updateFeedingPlan(animalId, planId, input),
-    onSuccess: async () => {
-      setFormState(null);
+      setFormOpen(false);
       await refreshPlans();
     },
   });
@@ -78,14 +76,8 @@ function FeedingPlansSection({
   const canManage =
     (currentUserRole === 'keeper' || currentUserRole === 'admin') &&
     !animalArchived;
-  const activeFormMutation =
-    formState?.mode === 'edit' ? updateMutation : createMutation;
 
   const savePlan = (input: FeedingPlanInput) => {
-    if (formState?.mode === 'edit') {
-      updateMutation.mutate({ planId: formState.plan.id, input });
-      return;
-    }
     createMutation.mutate(input);
   };
 
@@ -96,35 +88,26 @@ function FeedingPlansSection({
           <p className="eyebrow">Routine care</p>
           <h2 id="feeding-plans-title">Feeding plans</h2>
         </div>
-        {canManage && !formState && (
-          <button
-            type="button"
-            onClick={() => setFormState({ mode: 'create' })}
-          >
+        {canManage && !formOpen && (
+          <button type="button" onClick={() => setFormOpen(true)}>
             Add feeding plan
           </button>
         )}
       </div>
 
-      {formState && (
+      {formOpen && (
         <section className="feeding-plan-form-card">
-          <h3>
-            {formState.mode === 'edit'
-              ? `Edit ${formState.plan.name}`
-              : 'New feeding plan'}
-          </h3>
+          <h3>New feeding plan</h3>
           <FeedingPlanForm
-            plan={formState.mode === 'edit' ? formState.plan : undefined}
-            submitting={activeFormMutation.isPending}
+            submitting={createMutation.isPending}
             serverError={
-              activeFormMutation.isError
-                ? getErrorMessage(activeFormMutation.error)
+              createMutation.isError
+                ? getErrorMessage(createMutation.error)
                 : ''
             }
             onCancel={() => {
               createMutation.reset();
-              updateMutation.reset();
-              setFormState(null);
+              setFormOpen(false);
             }}
             onSave={savePlan}
           />
@@ -196,7 +179,11 @@ function FeedingPlansSection({
       {plansQuery.isSuccess && plansQuery.data.length > 0 && (
         <ul className="feeding-plan-list">
           {plansQuery.data.map((plan) => (
-            <li className="feeding-plan-card" key={plan.id}>
+            <li
+              className="feeding-plan-card"
+              id={`feeding-plan-${plan.id}`}
+              key={plan.id}
+            >
               <div className="feeding-plan-summary">
                 <div>
                   <p className="card-label">
@@ -217,9 +204,9 @@ function FeedingPlansSection({
                   <dd>{formatRecurrence(plan.repeatEveryDays)}</dd>
                 </div>
                 <div>
-                  <dt>Next due</dt>
+                  <dt>Next feeding</dt>
                   <dd>
-                    {formatDueDate(plan.nextDueDate)} ·{' '}
+                    {formatFeedingDate(plan.nextDueDate)} ·{' '}
                     {formatFeedingPeriod(plan.period)}
                   </dd>
                 </div>
@@ -230,13 +217,6 @@ function FeedingPlansSection({
               </p>
               {canManage && (
                 <div className="profile-actions">
-                  <button
-                    className="button-secondary"
-                    type="button"
-                    onClick={() => setFormState({ mode: 'edit', plan })}
-                  >
-                    Edit {plan.name}
-                  </button>
                   <button
                     className="button-danger"
                     type="button"
@@ -249,6 +229,88 @@ function FeedingPlansSection({
             </li>
           ))}
         </ul>
+      )}
+
+      {plansQuery.isSuccess && (
+        <button
+          className="button-secondary"
+          type="button"
+          aria-expanded={showHistory}
+          aria-controls="feeding-plan-history"
+          onClick={() => setShowHistory((visible) => !visible)}
+        >
+          {showHistory ? 'Hide archived plans' : 'Show archived plans'}
+        </button>
+      )}
+
+      {showHistory && (
+        <div id="feeding-plan-history">
+          {historyQuery.isPending && (
+            <p className="page-state" aria-live="polite">
+              Loading archived plans...
+            </p>
+          )}
+          {historyQuery.isError && (
+            <div className="page-state page-state--error" role="alert">
+              <p>{getErrorMessage(historyQuery.error)}</p>
+              <button type="button" onClick={() => void historyQuery.refetch()}>
+                Try loading archived plans again
+              </button>
+            </div>
+          )}
+          {historyQuery.isSuccess && historyQuery.data.length === 0 && (
+            <p className="page-state">No archived feeding plans.</p>
+          )}
+          {historyQuery.isSuccess && historyQuery.data.length > 0 && (
+            <section aria-labelledby="feeding-plan-history-title">
+              <div className="section-heading">
+                <div>
+                  <p className="eyebrow">Preserved versions</p>
+                  <h3 id="feeding-plan-history-title">Plan history</h3>
+                </div>
+              </div>
+              <ul className="feeding-plan-list">
+                {historyQuery.data.map((plan) => (
+                  <li
+                    className="feeding-plan-card"
+                    id={`feeding-plan-${plan.id}`}
+                    key={plan.id}
+                  >
+                    <div className="feeding-plan-summary">
+                      <div>
+                        <p className="card-label">
+                          {formatFeedingPeriod(plan.period)}
+                        </p>
+                        <h4>{plan.name}</h4>
+                      </div>
+                      <span className="feeding-status">Archived</span>
+                    </div>
+                    <p className="feeding-plan-instructions">
+                      {plan.instructions}
+                    </p>
+                    <dl className="feeding-plan-details">
+                      <div>
+                        <dt>Schedule</dt>
+                        <dd>{formatRecurrence(plan.repeatEveryDays)}</dd>
+                      </div>
+                      <div>
+                        <dt>Scheduled feeding</dt>
+                        <dd>
+                          {formatFeedingDate(plan.nextDueDate)} ·{' '}
+                          {formatFeedingPeriod(plan.period)}
+                        </dd>
+                      </div>
+                    </dl>
+                    <p className="feeding-plan-accountability">
+                      Created by {plan.createdBy.name} · Last changed by{' '}
+                      {plan.lastModifiedBy.name}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
       )}
     </section>
   );

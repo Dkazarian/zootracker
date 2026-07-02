@@ -1,14 +1,6 @@
-# Animal, Personnel, and Feeding Plan Backend Refactor - Context Scope
+# Animal, Personnel, and Feeding Plan Backend Refactor - Implementation Paths
 
-## Status
-
-Implementation is approved. Task Groups 1-4 are implemented and validated,
-including the repository-wide formatting baseline.
-
-The pre-existing uncommitted animal changes were reviewed and completed
-against this specification.
-
-## Refactor-wide context
+## Specification paths
 
 - `specs/2026-07-01-animal-personnel-feeding-plan-backend-refactor/`
 - `specs/2026-06-29-animal-registry/requirements.md`
@@ -62,27 +54,20 @@ work is:
 - `backend/src/feeding-plans/feeding-plans.repository.spec.ts`
 - `backend/src/feeding-plans/feeding-plans.module.ts`
 
-Controllers and DTOs may be adjusted only when required to establish the
-approved type boundary without changing their HTTP contracts.
-
-## Explicit exclusions
+## Excluded paths
 
 - `frontend/`
 - `backend/prisma/schema.prisma`
 - `backend/prisma/migrations/`
-- Hand edits under `backend/src/generated/`
-- Authentication, authorization, configuration, or database-service behavior
-- Feeding-history and unrelated backend features
-- Package dependencies and root scripts
-- Route, payload, response, permission, or product changes
+- `backend/src/generated/`
 
-## Scope expansion rule
+## Path expansion rule
 
 Imports, failing tests, or missing coverage may justify a proposed expansion.
 Update this file and obtain approval before editing a shared feature, schema,
 migration, API integration test, package script, or any path outside the
 editable boundaries above.
 
-## Scope expansions
+## Path boundary changes
 
 None recorded.

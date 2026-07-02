@@ -1,14 +1,6 @@
-# Phase 3: Personnel and Roles - Context Scope
+# Phase 3: Personnel and Roles - Implementation Paths
 
-## Status
-
-The original Phase 3 implementation and the account-lifecycle amendment are
-implemented and validated against the revised Phase 3 requirements.
-Confirmation-dialog focus management is deferred to Phase 12, and the
-repository-wide formatting baseline is tracked as technical debt in
-`specs/backlog.md`.
-
-## Phase-wide context
+## Specification paths
 
 - `specs/2026-06-29-personnel-and-roles/`
 
@@ -26,22 +18,12 @@ Root documentation required by Task Group 9:
 - `CHANGELOG.md`
 
 Use only the paths for the active task group. Imports, requirements, or test
-failures that point outside these boundaries are evidence for a scope
+failures that point outside these boundaries are evidence for a path-boundary
 expansion.
 
-## Out of scope
-
-- Editing personnel profiles or changing roles
-- Permanent account deletion
-- Public registration, invitations, and password recovery
-- Additional roles or custom permissions
-- Personnel audit history and bulk operations
-- Animal, feeding-plan, feeding-history, queue, weight, and analytics behavior
-
-## Scope expansions
+## Path boundary changes
 
 - `frontend/src/app/` was added to Task Groups 8 and 9 because the existing
   personnel styles and application-level personnel tests are colocated there.
 - `README.md` and `CHANGELOG.md` were added because Task Group 9 explicitly
-  requires personnel lifecycle documentation and a changelog update. Listing
-  the root files avoids expanding the context boundary to the entire repository.
+  requires personnel lifecycle documentation and a changelog update.

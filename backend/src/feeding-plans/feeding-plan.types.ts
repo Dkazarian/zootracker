@@ -1,6 +1,7 @@
 import type { FeedingPeriod, Prisma } from '../generated/prisma/client';
 
 export type FeedingPlanStatus = 'upcoming' | 'due';
+export type FeedingPlanListStatus = 'active' | 'archived';
 
 export interface FeedingPlanPersonResponse {
   id: string;
@@ -20,7 +21,7 @@ export interface FeedingPlanResponse {
   createdAt: Date;
   updatedAt: Date;
   archivedAt: Date | null;
-  status: FeedingPlanStatus;
+  status: FeedingPlanStatus | null;
   minutesPastDue: number | null;
 }
 
@@ -32,8 +33,6 @@ export interface CreateFeedingPlanInput {
   nextDueDate: string;
 }
 
-export type UpdateFeedingPlanInput = Partial<CreateFeedingPlanInput>;
-
 export interface CreateFeedingPlanData {
   animalId: string;
   name: string;
@@ -42,15 +41,6 @@ export interface CreateFeedingPlanData {
   repeatEveryDays: number;
   nextDueDate: Date;
   createdById: string;
-  lastModifiedById: string;
-}
-
-export interface UpdateFeedingPlanData {
-  name?: string;
-  instructions?: string;
-  period?: FeedingPeriod;
-  repeatEveryDays?: number;
-  nextDueDate?: Date;
   lastModifiedById: string;
 }
 

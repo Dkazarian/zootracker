@@ -1,5 +1,9 @@
 # Phase 5: Feeding Plans - Validation
 
+The original results below remain the record of the first Phase 5 delivery.
+The 2026-07-01 amendment validation at the end must pass before immutable plan
+versions are considered complete.
+
 ## Automated Validation
 
 From the repository root, all of the following must succeed:
@@ -32,11 +36,11 @@ From the repository root, all of the following must succeed:
    fields and confirm useful responses.
 9. Attempt to create a plan for an archived or missing animal and confirm the
    request is rejected.
-10. Update a plan and confirm its creator and creation time remain unchanged
-   while its last modifier and update time change.
+10. Archive a plan, create an independent new plan, and confirm no relationship
+    is stored or inferred between them.
 11. Archive a plan and confirm it leaves active results but remains stored.
 12. Attempt to edit an archived plan and confirm the request is rejected.
-13. As an administrator, create, update, and archive a plan and confirm
+13. As an administrator, create and archive a plan and confirm
     accountability uses the administrator's identity.
 14. Archive an animal with plans and confirm its plans remain stored.
 15. Confirm no endpoint permanently deletes a feeding plan.
@@ -50,12 +54,13 @@ From the repository root, all of the following must succeed:
 4. Create a second routine for the same animal and confirm both appear.
 5. Confirm plan name, instructions, period, recurrence, next-due date, and
    status are displayed.
-6. Update a plan and confirm the new values and modifier accountability appear.
+6. Archive a plan, create a new plan, and confirm the new active plan and old
+   archived plan appear in their respective sections.
 7. Trigger required-field, period, recurrence, and date validation and confirm
    the messages are understandable.
 8. Archive a plan through a confirmation step and confirm it leaves active
    results.
-9. Sign in as an administrator and confirm plans and their create, update, and
+9. Sign in as an administrator and confirm plans and their create and
    archive controls are available.
 10. Complete the core plan flows using keyboard controls.
 11. Repeat the core flows at a narrow mobile viewport and confirm there is no
@@ -102,18 +107,94 @@ From the repository root, all of the following must succeed:
   validation.
 - No feeding record, assignment, occurrence, queue, or claim model was added.
 
+These results describe the original in-place update implementation. The
+amendment below supersedes that behavior and was validated on 2026-07-01.
+
+## Amendment Validation - Immutable feeding plans
+
+1. ✅ Confirm no feeding-plan self-relation or replacement-chain field exists.
+2. ✅ Confirm keepers and administrators can create and archive plans as separate
+   operations.
+3. ✅ Confirm archived plans remain associated with their animal and visible in
+   plan history.
+4. ✅ Confirm the collection returns active plans by default, archived plans with
+   `status=archived`, and rejects unknown status values.
+5. ✅ Confirm `nextDueDate` remains mutable operational state and can later advance
+   without creating a new plan.
+6. ✅ Confirm the former general feeding-plan `PATCH` route is no longer
+   registered and no update DTO or in-place update workflow remains.
+7. ✅ Confirm no replacement or manual reschedule endpoint exists and personnel
+   cannot directly change `nextDueDate`.
+8. ✅ Confirm the interface offers create and archive actions without edit or
+   replacement actions, initially fetches only active plans, and fetches
+   archived history when the collapsible history section is opened.
+9. ✅ Confirm archived plans remain visible in plan history, cannot be edited
+    or deleted, and are available for future feeding-record relations.
+10. ✅ Run formatting, linting, type-checking, unit tests, PostgreSQL API tests,
+    browser checks, and production builds.
+
+## Amendment Validation Results - 2026-07-01
+
+- Formatting, linting, frontend and backend type-checking, root tests, and both
+  production builds passed.
+- Frontend coverage passed with 28 tests and backend unit coverage passed with
+  66 tests.
+- The focused feeding-plan component suite passed with 8 tests, and the focused
+  backend feeding-plan suites passed with 13 tests.
+- PostgreSQL-backed authentication, personnel, animal-registry, and
+  feeding-plan suites passed with 4, 6, 4, and 5 tests respectively.
+- Feeding-plan API coverage confirms active-by-default filtering,
+  `status=archived`, invalid-status rejection, separate create and archive
+  operations, archived history, immutable definitions, and the absence of
+  update, replacement, reschedule, and deletion routes.
+- Component coverage confirms archived plans are not fetched until the
+  disclosure is opened, the disclosure can be collapsed, and no edit or
+  replacement control is presented.
+- The final browser pass confirmed active plans load without archived history,
+  archived history loads and collapses on request, creation and archive
+  confirmation work, archived plans remain readable without mutation controls,
+  and no edit or replacement controls are exposed.
+- Native form fields and buttons were focusable, the 375-pixel viewport had no
+  horizontal overflow, and the tested flow produced no browser console warnings
+  or errors.
+- The temporary browser-validation plan was removed directly from the local
+  development database after validation.
+
+## Date Presentation Amendment Results - 2026-07-02
+
+- ✅ Shared helper tests confirm strict `dd/mm/yyyy` parsing, ISO conversion,
+  leap-year validation, invalid-date rejection, and tomorrow calculation.
+- ✅ Animal component tests confirm profile dates and edit inputs use
+  `dd/mm/yyyy` while create and update requests retain ISO date-only values.
+- ✅ Feeding-plan component tests confirm the `Next feeding` label, tomorrow
+  default, `dd/mm/yyyy` display, invalid-date feedback, and ISO request value.
+- ✅ Formatting, linting, frontend and backend type-checking, all 32 frontend
+  tests, all 66 backend unit tests, generic API tests, and both production
+  builds passed.
+- ✅ Browser validation confirmed `12/05/2004` and `20/03/2018` on the animal
+  profile and edit form, `Next feeding` with tomorrow as `03/07/2026`, existing
+  feeding dates in `dd/mm/yyyy`, and no console warnings or errors.
+
 ## Merge Criteria
 
 The phase can be merged when:
 
 - All automated and manual validation checks pass.
-- Keepers and administrators can create, update, and archive plans for active
+- Keepers and administrators can create and archive plans for active
   animals.
 - Authorized personnel can view an animal's active feeding plans and status.
+- Authorized personnel can inspect every archived plan associated
+  with an animal through a separate history view.
 - Multiple feeding routines can coexist for one animal.
 - Plan validation and permissions are enforced by the API.
 - Creator and last-modifier accountability is preserved.
 - Plans survive related archival and cannot be deleted.
+- Plan definitions remain immutable while `nextDueDate` remains operational
+  state.
+- No general plan-update, replacement, or manual-reschedule endpoint exists;
+  feeding completion is the only workflow that advances `nextDueDate`.
+- Authorized personnel can inspect archived plan versions without treating them
+  as active feeding work.
 - Feeding records, assignments, queues, and claims remain deferred.
 - `requirements.md`, `plan.md`, and `validation.md` agree with the
   implementation.

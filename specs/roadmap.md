@@ -2,7 +2,7 @@
 
 Phases are intentionally small. Each phase should be independently reviewable, testable, and leave the application in a working state.
 
-Every phase receives its own `requirements.md`, `scope.md`, `plan.md`, and
+Every phase receives its own `requirements.md`, `paths.md`, `plan.md`, and
 `validation.md` before implementation begins. Testing is part of each phase
 rather than postponed until the end.
 
@@ -45,8 +45,8 @@ rather than postponed until the end.
 
 ## ✅ Phase 5 - Feeding Plans
 
-- Allow keepers and administrators to create and maintain an animal's feeding
-  plan.
+- Allow keepers and administrators to create and archive an animal's immutable
+  feeding plans while preserving archived plan history.
 - Define natural-language feeding instructions, a morning, afternoon, or
   evening period, and a repeat-every-N-days schedule.
 - Track when each active plan is next due.
@@ -56,8 +56,8 @@ rather than postponed until the end.
 ## Phase 6 - Feeding History
 
 - Add feeding records linked to a feeding plan, animal, and keeper.
-- Copy the plan instructions into each completed record so later plan changes
-  do not alter history.
+- Link each completed record to the exact immutable feeding-plan version so
+  later plan changes do not alter history.
 - Show an animal's feeding history in chronological order.
 - Allow keepers to record and correct planned feedings.
 - Preserve creation and last-modification accountability.

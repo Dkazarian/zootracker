@@ -12,11 +12,12 @@
 
 ## Planning source of truth
 
-- Product planning means creating or revising a phase's `requirements.md`,
-  `scope.md`, `plan.md`, or `validation.md`.
+- Phase specification work means creating or revising a phase's `requirements.md`,
+  `paths.md`, `plan.md`, or `validation.md`.
 - `requirements.md` defines approved feature behavior.
-- `scope.md` defines approved implementation boundaries: paths Codex may inspect
-  or edit for each task group.
+- `paths.md` defines approved implementation boundaries: paths Codex may inspect
+  or edit for each task group. It does not define product behavior or feature
+  scope.
 - Before product planning, read `specs/mission.md`, `specs/tech-stack.md`, and
   `specs/roadmap.md`.
 - Obtain explicit user approval before drafting a feature specification and
@@ -32,20 +33,20 @@
   scans.
 - Do not inspect ignored dependencies, generated code, build outputs, coverage,
   snapshots, or binary assets unless directly relevant.
-- Before implementation, create a minimal context map: goal, likely paths,
-  likely tests, and exclusions.
+- Before implementation, use the active specification's `paths.md` to create a
+  minimal context map of likely paths, tests, and excluded paths.
 - Start from the narrowest concrete entry point: named file, symbol, route,
   test, feature folder, or import chain.
 - Escalate discovery gradually: symbol/file → dependencies → feature folder →
   workspace → repository.
 - Do not repeat broad searches for the same concept; summarize findings and
   reuse them.
-- Use approved `scope.md` boundaries for roadmap phase implementation. Expand
+- Use approved `paths.md` boundaries for roadmap phase implementation. Expand
   only with concrete evidence from requirements, imports, tests, or failures.
 - Ask for user approval when discovery changes feature behavior, architecture,
   validation obligations, or roadmap commitments.
 - Focused code questions, reviews, and maintenance do not require reading
-  product-planning documents or creating `scope.md`.
+  product-planning documents or creating `paths.md`.
 
 ## Development rules
 

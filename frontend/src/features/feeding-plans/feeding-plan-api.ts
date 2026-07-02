@@ -22,7 +22,7 @@ const feedingPlanSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   archivedAt: z.coerce.date().nullable(),
-  status: z.enum(['upcoming', 'due']),
+  status: z.enum(['upcoming', 'due']).nullable(),
   minutesPastDue: z.number().int().nonnegative().nullable(),
 });
 
@@ -40,12 +40,24 @@ export interface FeedingPlanInput {
 
 export const feedingPlanQueryKey = (animalId: string) =>
   ['animals', animalId, 'feeding-plans'] as const;
+export const feedingPlanHistoryQueryKey = (animalId: string) =>
+  ['animals', animalId, 'feeding-plans', 'history'] as const;
 
 export async function listFeedingPlans(
   animalId: string,
 ): Promise<FeedingPlan[]> {
   return feedingPlanListSchema.parse(
     await apiRequest<unknown>(`/animals/${animalId}/feeding-plans`),
+  );
+}
+
+export async function listFeedingPlanHistory(
+  animalId: string,
+): Promise<FeedingPlan[]> {
+  return feedingPlanListSchema.parse(
+    await apiRequest<unknown>(
+      `/animals/${animalId}/feeding-plans?status=archived`,
+    ),
   );
 }
 
@@ -56,19 +68,6 @@ export async function createFeedingPlan(
   return feedingPlanSchema.parse(
     await apiRequest<unknown>(`/animals/${animalId}/feeding-plans`, {
       method: 'POST',
-      body: JSON.stringify(input),
-    }),
-  );
-}
-
-export async function updateFeedingPlan(
-  animalId: string,
-  planId: string,
-  input: FeedingPlanInput,
-): Promise<FeedingPlan> {
-  return feedingPlanSchema.parse(
-    await apiRequest<unknown>(`/animals/${animalId}/feeding-plans/${planId}`, {
-      method: 'PATCH',
       body: JSON.stringify(input),
     }),
   );
