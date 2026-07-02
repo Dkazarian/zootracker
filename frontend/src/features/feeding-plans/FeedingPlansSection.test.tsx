@@ -12,8 +12,8 @@ import FeedingPlansSection from './FeedingPlansSection';
 
 const apiMocks = vi.hoisted(() => ({
   listFeedingPlans: vi.fn(),
+  listFeedingPlanHistory: vi.fn(),
   createFeedingPlan: vi.fn(),
-  updateFeedingPlan: vi.fn(),
   archiveFeedingPlan: vi.fn(),
 }));
 
@@ -57,8 +57,8 @@ function renderSection(role: 'keeper' | 'admin' = 'keeper') {
 describe('FeedingPlansSection', () => {
   beforeEach(() => {
     apiMocks.listFeedingPlans.mockResolvedValue([plan]);
+    apiMocks.listFeedingPlanHistory.mockResolvedValue([]);
     apiMocks.createFeedingPlan.mockResolvedValue(plan);
-    apiMocks.updateFeedingPlan.mockResolvedValue(plan);
     apiMocks.archiveFeedingPlan.mockResolvedValue({
       ...plan,
       archivedAt: new Date(),
@@ -132,26 +132,46 @@ describe('FeedingPlansSection', () => {
     expect(apiMocks.createFeedingPlan).not.toHaveBeenCalled();
   });
 
-  it('lets a keeper update an existing plan', async () => {
+  it('does not offer in-place editing', async () => {
     renderSection();
 
-    fireEvent.click(
-      await screen.findByRole('button', { name: 'Edit Morning fruit' }),
-    );
-    fireEvent.change(screen.getByLabelText('Feeding instructions'), {
-      target: { value: '4 bananas and an apple' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Save plan' }));
+    expect(await screen.findByText('Morning fruit')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /edit|replace/i }),
+    ).not.toBeInTheDocument();
+  });
 
-    await waitFor(() =>
-      expect(apiMocks.updateFeedingPlan).toHaveBeenCalledWith(
-        'animal-1',
-        'plan-1',
-        expect.objectContaining({
-          instructions: '4 bananas and an apple',
-        }),
-      ),
+  it('shows archived plans in a separate history section', async () => {
+    apiMocks.listFeedingPlanHistory.mockResolvedValue([
+      {
+        ...plan,
+        id: 'archived-plan',
+        name: 'Old morning fruit',
+        archivedAt: new Date('2026-07-01T12:00:00.000Z'),
+        status: null,
+      },
+    ]);
+    renderSection();
+
+    expect(await screen.findByText('Morning fruit')).toBeInTheDocument();
+    expect(apiMocks.listFeedingPlanHistory).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Show archived plans' }),
     );
+    expect(
+      await screen.findByRole('heading', { name: 'Plan history' }),
+    ).toBeInTheDocument();
+    expect(apiMocks.listFeedingPlanHistory).toHaveBeenCalledWith('animal-1');
+    expect(screen.getByText('Old morning fruit')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Archive Old morning fruit' }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Hide archived plans' }),
+    );
+    expect(
+      screen.queryByRole('heading', { name: 'Plan history' }),
+    ).not.toBeInTheDocument();
   });
 
   it('requires confirmation before archiving a plan', async () => {
@@ -179,9 +199,6 @@ describe('FeedingPlansSection', () => {
     expect(await screen.findByText('Morning fruit')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Add feeding plan' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Edit Morning fruit' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Archive Morning fruit' }),

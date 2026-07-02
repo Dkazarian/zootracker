@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import type { FeedingPlan, FeedingPlanInput } from './feeding-plan-api';
+import type { FeedingPlanInput } from './feeding-plan-api';
 
 const feedingPlanFormSchema = z.object({
   name: z.string().trim().min(1, 'Enter a plan name').max(100),
@@ -24,7 +24,6 @@ const feedingPlanFormSchema = z.object({
 type FeedingPlanFormValues = z.infer<typeof feedingPlanFormSchema>;
 
 interface FeedingPlanFormProps {
-  plan?: FeedingPlan;
   submitting: boolean;
   serverError: string;
   onCancel(): void;
@@ -32,7 +31,6 @@ interface FeedingPlanFormProps {
 }
 
 function FeedingPlanForm({
-  plan,
   submitting,
   serverError,
   onCancel,
@@ -45,11 +43,11 @@ function FeedingPlanForm({
   } = useForm<FeedingPlanFormValues>({
     resolver: zodResolver(feedingPlanFormSchema),
     values: {
-      name: plan?.name ?? '',
-      instructions: plan?.instructions ?? '',
-      period: plan?.period ?? 'morning',
-      repeatEveryDays: plan?.repeatEveryDays ?? 1,
-      nextDueDate: plan?.nextDueDate ?? '',
+      name: '',
+      instructions: '',
+      period: 'morning',
+      repeatEveryDays: 1,
+      nextDueDate: '',
     },
   });
 
@@ -140,7 +138,7 @@ function FeedingPlanForm({
 
       <div className="form-actions">
         <button type="submit" disabled={submitting}>
-          {submitting ? 'Saving...' : plan ? 'Save plan' : 'Create plan'}
+          {submitting ? 'Saving...' : 'Create plan'}
         </button>
         <button
           className="button-secondary"
