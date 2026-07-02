@@ -13,6 +13,7 @@
 | Animal feeding-plan interface | `frontend/src/features/feeding-plans/`, `frontend/src/features/animals/`, `frontend/src/shared/` |
 | Tests, documentation, and validation | `backend/src/feeding-plans/`, `backend/test/`, `frontend/src/features/feeding-plans/`, `frontend/src/features/animals/`, `specs/2026-06-30-feeding-plans/` |
 | Immutable-plan amendment | `backend/src/feeding-plans/`, `backend/test/`, `frontend/src/features/feeding-plans/`, `frontend/src/features/animals/`, `specs/2026-06-30-feeding-plans/`, `CHANGELOG.md` |
+| Date-presentation amendment | `frontend/src/shared/date/`, `frontend/src/features/feeding-plans/`, `frontend/src/features/animals/`, `frontend/src/app/App.test.tsx`, `specs/tech-stack.md`, `specs/2026-06-29-animal-registry/`, `specs/2026-06-30-feeding-plans/`, `CHANGELOG.md` |
 
 Use the paths for the active task group rather than loading every path in this
 file. Files imported from another folder or failures that point outside these
@@ -23,3 +24,6 @@ boundaries are evidence for a path-boundary expansion.
 - The 2026-07-01 immutable-plan amendment added the feeding-plan API, animal
   interface, focused test, specification, and changelog paths listed in the
   amendment task-group row.
+- The 2026-07-02 date-presentation amendment added the shared date utility,
+  animal interface, cross-feature test, and specification paths listed in its
+  task-group row.

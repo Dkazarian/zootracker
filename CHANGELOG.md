@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-07-02
+
+- Standardize user-facing dates as `dd/mm/yyyy`, rename the feeding-plan date
+  label to `Next feeding`, and default new feeding plans to tomorrow.
+
 ## 2026-07-01
 
 - Finalize personnel deactivation and reactivation with direct account-state

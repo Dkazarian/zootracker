@@ -58,6 +58,10 @@ belong to later phases.
   threshold.
 - Show the plan name, instructions, period, recurrence, next-due date, and
   current status.
+- Label the next-due date as `Next feeding` in the interface.
+- Default a new plan's next-feeding date to tomorrow.
+- Display and enter feeding dates as `dd/mm/yyyy` while preserving ISO
+  `yyyy-mm-dd` values in API requests.
 - Do not classify archived plans as upcoming or due.
 - Provide clear loading, empty, and failure states.
 

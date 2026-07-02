@@ -1,40 +1,51 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { getTodayDateOnly, parseUiDate } from '../../shared/date/date-format';
 import type { Animal, AnimalInput } from './animal-api';
 import { toDateInputValue } from './animal-format';
+
+const optionalUiDate = z
+  .string()
+  .trim()
+  .refine(
+    (value) => value === '' || parseUiDate(value) !== null,
+    'Use dd/mm/yyyy and enter a valid date',
+  );
 
 const animalFormSchema = z
   .object({
     name: z.string().trim().min(1, 'Enter a name').max(100),
     species: z.string().trim().min(2, 'Enter at least 2 characters').max(120),
     sex: z.enum(['', 'female', 'male', 'unknown']),
-    dateOfBirth: z.string(),
-    arrivalDate: z.string(),
+    dateOfBirth: optionalUiDate,
+    arrivalDate: optionalUiDate,
     currentLocation: z.string().max(120),
     notes: z.string().max(2000),
   })
   .superRefine((values, context) => {
-    const today = new Date().toISOString().slice(0, 10);
-    if (values.dateOfBirth && values.dateOfBirth > today) {
+    const today = getTodayDateOnly();
+    const dateOfBirth = values.dateOfBirth
+      ? parseUiDate(values.dateOfBirth)
+      : null;
+    const arrivalDate = values.arrivalDate
+      ? parseUiDate(values.arrivalDate)
+      : null;
+    if (dateOfBirth && dateOfBirth > today) {
       context.addIssue({
         code: 'custom',
         path: ['dateOfBirth'],
         message: 'Date of birth cannot be in the future',
       });
     }
-    if (values.arrivalDate && values.arrivalDate > today) {
+    if (arrivalDate && arrivalDate > today) {
       context.addIssue({
         code: 'custom',
         path: ['arrivalDate'],
         message: 'Arrival date cannot be in the future',
       });
     }
-    if (
-      values.dateOfBirth &&
-      values.arrivalDate &&
-      values.arrivalDate < values.dateOfBirth
-    ) {
+    if (dateOfBirth && arrivalDate && arrivalDate < dateOfBirth) {
       context.addIssue({
         code: 'custom',
         path: ['arrivalDate'],
@@ -78,12 +89,19 @@ function AnimalForm({
   });
 
   const onSubmit = handleSubmit((values) => {
+    const dateOfBirth = values.dateOfBirth
+      ? parseUiDate(values.dateOfBirth)
+      : null;
+    const arrivalDate = values.arrivalDate
+      ? parseUiDate(values.arrivalDate)
+      : null;
+
     onSave({
       name: values.name.trim(),
       species: values.species.trim(),
       sex: values.sex || null,
-      dateOfBirth: values.dateOfBirth || null,
-      arrivalDate: values.arrivalDate || null,
+      dateOfBirth,
+      arrivalDate,
       currentLocation: values.currentLocation.trim() || null,
       notes: values.notes.trim() || null,
     });
@@ -135,7 +153,10 @@ function AnimalForm({
         <label htmlFor="animal-birth-date">Date of birth</label>
         <input
           id="animal-birth-date"
-          type="date"
+          type="text"
+          inputMode="numeric"
+          maxLength={10}
+          placeholder="dd/mm/yyyy"
           aria-invalid={Boolean(errors.dateOfBirth)}
           {...register('dateOfBirth')}
         />
@@ -147,7 +168,10 @@ function AnimalForm({
         <label htmlFor="animal-arrival-date">Arrival date</label>
         <input
           id="animal-arrival-date"
-          type="date"
+          type="text"
+          inputMode="numeric"
+          maxLength={10}
+          placeholder="dd/mm/yyyy"
           aria-invalid={Boolean(errors.arrivalDate)}
           {...register('arrivalDate')}
         />

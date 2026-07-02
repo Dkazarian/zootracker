@@ -1,4 +1,5 @@
 import type { FeedingPeriod, FeedingPlan } from './feeding-plan-api';
+import { formatDateOnlyForUi } from '../../shared/date/date-format';
 
 export function formatFeedingPeriod(period: FeedingPeriod): string {
   return `${period.charAt(0).toUpperCase()}${period.slice(1)}`;
@@ -8,11 +9,8 @@ export function formatRecurrence(days: number): string {
   return days === 1 ? 'Every day' : `Every ${days} days`;
 }
 
-export function formatDueDate(dateOnly: string): string {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeZone: 'UTC',
-  }).format(new Date(`${dateOnly}T00:00:00.000Z`));
+export function formatFeedingDate(dateOnly: string): string {
+  return formatDateOnlyForUi(dateOnly);
 }
 
 export function formatPlanStatus(

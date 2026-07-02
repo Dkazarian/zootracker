@@ -88,3 +88,13 @@ rewriting that implementation history.
    for future feeding-record relations, and introduce no deletion path.
 10. ✅ Run the amendment validation in `validation.md` and add `✅` only after each
    step is implemented and directly validated.
+
+## Amendment - UI date presentation (2026-07-02)
+
+1. ✅ Add one shared frontend utility for strict `dd/mm/yyyy` parsing and
+   formatting while preserving ISO date-only API values.
+2. ✅ Label feeding-plan dates as `Next feeding` and default new plans to
+   tomorrow.
+3. ✅ Apply the same `dd/mm/yyyy` input and display convention to animal dates.
+4. ✅ Add focused date-helper, animal-form, and feeding-plan tests.
+5. ✅ Run focused and repository-wide validation before adding `✅`.

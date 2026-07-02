@@ -160,6 +160,21 @@ amendment below supersedes that behavior and was validated on 2026-07-01.
 - The temporary browser-validation plan was removed directly from the local
   development database after validation.
 
+## Date Presentation Amendment Results - 2026-07-02
+
+- ✅ Shared helper tests confirm strict `dd/mm/yyyy` parsing, ISO conversion,
+  leap-year validation, invalid-date rejection, and tomorrow calculation.
+- ✅ Animal component tests confirm profile dates and edit inputs use
+  `dd/mm/yyyy` while create and update requests retain ISO date-only values.
+- ✅ Feeding-plan component tests confirm the `Next feeding` label, tomorrow
+  default, `dd/mm/yyyy` display, invalid-date feedback, and ISO request value.
+- ✅ Formatting, linting, frontend and backend type-checking, all 32 frontend
+  tests, all 66 backend unit tests, generic API tests, and both production
+  builds passed.
+- ✅ Browser validation confirmed `12/05/2004` and `20/03/2018` on the animal
+  profile and edit form, `Next feeding` with tomorrow as `03/07/2026`, existing
+  feeding dates in `dd/mm/yyyy`, and no console warnings or errors.
+
 ## Merge Criteria
 
 The phase can be merged when:

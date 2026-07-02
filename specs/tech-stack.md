@@ -118,6 +118,8 @@ Backend feature modules keep their controllers, services, DTOs, and unit tests t
 
 - React component files use PascalCase, such as `AnimalCard.tsx`.
 - NestJS files use kebab-case with descriptive suffixes, such as `animals.controller.ts`.
+- User-facing calendar dates use `dd/mm/yyyy`. API date-only fields use ISO
+  `yyyy-mm-dd`, and PostgreSQL stores them as `DATE` values.
 - Unit and component tests are colocated with the code they test.
 - Cross-application and API end-to-end tests live in the relevant `test/` directory.
 - Business-specific code stays within its feature.

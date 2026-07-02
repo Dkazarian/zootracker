@@ -1,4 +1,8 @@
 import type { AnimalSex } from './animal-api';
+import {
+  formatDateForInput,
+  formatDateForUi,
+} from '../../shared/date/date-format';
 
 export function formatAnimalSex(sex: AnimalSex | null): string {
   if (!sex) {
@@ -8,15 +12,9 @@ export function formatAnimalSex(sex: AnimalSex | null): string {
 }
 
 export function formatAnimalDate(date: Date | null): string {
-  if (!date) {
-    return 'Not recorded';
-  }
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeZone: 'UTC',
-  }).format(date);
+  return formatDateForUi(date);
 }
 
 export function toDateInputValue(date: Date | null): string {
-  return date ? date.toISOString().slice(0, 10) : '';
+  return formatDateForInput(date);
 }

@@ -7,6 +7,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { getTomorrowUiDate } from '../../shared/date/date-format';
 import type { FeedingPlan } from './feeding-plan-api';
 import FeedingPlansSection from './FeedingPlansSection';
 
@@ -76,6 +77,8 @@ describe('FeedingPlansSection', () => {
     expect(await screen.findByText('Morning fruit')).toBeInTheDocument();
     expect(screen.getByText('3 bananas and an apple')).toBeInTheDocument();
     expect(screen.getByText('Every day')).toBeInTheDocument();
+    expect(screen.getByText('Next feeding')).toBeInTheDocument();
+    expect(screen.getByText('01/07/2030 · Morning')).toBeInTheDocument();
     expect(screen.getByText('Upcoming')).toBeInTheDocument();
     expect(
       screen.getByText('Created by Kira Keeper · Last changed by Mina Keeper'),
@@ -98,8 +101,11 @@ describe('FeedingPlansSection', () => {
     fireEvent.change(screen.getByLabelText('Repeat every'), {
       target: { value: '2' },
     });
-    fireEvent.change(screen.getByLabelText('Next due date'), {
-      target: { value: '2030-07-02' },
+    expect(screen.getByLabelText('Next feeding')).toHaveValue(
+      getTomorrowUiDate(),
+    );
+    fireEvent.change(screen.getByLabelText('Next feeding'), {
+      target: { value: '02/07/2030' },
     });
     fireEvent.change(screen.getByLabelText('Feeding instructions'), {
       target: { value: ' Hay and leafy greens ' },
@@ -128,8 +134,15 @@ describe('FeedingPlansSection', () => {
 
     expect(await screen.findByText('Enter a plan name')).toBeInTheDocument();
     expect(screen.getByText('Enter feeding instructions')).toBeInTheDocument();
-    expect(screen.getByText('Choose the next due date')).toBeInTheDocument();
     expect(apiMocks.createFeedingPlan).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByLabelText('Next feeding'), {
+      target: { value: '31/02/2030' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create plan' }));
+    expect(
+      await screen.findByText('Use dd/mm/yyyy and enter a valid date'),
+    ).toBeInTheDocument();
   });
 
   it('does not offer in-place editing', async () => {

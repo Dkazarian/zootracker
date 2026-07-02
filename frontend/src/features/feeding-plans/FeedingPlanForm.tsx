@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { getTomorrowUiDate, parseUiDate } from '../../shared/date/date-format';
 import type { FeedingPlanInput } from './feeding-plan-api';
 
 const feedingPlanFormSchema = z.object({
@@ -18,7 +19,11 @@ const feedingPlanFormSchema = z.object({
     .max(3650),
   nextDueDate: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Choose the next due date'),
+    .trim()
+    .refine(
+      (value) => parseUiDate(value) !== null,
+      'Use dd/mm/yyyy and enter a valid date',
+    ),
 });
 
 type FeedingPlanFormValues = z.infer<typeof feedingPlanFormSchema>;
@@ -47,13 +52,17 @@ function FeedingPlanForm({
       instructions: '',
       period: 'morning',
       repeatEveryDays: 1,
-      nextDueDate: '',
+      nextDueDate: getTomorrowUiDate(),
     },
   });
 
   const onSubmit = handleSubmit((values) => {
+    const nextDueDate = parseUiDate(values.nextDueDate);
+    if (!nextDueDate) return;
+
     onSave({
       ...values,
+      nextDueDate,
       name: values.name.trim(),
       instructions: values.instructions.trim(),
     });
@@ -104,10 +113,13 @@ function FeedingPlanForm({
       </div>
 
       <div className="form-field">
-        <label htmlFor="feeding-plan-next-date">Next due date</label>
+        <label htmlFor="feeding-plan-next-date">Next feeding</label>
         <input
           id="feeding-plan-next-date"
-          type="date"
+          type="text"
+          inputMode="numeric"
+          maxLength={10}
+          placeholder="dd/mm/yyyy"
           aria-invalid={Boolean(errors.nextDueDate)}
           {...register('nextDueDate')}
         />

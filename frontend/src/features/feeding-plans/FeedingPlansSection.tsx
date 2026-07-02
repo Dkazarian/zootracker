@@ -12,7 +12,7 @@ import {
   type FeedingPlanInput,
 } from './feeding-plan-api';
 import {
-  formatDueDate,
+  formatFeedingDate,
   formatFeedingPeriod,
   formatPlanStatus,
   formatRecurrence,
@@ -204,9 +204,9 @@ function FeedingPlansSection({
                   <dd>{formatRecurrence(plan.repeatEveryDays)}</dd>
                 </div>
                 <div>
-                  <dt>Next due</dt>
+                  <dt>Next feeding</dt>
                   <dd>
-                    {formatDueDate(plan.nextDueDate)} ·{' '}
+                    {formatFeedingDate(plan.nextDueDate)} ·{' '}
                     {formatFeedingPeriod(plan.period)}
                   </dd>
                 </div>
@@ -294,9 +294,9 @@ function FeedingPlansSection({
                         <dd>{formatRecurrence(plan.repeatEveryDays)}</dd>
                       </div>
                       <div>
-                        <dt>Last scheduled due</dt>
+                        <dt>Scheduled feeding</dt>
                         <dd>
-                          {formatDueDate(plan.nextDueDate)} ·{' '}
+                          {formatFeedingDate(plan.nextDueDate)} ·{' '}
                           {formatFeedingPeriod(plan.period)}
                         </dd>
                       </div>
