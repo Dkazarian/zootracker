@@ -8,11 +8,11 @@
   `specs/tech-stack.md`, and `specs/roadmap.md`.
 - Each new roadmap phase gets a dated directory with:
   - `requirements.md`
-  - `scope.md`
+  - `paths.md`
   - `plan.md`
   - `validation.md`
 - `requirements.md` defines approved feature behavior and exclusions.
-- `scope.md` defines approved implementation paths by task group.
+- `paths.md` defines approved implementation paths by task group.
 - `plan.md` defines independently implementable, directly verifiable steps.
 - `validation.md` defines required automated, manual, and browser checks.
 - Obtain explicit user approval before drafting a feature specification and
@@ -26,8 +26,12 @@
 - Mark plan steps with `✅` only after implementation and directly relevant
   focused validation pass.
 - Leave blocked, partial, or unvalidated work unchecked.
-- `scope.md` should use the deepest practical folder paths.
-- Update `scope.md` only for material boundary expansions into feature, shared,
+- `paths.md` should use the deepest practical folder paths.
+- Keep product behavior, status, decisions, and feature exclusions out of
+  `paths.md`; those belong in `requirements.md`, `plan.md`, or `validation.md`.
+- Keep `paths.md` limited to editable paths, supporting read-only paths,
+  excluded paths, and recorded path-boundary changes.
+- Update `paths.md` only for material boundary expansions into feature, shared,
   schema, or test folders not already covered.
 - Ask for approval when an expansion changes behavior, architecture, validation,
   or roadmap commitments.

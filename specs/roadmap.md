@@ -2,7 +2,7 @@
 
 Phases are intentionally small. Each phase should be independently reviewable, testable, and leave the application in a working state.
 
-Every phase receives its own `requirements.md`, `scope.md`, `plan.md`, and
+Every phase receives its own `requirements.md`, `paths.md`, `plan.md`, and
 `validation.md` before implementation begins. Testing is part of each phase
 rather than postponed until the end.
 

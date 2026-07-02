@@ -207,5 +207,5 @@ The refactor is ready to merge when:
 - repository and service responsibilities are independently tested;
 - no schema, migration, frontend, authentication-strategy, or product behavior
   changes are present; and
-- `requirements.md`, `scope.md`, `plan.md`, and `validation.md` agree with the
+- `requirements.md`, `paths.md`, `plan.md`, and `validation.md` agree with the
   implementation.
