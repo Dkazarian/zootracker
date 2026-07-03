@@ -6,6 +6,7 @@ import { ZootrackerAuthModule } from './auth/auth.module';
 import { AuthorizationModule } from './common/authorization/authorization.module';
 import { DatabaseModule } from './database/database.module';
 import { FeedingPlansModule } from './feeding-plans/feeding-plans.module';
+import { FeedingTasksModule } from './feeding-tasks/feeding-tasks.module';
 import { HealthModule } from './health/health.module';
 import { PersonnelModule } from './personnel/personnel.module';
 
@@ -19,6 +20,7 @@ import { PersonnelModule } from './personnel/personnel.module';
     PersonnelModule,
     AnimalsModule,
     FeedingPlansModule,
+    FeedingTasksModule,
   ],
 })
 export class AppModule {}

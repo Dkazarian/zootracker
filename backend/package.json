@@ -24,6 +24,7 @@
     "test:personnel:e2e": "cross-env RUN_DATABASE_TESTS=true node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand personnel-flow.e2e-spec.ts",
     "test:animals:e2e": "cross-env RUN_DATABASE_TESTS=true node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand animals-flow.e2e-spec.ts",
     "test:feeding-plans:e2e": "cross-env RUN_DATABASE_TESTS=true node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand feeding-plans-flow.e2e-spec.ts",
+    "test:feeding-tasks:e2e": "cross-env RUN_DATABASE_TESTS=true node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand feeding-tasks-flow.e2e-spec.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
