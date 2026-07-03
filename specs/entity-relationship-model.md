@@ -1,6 +1,6 @@
 # Zootracker Entity Relationship Model
 
-This document describes Zootracker's logical data model through Phase 6.
+This document describes Zootracker's logical data model through Phase 7.
 `backend/prisma/schema.prisma` remains the source of truth for the implemented
 physical schema.
 
@@ -12,8 +12,8 @@ physical schema.
 | Animals | Implemented |
 | Feeding plans | Implemented |
 | Immutable feeding plans and archived history | Approved Phase 5 amendment |
-| Feeding records | Planned for Phase 6 |
-| Feeding claims | Planned for Phase 7 and intentionally omitted |
+| Completed feeding sessions and history | Planned for Phase 6 |
+| Feeding-session claim lifecycle | Planned for Phase 7 |
 
 ## Model
 
@@ -26,10 +26,10 @@ erDiagram
     USER ||--o{ FEEDING_PLAN : "creates"
     USER ||--o{ FEEDING_PLAN : "last modifies"
 
-    ANIMAL ||--o{ FEEDING_RECORD : "has history"
-    FEEDING_PLAN ||--o{ FEEDING_RECORD : "is completed by"
-    USER ||--o{ FEEDING_RECORD : "records"
-    USER ||--o{ FEEDING_RECORD : "last corrects"
+    FEEDING_PLAN ||--o{ FEEDING_SESSION : "has occurrences"
+    USER ||--o{ FEEDING_SESSION : "claims"
+    USER ||--o{ FEEDING_SESSION : "completes"
+    USER ||--o{ FEEDING_SESSION : "last modifies"
 
     USER {
         string id PK
@@ -101,15 +101,19 @@ erDiagram
         datetime updatedAt
     }
 
-    FEEDING_RECORD {
+    FEEDING_SESSION {
         string id PK
-        string animalId FK
         string feedingPlanId FK
-        string recordedById FK
-        string lastModifiedById FK
-        datetime completedAt
         date scheduledDueDate
+        FeedingSessionStatus status
+        string claimedById FK
+        datetime claimedAt
+        datetime expiresAt
+        datetime releasedAt
+        string completedById FK
+        datetime completedAt
         string notes
+        string lastModifiedById FK
         datetime createdAt
         datetime updatedAt
     }
@@ -128,18 +132,39 @@ erDiagram
 - `FeedingPlan.nextDueDate` is mutable operational state, not immutable
   definition history. It advances through feeding completion and has no manual
   reschedule operation.
-- Feeding records reference the exact plan version that was completed.
-- `FeedingRecord.scheduledDueDate` preserves the occurrence that was completed
-  after the plan advances to its next due date.
-- `feedingPlanId` plus `scheduledDueDate` uniquely identifies a completed
-  scheduled occurrence.
-- Feeding records, feeding plans, animals, and personnel referenced by history
-  are preserved rather than permanently deleted.
+- A feeding session references the exact immutable plan and scheduled
+  occurrence involved in the work.
+- `FeedingSession.scheduledDueDate` preserves the occurrence after the plan
+  advances to its next due date.
+- Phase 6 may create a session directly in the completed state without a prior
+  claim; its claim-related fields are nullable.
+- Phase 7 may create multiple sessions for the same plan and scheduled date
+  when earlier claims were released or expired, but only one may be effectively
+  active and only one may be completed.
+- The persisted session status is `CLAIMED`, `RELEASED`, or `COMPLETED`.
+  `EXPIRED` is an effective API and domain status derived when a claimed
+  session's `expiresAt` has passed.
+- A claim is advisory. A keeper other than `claimedById` may complete the
+  session after acknowledging the active claim; `completedById` records who
+  actually completed it.
+- Completing a session and advancing `FeedingPlan.nextDueDate` happen
+  atomically.
+- Feeding plans, animals, and personnel referenced by session history are
+  preserved rather than cascade-deleted.
 - Authentication credentials and sessions remain owned by Better Auth.
 
-## Phase 7 extension
+## Lifecycle
 
-Phase 7 will add `FeedingClaim` between a due feeding-plan occurrence and the
-keeper attempting the work. Released or expired claims will not create feeding
-records. A completed claim will link to the feeding record created by the same
-atomic completion workflow.
+```text
+direct completion:              COMPLETED
+claim:                 CLAIMED -> RELEASED
+                          |
+                          +----> COMPLETED
+                          |
+                          +----> EXPIRED (derived from expiresAt)
+```
+
+A released or expired session remains available for operational review. A
+later claim creates another session for the same scheduled occurrence. A
+completed session is the feeding-history entry, so no separate feeding-record
+or feeding-claim entity is required.

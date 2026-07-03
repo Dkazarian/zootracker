@@ -53,25 +53,30 @@ rather than postponed until the end.
 - Show upcoming and due feeding needs without assigning them to a particular
   keeper.
 
-## Phase 6 - Feeding History
+## Phase 6 - Feeding Sessions and History
 
-- Add feeding records linked to a feeding plan, animal, and keeper.
-- Link each completed record to the exact immutable feeding-plan version so
-  later plan changes do not alter history.
-- Show an animal's feeding history in chronological order.
-- Allow keepers to record and correct planned feedings.
-- Preserve creation and last-modification accountability.
-- Link completed feeding records to plans and advance the next due time.
+- Add feeding sessions linked to the exact immutable feeding plan and scheduled
+  occurrence they represent.
+- Allow keepers and administrators to complete planned feedings without first
+  requiring a claim.
+- Store the completing keeper, completion time, optional notes, and
+  last-modification accountability on the completed session.
+- Show completed sessions as an animal's chronological feeding history.
+- Advance the plan's next due date atomically when a session is completed.
+- Establish the session lifecycle that Phase 7 will extend with temporary
+  claims.
 
-## Phase 7 - Shared Feeding Queue and Claims
+## Phase 7 - Shared Feeding Queue and Session Claims
 
 - Let keepers request the next available feeding needs from a shared queue.
 - Preview the next three needs without claiming all of them.
-- Allow a keeper to claim one feeding atomically so two people cannot take the
-  same work.
-- Allow claims to be released, expire after a global timeout, or be completed
-  by recording the feeding.
-- Preserve claim history for operational review.
+- Allow one keeper to claim a scheduled feeding occurrence atomically.
+- Extend feeding sessions with claimed, released, and completed states.
+- Treat a claimed session as effectively expired after the global claim timeout
+  without requiring a stored expired state or background expiration job.
+- Treat claims as coordination signals: warn when another keeper owns the
+  active claim, but allow a different keeper to complete the feeding.
+- Preserve released, expired, and completed sessions for operational review.
 
 ## Phase 8 - Role-Aware Dashboards
 
@@ -96,7 +101,8 @@ rather than postponed until the end.
 - Review the REST API as a stable interface for external clients.
 - Complete OpenAPI documentation and consistent error responses.
 - Add service-to-service authentication for authorized clients.
-- Add idempotency support for feeding-record requests that may be retried.
+- Add idempotency support for feeding-session completion requests that may be
+  retried.
 - Verify that API and UI operations follow the same business rules.
 
 **Core MVP milestone:** At this point Zootracker supports authenticated
