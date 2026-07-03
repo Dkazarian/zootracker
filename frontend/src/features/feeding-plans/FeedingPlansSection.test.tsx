@@ -30,7 +30,11 @@ const plan: FeedingPlan = {
   instructions: '3 bananas and an apple',
   period: 'morning',
   repeatEveryDays: 1,
-  nextDueDate: '2030-07-01',
+  currentTask: {
+    id: 'task-1',
+    scheduledDueDate: '2030-07-01',
+    status: 'AVAILABLE',
+  },
   createdBy: { id: 'keeper-1', name: 'Kira Keeper' },
   lastModifiedBy: { id: 'keeper-2', name: 'Mina Keeper' },
   createdAt: new Date('2026-06-30T12:00:00.000Z'),
@@ -118,7 +122,7 @@ describe('FeedingPlansSection', () => {
         instructions: 'Hay and leafy greens',
         period: 'evening',
         repeatEveryDays: 2,
-        nextDueDate: '2030-07-02',
+        initialDueDate: '2030-07-02',
       }),
     );
   });

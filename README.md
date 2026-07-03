@@ -127,18 +127,31 @@ is no restore or permanent-delete endpoint.
 ## Feeding plans
 
 Authenticated personnel can view an animal's active feeding plans on its
-profile. Both keepers and administrators can create, update, and archive plans.
+profile. Both keepers and administrators can create and archive immutable
+plans.
 
 Each plan has a short name, natural-language instructions, a morning,
-afternoon, or evening period, a positive repeat-every-N-days value, and a
-date-only next-due value. Periods begin at 06:00, 12:00, and 18:00 respectively
-in `ZOO_TIME_ZONE`. A plan is upcoming before its date-and-period boundary and
-remains due afterward.
+afternoon, or evening period and a positive repeat-every-N-days value. Creating
+a plan also creates its first available feeding task from the submitted initial
+date. The task, rather than the plan, owns the next scheduled date. Periods
+begin at 06:00, 12:00, and 18:00 respectively in `ZOO_TIME_ZONE`.
 
 Plans are archived rather than deleted. An archived animal keeps its plans, and
 administrators can still review the active plans attached to its read-only
-profile. Feeding records, claims, assignments, and automatic advancement of the
-next-due date belong to later phases.
+profile.
+
+Keepers and administrators can complete an available task, optionally record
+notes, review completed tasks as feeding history, and correct completion time
+or notes. Completion atomically creates the plan's next task. Administrators
+can undo the latest completion, which restores that occurrence and removes its
+successor. Task claims and dashboard filters remain deferred.
+
+The feeding-task API uses:
+
+- `GET /api/animals/:animalId/feeding-tasks?status=completed`
+- `POST /api/feeding-tasks/:taskId/completion`
+- `PATCH /api/feeding-tasks/:taskId/completion`
+- `DELETE /api/feeding-tasks/:taskId/completion` (administrator only)
 
 ## Authentication tests
 
@@ -159,6 +172,7 @@ npm run test:auth:e2e
 npm run test:personnel:e2e
 npm run test:animals:e2e
 npm run test:feeding-plans:e2e
+npm run test:feeding-tasks:e2e
 Remove-Item Env:DATABASE_URL
 ```
 
