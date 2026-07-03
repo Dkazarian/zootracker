@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import type {
   AnimalStateRecord,
-  CreateFeedingPlanData,
-  FeedingPlanMutationRecord,
   FeedingPlanListStatus,
+  FeedingPlanMutationRecord,
   FeedingPlanRecord,
+  CreateFeedingPlanData,
 } from './feeding-plan.types';
-import { feedingPlanPeople } from './feeding-plan.types';
+import { feedingPlanRelations } from './feeding-plan.types';
 
 @Injectable()
 export class FeedingPlansRepository {
@@ -20,14 +20,14 @@ export class FeedingPlansRepository {
     if (status === 'archived') {
       return this.prisma.feedingPlan.findMany({
         where: { animalId, archivedAt: { not: null } },
-        include: feedingPlanPeople,
+        include: feedingPlanRelations,
         orderBy: [{ archivedAt: 'desc' }, { createdAt: 'desc' }],
       });
     }
     return this.prisma.feedingPlan.findMany({
       where: { animalId, archivedAt: null },
-      include: feedingPlanPeople,
-      orderBy: [{ nextDueDate: 'asc' }, { period: 'asc' }, { name: 'asc' }],
+      include: feedingPlanRelations,
+      orderBy: [{ period: 'asc' }, { name: 'asc' }],
     });
   }
 
@@ -64,18 +64,35 @@ export class FeedingPlansRepository {
     });
   }
 
-  create(data: CreateFeedingPlanData): Promise<FeedingPlanRecord> {
+  create(
+    data: CreateFeedingPlanData,
+    initialDueDate: Date,
+    userId: string,
+  ): Promise<FeedingPlanRecord> {
     return this.prisma.feedingPlan.create({
-      data,
-      include: feedingPlanPeople,
+      data: {
+        ...data,
+        feedingTasks: {
+          create: {
+            scheduledDueDate: initialDueDate,
+            lastModifiedById: userId,
+          },
+        },
+      },
+      include: feedingPlanRelations,
     });
   }
 
   archive(planId: string, userId: string): Promise<FeedingPlanRecord> {
-    return this.prisma.feedingPlan.update({
-      where: { id: planId },
-      data: { archivedAt: new Date(), lastModifiedById: userId },
-      include: feedingPlanPeople,
+    return this.prisma.$transaction(async (transaction) => {
+      await transaction.feedingTask.deleteMany({
+        where: { feedingPlanId: planId, status: 'AVAILABLE' },
+      });
+      return transaction.feedingPlan.update({
+        where: { id: planId },
+        data: { archivedAt: new Date(), lastModifiedById: userId },
+        include: feedingPlanRelations,
+      });
     });
   }
 }

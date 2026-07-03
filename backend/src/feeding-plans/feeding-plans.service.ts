@@ -19,6 +19,8 @@ import type {
 } from './feeding-plan.types';
 import { FeedingPlansRepository } from './feeding-plans.repository';
 
+const periodOrder = { morning: 0, afternoon: 1, evening: 2 } as const;
+
 @Injectable()
 export class FeedingPlansService {
   constructor(private readonly repository: FeedingPlansRepository) {}
@@ -30,9 +32,18 @@ export class FeedingPlansService {
   ): Promise<FeedingPlanResponse[]> {
     await this.requireVisibleAnimal(animalId, role);
     const now = new Date();
-    return (await this.repository.list(animalId, status)).map((plan) =>
+    const plans = (await this.repository.list(animalId, status)).map((plan) =>
       this.toResponse(plan, now),
     );
+    return plans.sort((left, right) => {
+      const leftDate = left.currentTask?.scheduledDueDate ?? '';
+      const rightDate = right.currentTask?.scheduledDueDate ?? '';
+      return (
+        leftDate.localeCompare(rightDate) ||
+        periodOrder[left.period] - periodOrder[right.period] ||
+        left.name.localeCompare(right.name)
+      );
+    });
   }
 
   async create(
@@ -42,12 +53,9 @@ export class FeedingPlansService {
   ): Promise<FeedingPlanResponse> {
     await this.requireActiveAnimal(animalId);
     const plan = await this.repository.create(
-      toCreateFeedingPlanData(
-        animalId,
-        input,
-        this.parseNextDueDate(input.nextDueDate),
-        userId,
-      ),
+      toCreateFeedingPlanData(animalId, input, userId),
+      this.parseInitialDueDate(input.initialDueDate),
+      userId,
     );
     return this.toResponse(plan, new Date());
   }
@@ -101,18 +109,19 @@ export class FeedingPlansService {
     }
   }
 
-  private parseNextDueDate(value: string): Date {
+  private parseInitialDueDate(value: string): Date {
     try {
       return parseDateOnly(value);
     } catch {
       throw new BadRequestException(
-        'nextDueDate must be a valid calendar date',
+        'initialDueDate must be a valid calendar date',
       );
     }
   }
 
   private toResponse(plan: FeedingPlanRecord, now: Date): FeedingPlanResponse {
-    if (plan.archivedAt) {
+    const currentTask = plan.feedingTasks[0];
+    if (plan.archivedAt || !currentTask) {
       return toFeedingPlanResponse(plan, {
         status: null,
         minutesPastDue: null,
@@ -121,7 +130,7 @@ export class FeedingPlansService {
     return toFeedingPlanResponse(
       plan,
       getFeedingPlanTiming(
-        plan.nextDueDate,
+        currentTask.scheduledDueDate,
         plan.period,
         now,
         getZooTimeZone(),

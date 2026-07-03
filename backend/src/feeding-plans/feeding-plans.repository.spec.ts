@@ -26,10 +26,20 @@ describe('FeedingPlansRepository', () => {
     expect(feedingPlan.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { animalId: 'animal-1', archivedAt: null },
-        orderBy: [{ nextDueDate: 'asc' }, { period: 'asc' }, { name: 'asc' }],
+        orderBy: [{ period: 'asc' }, { name: 'asc' }],
         include: {
           createdBy: { select: { id: true, name: true } },
           lastModifiedBy: { select: { id: true, name: true } },
+          feedingTasks: {
+            where: { status: 'AVAILABLE' },
+            orderBy: { scheduledDueDate: 'asc' },
+            take: 1,
+            select: {
+              id: true,
+              scheduledDueDate: true,
+              status: true,
+            },
+          },
         },
       }),
     );

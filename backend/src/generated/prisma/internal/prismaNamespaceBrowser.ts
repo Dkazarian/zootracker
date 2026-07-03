@@ -54,6 +54,7 @@ export const ModelName = {
   Animal: 'Animal',
   User: 'User',
   FeedingPlan: 'FeedingPlan',
+  FeedingTask: 'FeedingTask',
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification'
@@ -116,7 +117,6 @@ export const FeedingPlanScalarFieldEnum = {
   instructions: 'instructions',
   period: 'period',
   repeatEveryDays: 'repeatEveryDays',
-  nextDueDate: 'nextDueDate',
   createdById: 'createdById',
   lastModifiedById: 'lastModifiedById',
   createdAt: 'createdAt',
@@ -125,6 +125,22 @@ export const FeedingPlanScalarFieldEnum = {
 } as const
 
 export type FeedingPlanScalarFieldEnum = (typeof FeedingPlanScalarFieldEnum)[keyof typeof FeedingPlanScalarFieldEnum]
+
+
+export const FeedingTaskScalarFieldEnum = {
+  id: 'id',
+  feedingPlanId: 'feedingPlanId',
+  scheduledDueDate: 'scheduledDueDate',
+  status: 'status',
+  completedById: 'completedById',
+  completedAt: 'completedAt',
+  notes: 'notes',
+  lastModifiedById: 'lastModifiedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FeedingTaskScalarFieldEnum = (typeof FeedingTaskScalarFieldEnum)[keyof typeof FeedingTaskScalarFieldEnum]
 
 
 export const SessionScalarFieldEnum = {
