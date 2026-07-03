@@ -1,8 +1,9 @@
 # Phase 5: Feeding Plans - Implementation Plan
 
-The checked task groups below record the original Phase 5 delivery. The
-2026-07-01 amendment at the end supersedes in-place definition editing without
-rewriting that implementation history.
+The checked task groups below record the original Phase 5 delivery. Later
+amendments supersede the relevant behavior without rewriting that
+implementation history. The 2026-07-03 task amendment remains unchecked until
+it is implemented with Phase 6.
 
 ## Task Group 1 - Feeding-plan data model
 
@@ -88,6 +89,26 @@ rewriting that implementation history.
    for future feeding-record relations, and introduce no deletion path.
 10. ✅ Run the amendment validation in `validation.md` and add `✅` only after each
    step is implemented and directly validated.
+
+## Amendment - Initial feeding task (2026-07-03)
+
+This amendment is implemented with Phase 6 because it introduces the
+feeding-task model.
+
+1. Create the first `AVAILABLE` feeding task atomically with a new feeding
+   plan, using the submitted initial scheduled date.
+2. Move mutable scheduling state from `FeedingPlan.nextDueDate` to
+   `FeedingTask.scheduledDueDate`.
+3. Migrate each existing active plan's current next-due value into one
+   available task before removing `nextDueDate` from the plan.
+4. Derive each active plan's next-feeding date and due status from its current
+   task in API responses and the interface.
+5. Remove the current non-completed task when its plan is archived while
+   preserving completed task history.
+6. Update schema, service, repository, API, frontend, and migration coverage
+   without changing immutable plan definitions.
+7. Run the amendment checks in `validation.md` and add checkmarks only after
+   implementation and directly relevant validation pass.
 
 ## Amendment - UI date presentation (2026-07-02)
 

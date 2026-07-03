@@ -3,7 +3,7 @@
 ## Goal
 
 Give zoo staff a clear, repeatable description of what each animal should be
-fed and when that feeding is next due.
+fed and when its first scheduled feeding should occur.
 
 This phase defines feeding work. Recording completed feedings and claiming work
 belong to later phases.
@@ -20,7 +20,6 @@ belong to later phases.
     `3 bananas and an apple`;
   - a required feeding period of `morning`, `afternoon`, or `evening`;
   - a required positive whole number of days between feedings;
-  - the calendar date the plan is next due;
   - creation and last-update timestamps;
   - the personnel who created and last modified it; and
   - an optional archive timestamp.
@@ -29,17 +28,20 @@ belong to later phases.
 - Preserve plans when an animal or personnel account is archived.
 - Treat the animal, name, instructions, period, and recurrence as an immutable
   plan definition after creation.
-- Treat `nextDueDate` as mutable operational state that later feeding
-  completion workflows may advance.
+- Accept an initial scheduled date when creating a plan and use it to create
+  the plan's first available feeding task.
+- Create the plan and its first task atomically.
+- Keep scheduled dates on feeding tasks rather than duplicating mutable
+  `nextDueDate` state on the feeding plan.
 - Do not expose a general feeding-plan `PATCH` endpoint.
-- Do not allow personnel to reschedule `nextDueDate` manually. It advances only
-  as part of recording a completed feeding in a later phase.
+- Do not allow personnel to reschedule a task through the feeding-plan API.
 
 ### Feeding needs and plan history
 
 - Allow authenticated personnel to view all feeding plans associated with an
   animal they are allowed to view.
-- Present active plans as the animal's current feeding work.
+- Present active plans with their current non-completed task as the animal's
+  current feeding work.
 - Present archived plans separately as plan history only when personnel request
   to see them.
 - Do not fetch archived plan history with the animal's active plans; load it
@@ -50,16 +52,16 @@ belong to later phases.
   - morning begins at 06:00;
   - afternoon begins at 12:00; and
   - evening begins at 18:00.
-- Combine the plan's next-due date and period start to determine when it becomes
-  due.
+- Combine the current task's scheduled due date and the plan's period start to
+  determine when the task becomes due.
 - Classify an active plan as upcoming before that point and due when that point
   has arrived or passed.
 - Show how long a plan has been due instead of introducing a separate overdue
   threshold.
-- Show the plan name, instructions, period, recurrence, next-due date, and
-  current status.
-- Label the next-due date as `Next feeding` in the interface.
-- Default a new plan's next-feeding date to tomorrow.
+- Show the plan name, instructions, period, recurrence, current task's scheduled
+  date, and derived due status.
+- Label the current task's scheduled date as `Next feeding` in the interface.
+- Default a new plan's initial task date to tomorrow.
 - Display and enter feeding dates as `dd/mm/yyyy` while preserving ISO
   `yyyy-mm-dd` values in API requests.
 - Do not classify archived plans as upcoming or due.
@@ -94,30 +96,26 @@ belong to later phases.
 
 - Feeding instructions are natural language. Mixed meals are not forced into a
   single amount and unit.
-- Optional notes about what happened during a feeding belong to the future
-  feeding record, not the plan.
+- Optional notes about what happened during a feeding belong to its completed
+  feeding task, not the plan.
 - Multiple active plans may belong to one animal because different feeding
   routines can have different instructions and timing.
 - A plan repeats every positive whole number of calendar days. Hourly,
   weekly-day, and custom calendar schedules are not required.
-- A plan stores a feeding period and next-due date. It does not generate
-  separate occurrence records.
+- A plan stores its immutable definition. Its scheduled occurrences are
+  represented by feeding tasks.
 - All due calculations use one configured zoo timezone rather than each user's
   browser timezone.
 - A plan is not assigned permanently to a keeper. Later phases will expose due
   plans through a shared queue.
-- When feeding history is introduced, every feeding record must reference a
-  plan. Ad-hoc feedings without a plan are not supported.
-- Feeding records will reference the exact immutable plan that was
-  completed, so instructions and period do not need to be copied into every
-  record.
-- Feeding records will preserve the scheduled due date because `nextDueDate`
-  advances after completion.
-- Completing a planned feeding will later advance the next-due date from the
-  previous scheduled date by the recurrence interval, avoiding schedule drift
-  when a feeding is recorded late.
-- Mutable operational state does not imply a public update or reschedule
-  operation; `nextDueDate` changes only through the feeding-completion workflow.
+- Every feeding task references its exact immutable plan, so instructions and
+  period do not need to be copied into the task.
+- `feedingPlanId` plus `scheduledDueDate` uniquely identifies a scheduled
+  occurrence.
+- Completing a task creates its successor from the previous scheduled date and
+  recurrence interval, avoiding schedule drift when completion is late.
+- An active plan has one current non-completed task. The task is the source of
+  truth for its next scheduled feeding.
 - Archiving is used instead of deletion so future feeding history can continue
   to reference the plan.
 - Archived and newly created plans remain independent records; the system does
@@ -128,25 +126,24 @@ belong to later phases.
 
 - Phase 4 established stable animal identifiers, active and archived animal
   visibility, and animal profile pages.
-- Phase 6 will record completed feedings from these plans and advance their
-  next-due times.
-- Phase 7 will let keepers request and temporarily claim due plans from a shared
-  queue.
+- Phase 6 will introduce feeding tasks, migrate each active plan's existing
+  next-due value into its first task, and make completed tasks the feeding
+  history.
+- Phase 7 will let keepers request and claim open tasks from a shared queue.
 - Future API clients, including a possible WhatsApp service, must use the same
   plan and queue rules as the web interface.
 
 ## Out of Scope
 
-- Feeding records and feeding history
+- Completing tasks and feeding history
 - Notes about a particular completed feeding
-- Advancing a plan by recording a feeding
-- Manual feeding-plan rescheduling
+- Creating successor tasks after completion
+- Manual task rescheduling
 - General or partial in-place feeding-plan updates
-- Feeding occurrences
 - Exact per-plan feeding times
 - Hourly, selected-weekday, and custom calendar schedules
 - Permanent assignments to keepers
-- Shared queues, temporary claims, and claim expiration
+- Shared queues and advisory task claims
 - Notifications and reminders
 - Food inventory, recipes, nutrition, and purchasing
 - Ad-hoc feedings without a plan

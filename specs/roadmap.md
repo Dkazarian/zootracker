@@ -49,34 +49,35 @@ rather than postponed until the end.
   feeding plans while preserving archived plan history.
 - Define natural-language feeding instructions, a morning, afternoon, or
   evening period, and a repeat-every-N-days schedule.
-- Track when each active plan is next due.
+- Accept the first scheduled date and create the plan's initial feeding task.
 - Show upcoming and due feeding needs without assigning them to a particular
   keeper.
 
-## Phase 6 - Feeding Sessions and History
+## Phase 6 - Feeding Tasks and History
 
-- Add feeding sessions linked to the exact immutable feeding plan and scheduled
-  occurrence they represent.
+- Add one feeding task for each scheduled occurrence of an immutable feeding
+  plan.
 - Allow keepers and administrators to complete planned feedings without first
   requiring a claim.
-- Store the completing keeper, completion time, optional notes, and
-  last-modification accountability on the completed session.
-- Show completed sessions as an animal's chronological feeding history.
-- Advance the plan's next due date atomically when a session is completed.
-- Establish the session lifecycle that Phase 7 will extend with temporary
-  claims.
+- Store the completing keeper, completion time, optional notes, and modification
+  accountability on the task.
+- Show completed tasks as an animal's chronological feeding history.
+- Create the next scheduled task atomically when the current task is completed.
+- Establish the available and completed states that Phase 7 will extend with
+  advisory claims.
 
-## Phase 7 - Shared Feeding Queue and Session Claims
+## Phase 7 - Shared Feeding Queue and Task Claims
 
-- Let keepers request the next available feeding needs from a shared queue.
+- Let keepers request open feeding tasks from a shared queue.
 - Preview the next three needs without claiming all of them.
-- Allow one keeper to claim a scheduled feeding occurrence atomically.
-- Extend feeding sessions with claimed, released, and completed states.
-- Treat a claimed session as effectively expired after the global claim timeout
-  without requiring a stored expired state or background expiration job.
-- Treat claims as coordination signals: warn when another keeper owns the
-  active claim, but allow a different keeper to complete the feeding.
-- Preserve released, expired, and completed sessions for operational review.
+- Allow one keeper to mark an available task as claimed.
+- Allow the claimant to return the task to available.
+- Treat claims as advisory coordination signals: warn when another keeper
+  claimed the task, but allow a different keeper to complete it.
+- Preserve the claimant and completer on completed tasks so the system can show
+  who volunteered, who completed the work, and how long completion took.
+- Support filtering by availability and due state while leaving dashboard
+  prioritization to Phase 8.
 
 ## Phase 8 - Role-Aware Dashboards
 
@@ -101,7 +102,7 @@ rather than postponed until the end.
 - Review the REST API as a stable interface for external clients.
 - Complete OpenAPI documentation and consistent error responses.
 - Add service-to-service authentication for authorized clients.
-- Add idempotency support for feeding-session completion requests that may be
+- Add idempotency support for feeding-task completion requests that may be
   retried.
 - Verify that API and UI operations follow the same business rules.
 

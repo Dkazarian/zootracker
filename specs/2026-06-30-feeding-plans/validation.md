@@ -175,6 +175,24 @@ amendment below supersedes that behavior and was validated on 2026-07-01.
   profile and edit form, `Next feeding` with tomorrow as `03/07/2026`, existing
   feeding dates in `dd/mm/yyyy`, and no console warnings or errors.
 
+## Amendment Validation - Initial feeding task
+
+- [ ] Creating a feeding plan creates one `AVAILABLE` task with the submitted
+  initial scheduled date in the same transaction.
+- [ ] A failed first-task creation leaves no feeding plan behind.
+- [ ] Each existing active plan receives one available task from its previous
+  `nextDueDate` during migration.
+- [ ] `FeedingPlan.nextDueDate` is removed after migration and scheduling state
+  is not duplicated.
+- [ ] Active plan responses and the interface derive `Next feeding` and due
+  status from the current task.
+- [ ] Archiving a plan removes its current non-completed task while preserving
+  completed task history.
+- [ ] Plan immutability, archived history, date formatting, permissions, and
+  existing creation behavior remain valid.
+- [ ] Focused feeding-plan and feeding-task tests, PostgreSQL API tests, and the
+  full repository validation suite pass.
+
 ## Merge Criteria
 
 The phase can be merged when:
@@ -189,12 +207,13 @@ The phase can be merged when:
 - Plan validation and permissions are enforced by the API.
 - Creator and last-modifier accountability is preserved.
 - Plans survive related archival and cannot be deleted.
-- Plan definitions remain immutable while `nextDueDate` remains operational
-  state.
+- Plan definitions remain immutable while the current feeding task owns the
+  next scheduled date.
 - No general plan-update, replacement, or manual-reschedule endpoint exists;
-  feeding completion is the only workflow that advances `nextDueDate`.
+  task completion is the only workflow that creates the next scheduled task.
 - Authorized personnel can inspect archived plan versions without treating them
   as active feeding work.
-- Feeding records, assignments, queues, and claims remain deferred.
+- Task completion and history belong to Phase 6; queues and claims remain
+  deferred to Phase 7.
 - `requirements.md`, `plan.md`, and `validation.md` agree with the
   implementation.
