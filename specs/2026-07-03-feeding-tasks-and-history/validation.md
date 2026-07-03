@@ -115,25 +115,25 @@ and the directly relevant check has passed.
 
 ## Security and data handling
 
-- [ ] Every feeding-task route requires authentication.
-- [ ] Backend authorization protects completion, correction, and undo
+- [x] Every feeding-task route requires authentication.
+- [x] Backend authorization protects completion, correction, and undo
   independently of interface visibility.
-- [ ] Request validation rejects unexpected fields.
+- [x] Request validation rejects unexpected fields.
 - [ ] Responses and logs contain no credentials, cookies, secrets, session
   values, or full database connection strings.
-- [ ] No environment or credential file is included in phase changes.
+- [x] No environment or credential file is included in phase changes.
 
 ## Full repository validation
 
 Run from the repository root:
 
-- [ ] `npm run format:check`
-- [ ] `npm run lint`
-- [ ] `npm run typecheck`
-- [ ] `npm test`
-- [ ] `npm run build`
-- [ ] All PostgreSQL-backed integration and API suites
-- [ ] Clean test-database migration and Prisma Client generation
+- [x] `npm run format:check`
+- [x] `npm run lint`
+- [x] `npm run typecheck`
+- [x] `npm test`
+- [x] `npm run build`
+- [x] All PostgreSQL-backed integration and API suites
+- [x] Clean test-database migration and Prisma Client generation
 
 ## Merge criteria
 
@@ -150,4 +150,18 @@ Run from the repository root:
 
 ## Validation results
 
-Record dated results here after validation is performed.
+### 2026-07-03 automated results
+
+- [x] Prisma Client generation succeeded and all four migrations applied from
+  empty against the isolated `zootracker_test` database.
+- [x] Root formatting, linting, frontend and backend type-checking, all unit and
+  component tests, generic E2E tests, and both production builds passed.
+- [x] Frontend coverage passed with 33 tests across 5 files.
+- [x] Backend unit coverage passed with 69 tests across 13 suites.
+- [x] PostgreSQL-backed authentication, personnel, animal, feeding-plan, and
+  feeding-task suites passed with 4, 6, 4, 5, and 2 tests respectively.
+- [x] Feeding-task database coverage confirmed authentication, keeper
+  completion, duplicate and concurrent completion protection, one successor,
+  history, correction, administrator-only undo, and restoration.
+- [ ] Browser validation remains pending because background localhost servers
+  could not remain running in this execution environment.
