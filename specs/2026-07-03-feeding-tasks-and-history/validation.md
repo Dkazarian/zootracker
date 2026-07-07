@@ -15,98 +15,98 @@ and the directly relevant check has passed.
 
 ## Schema and migration
 
-- [ ] A task stores its identifier, plan relation, scheduled due date, status,
+- [x] A task stores its identifier, plan relation, scheduled due date, status,
   optional completion data, last modifier, and timestamps.
-- [ ] The task does not duplicate `animalId` or feeding-plan definition fields.
-- [ ] `feedingPlanId` and `scheduledDueDate` are unique together.
-- [ ] An active plan cannot have more than one non-completed task.
-- [ ] `FeedingPlan.nextDueDate` is removed and scheduling state is not
+- [x] The task does not duplicate `animalId` or feeding-plan definition fields.
+- [x] `feedingPlanId` and `scheduledDueDate` are unique together.
+- [x] An active plan cannot have more than one non-completed task.
+- [x] `FeedingPlan.nextDueDate` is removed and scheduling state is not
   duplicated.
-- [ ] Existing active plans receive one `AVAILABLE` task using their previous
+- [x] Existing active plans receive one `AVAILABLE` task using their previous
   next-due value.
-- [ ] Completed tasks remain readable through archived plans, animals, and
+- [x] Completed tasks remain readable through archived plans, animals, and
   deactivated personnel.
-- [ ] The migration and Prisma Client generation succeed against an empty test
+- [x] The migration and Prisma Client generation succeed against an empty test
   database.
 
 ## Plan creation and archiving
 
-- [ ] Creating a feeding plan creates its first `AVAILABLE` task with the
+- [x] Creating a feeding plan creates its first `AVAILABLE` task with the
   submitted initial date.
-- [ ] Plan and initial-task creation happen in one transaction.
-- [ ] Failed task creation leaves no feeding plan behind.
-- [ ] Plan responses and the interface derive `Next feeding` and due state from
+- [x] Plan and initial-task creation happen in one transaction.
+- [x] Failed task creation leaves no feeding plan behind.
+- [x] Plan responses and the interface derive `Next feeding` and due state from
   the current task.
-- [ ] Archiving a plan removes its current non-completed task.
-- [ ] Archiving a plan preserves its completed tasks and history.
+- [x] Archiving a plan removes its current non-completed task.
+- [x] Archiving a plan preserves its completed tasks and history.
 
 ## Completion transaction
 
-- [ ] A keeper can complete an available task for an active plan and animal.
-- [ ] An administrator can complete it through the same business workflow.
-- [ ] Completion does not require or create a claim.
-- [ ] `completedAt` defaults to the current time when omitted.
-- [ ] Valid backdated completion is accepted.
-- [ ] Future completion and dates before `scheduledDueDate` are rejected.
-- [ ] Notes are optional and accepted when present.
-- [ ] Client-supplied status and accountability fields are rejected.
-- [ ] Completion sets the authenticated user as completer and last modifier.
-- [ ] Completing the current task and creating its successor happen in one
+- [x] A keeper can complete an available task for an active plan and animal.
+- [x] An administrator can complete it through the same business workflow.
+- [x] Completion does not require or create a claim.
+- [x] `completedAt` defaults to the current time when omitted.
+- [x] Valid backdated completion is accepted.
+- [x] Future completion and dates before `scheduledDueDate` are rejected.
+- [x] Notes are optional and accepted when present.
+- [x] Client-supplied status and accountability fields are rejected.
+- [x] Completion sets the authenticated user as completer and last modifier.
+- [x] Completing the current task and creating its successor happen in one
   transaction.
-- [ ] Failure to complete leaves no successor; failure to create the successor
+- [x] Failure to complete leaves no successor; failure to create the successor
   leaves the current task available.
-- [ ] On-time completion schedules the successor from the completed task's date
+- [x] On-time completion schedules the successor from the completed task's date
   and plan recurrence.
-- [ ] Late completion advances repeatedly until the successor is after the
+- [x] Late completion advances repeatedly until the successor is after the
   completion time.
-- [ ] Due calculation uses the configured zoo timezone and plan period.
-- [ ] Repeated completion returns a useful conflict response.
-- [ ] Concurrent completion requests complete once and create one successor.
+- [x] Due calculation uses the configured zoo timezone and plan period.
+- [x] Repeated completion returns a useful conflict response.
+- [x] Concurrent completion requests complete once and create one successor.
 
 ## History and corrections
 
-- [ ] Unauthenticated history requests return HTTP `401`.
-- [ ] Authenticated personnel can retrieve completed tasks for an animal.
-- [ ] History is ordered by `completedAt` descending.
-- [ ] History includes scheduled and completion dates, plan details, notes,
+- [x] Unauthenticated history requests return HTTP `401`.
+- [x] Authenticated personnel can retrieve completed tasks for an animal.
+- [x] History is ordered by `completedAt` descending.
+- [x] History includes scheduled and completion dates, plan details, notes,
   completer, and last modifier.
-- [ ] Archived relations remain readable through authorized history flows.
-- [ ] Date-only API values use ISO `yyyy-mm-dd`, timestamps use ISO 8601, and
+- [x] Archived relations remain readable through authorized history flows.
+- [x] Date-only API values use ISO `yyyy-mm-dd`, timestamps use ISO 8601, and
   user-facing calendar dates use `dd/mm/yyyy`.
-- [ ] Keepers and administrators can correct completion time and notes.
-- [ ] Corrections preserve plan, scheduled date, status, and original
+- [x] Keepers and administrators can correct completion time and notes.
+- [x] Corrections preserve plan, scheduled date, status, and original
   completer.
-- [ ] Corrections update the last modifier and modification timestamp.
-- [ ] Invalid corrected completion times are rejected.
-- [ ] Corrections do not change or replace the current available task.
+- [x] Corrections update the last modifier and modification timestamp.
+- [x] Invalid corrected completion times are rejected.
+- [x] Corrections do not change or replace the current available task.
 
 ## Undoing completion
 
-- [ ] Administrators can undo the latest completed task after confirmation.
-- [ ] Keepers cannot undo completion through the interface or direct API.
-- [ ] Undo is rejected when a later completed task exists.
-- [ ] Undo atomically removes the successor and restores the selected task to
+- [x] Administrators can undo the latest completed task after confirmation.
+- [x] Keepers cannot undo completion through the interface or direct API.
+- [x] Undo is rejected when a later completed task exists.
+- [x] Undo atomically removes the successor and restores the selected task to
   `AVAILABLE`.
-- [ ] Restoring clears completion-specific fields.
-- [ ] Failure during undo leaves both tasks unchanged.
-- [ ] The restored task can be completed again.
+- [x] Restoring clears completion-specific fields.
+- [x] Failure during undo leaves both tasks unchanged.
+- [x] The restored task can be completed again.
 
 ## Frontend and browser
 
-- [ ] Active plans show their current task's next-feeding date and due state.
-- [ ] An understandable completion action is available to keepers and
+- [x] Active plans show their current task's next-feeding date and due state.
+- [x] An understandable completion action is available to keepers and
   administrators.
-- [ ] Completion supports current or valid backdated time and optional notes.
-- [ ] Successful completion refreshes the plan's current task and history
+- [x] Completion supports current or valid backdated time and optional notes.
+- [x] Successful completion refreshes the plan's current task and history
   without a full-page reload.
-- [ ] Empty, loading, validation, conflict, mutation, and general failure states
+- [x] Empty, loading, validation, conflict, mutation, and general failure states
   are understandable.
-- [ ] History displays the required task, plan, completion, and accountability
+- [x] History displays the required task, plan, completion, and accountability
   details.
-- [ ] Correction controls expose only supported fields.
-- [ ] Only administrators see the undo-completion control, and it requires
+- [x] Correction controls expose only supported fields.
+- [x] Only administrators see the undo-completion control, and it requires
   confirmation.
-- [ ] No queue, availability filter, claim, release, expiration, or claimant
+- [x] No queue, availability filter, claim, release, expiration, or claimant
   controls are exposed.
 - [ ] Core keeper and administrator workflows work with keyboard controls.
 - [ ] Core workflows fit a narrow mobile viewport without horizontal overflow.
@@ -119,7 +119,7 @@ and the directly relevant check has passed.
 - [x] Backend authorization protects completion, correction, and undo
   independently of interface visibility.
 - [x] Request validation rejects unexpected fields.
-- [ ] Responses and logs contain no credentials, cookies, secrets, session
+- [x] Responses and logs contain no credentials, cookies, secrets, session
   values, or full database connection strings.
 - [x] No environment or credential file is included in phase changes.
 
@@ -138,14 +138,14 @@ Run from the repository root:
 ## Merge criteria
 
 - [ ] Every applicable validation item passes.
-- [ ] Each active plan has one current task and each scheduled occurrence is
+- [x] Each active plan has one current task and each scheduled occurrence is
   unique.
-- [ ] Plan creation, completion, archiving, and undo preserve task-chain
+- [x] Plan creation, completion, archiving, and undo preserve task-chain
   consistency transactionally.
-- [ ] Completed tasks provide history and required accountability.
-- [ ] Duplicate and concurrent completion are prevented.
-- [ ] Phase 7 queues, filters, and claims remain unimplemented.
-- [ ] `requirements.md`, `paths.md`, `plan.md`, and `validation.md` agree with
+- [x] Completed tasks provide history and required accountability.
+- [x] Duplicate and concurrent completion are prevented.
+- [x] Phase 7 queues, filters, and claims remain unimplemented.
+- [x] `requirements.md`, `paths.md`, `plan.md`, and `validation.md` agree with
   the implementation.
 
 ## Validation results
@@ -165,3 +165,26 @@ Run from the repository root:
   history, correction, administrator-only undo, and restoration.
 - [ ] Browser validation remains pending because background localhost servers
   could not remain running in this execution environment.
+
+### 2026-07-07 automated follow-up
+
+- [x] Added focused feeding-task service tests for not-found history,
+  completion accountability, archived/repeated/invalid completion rejection,
+  correction, and undo outcome mapping.
+- [x] Added focused feeding-task repository tests for completed-history
+  ordering, conditional completion, successor creation, rollback before
+  successor creation, and undo restoration.
+- [x] Expanded feeding-plan component coverage for current-task completion,
+  query refresh after completion, completed history, correction, keeper/admin
+  undo visibility, and undo mutation errors.
+- [x] `npm.cmd test --workspace backend -- feeding-tasks` passed with 12
+  focused tests across 3 suites.
+- [x] `npm.cmd test --workspace frontend -- FeedingPlansSection --run` passed
+  with 11 focused component tests.
+- [x] `npm.cmd run format:check`, `npm.cmd run lint`, `npm.cmd run typecheck`,
+  `npm.cmd test`, and `npm.cmd run build` passed.
+- [x] `npm.cmd run test:feeding-plans:e2e` and
+  `npm.cmd run test:feeding-tasks:e2e` passed against PostgreSQL.
+- [ ] Browser/manual validation remains pending: the dev server process printed
+  Vite readiness but exited before any socket listened on `localhost:5173` or
+  `127.0.0.1:5173`, so the in-app browser could not reach the app.

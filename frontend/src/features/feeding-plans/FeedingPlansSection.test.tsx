@@ -8,6 +8,7 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getTomorrowUiDate } from '../../shared/date/date-format';
+import type { FeedingTask } from '../feeding-tasks/feeding-task-api';
 import type { FeedingPlan } from './feeding-plan-api';
 import FeedingPlansSection from './FeedingPlansSection';
 
@@ -18,9 +19,22 @@ const apiMocks = vi.hoisted(() => ({
   archiveFeedingPlan: vi.fn(),
 }));
 
+const taskApiMocks = vi.hoisted(() => ({
+  listCompletedFeedingTasks: vi.fn(),
+  completeFeedingTask: vi.fn(),
+  updateFeedingTaskCompletion: vi.fn(),
+  undoFeedingTaskCompletion: vi.fn(),
+}));
+
 vi.mock('./feeding-plan-api', async (importOriginal) => {
   const original = await importOriginal<typeof import('./feeding-plan-api')>();
   return { ...original, ...apiMocks };
+});
+
+vi.mock('../feeding-tasks/feeding-task-api', async (importOriginal) => {
+  const original =
+    await importOriginal<typeof import('../feeding-tasks/feeding-task-api')>();
+  return { ...original, ...taskApiMocks };
 });
 
 const plan: FeedingPlan = {
@@ -42,6 +56,28 @@ const plan: FeedingPlan = {
   archivedAt: null,
   status: 'upcoming',
   minutesPastDue: null,
+};
+
+const completedTask: FeedingTask = {
+  id: 'task-1',
+  feedingPlanId: plan.id,
+  scheduledDueDate: '2030-07-01',
+  status: 'COMPLETED',
+  completedBy: { id: 'keeper-1', name: 'Kira Keeper' },
+  completedAt: new Date('2030-07-01T10:30:00.000Z'),
+  notes: 'Ate everything',
+  lastModifiedBy: { id: 'keeper-2', name: 'Mina Keeper' },
+  createdAt: new Date('2030-07-01T00:00:00.000Z'),
+  updatedAt: new Date('2030-07-01T10:30:00.000Z'),
+  plan: {
+    id: plan.id,
+    animalId: plan.animalId,
+    name: plan.name,
+    instructions: plan.instructions,
+    period: plan.period,
+    repeatEveryDays: plan.repeatEveryDays,
+    archivedAt: null,
+  },
 };
 
 function renderSection(role: 'keeper' | 'admin' = 'keeper') {
@@ -67,6 +103,16 @@ describe('FeedingPlansSection', () => {
     apiMocks.archiveFeedingPlan.mockResolvedValue({
       ...plan,
       archivedAt: new Date(),
+    });
+    taskApiMocks.listCompletedFeedingTasks.mockResolvedValue([]);
+    taskApiMocks.completeFeedingTask.mockResolvedValue(completedTask);
+    taskApiMocks.updateFeedingTaskCompletion.mockResolvedValue(completedTask);
+    taskApiMocks.undoFeedingTaskCompletion.mockResolvedValue({
+      ...completedTask,
+      status: 'AVAILABLE',
+      completedBy: null,
+      completedAt: null,
+      notes: null,
     });
   });
 
@@ -208,6 +254,85 @@ describe('FeedingPlansSection', () => {
         'plan-1',
       ),
     );
+  });
+
+  it('records a feeding against the current task and refreshes task-backed views', async () => {
+    renderSection();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Record feeding' }),
+    );
+    fireEvent.change(screen.getByLabelText('Notes (optional)'), {
+      target: { value: ' Ate everything ' },
+    });
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Record feeding' })[0],
+    );
+
+    await waitFor(() =>
+      expect(taskApiMocks.completeFeedingTask).toHaveBeenCalledWith(
+        'task-1',
+        expect.objectContaining({ notes: 'Ate everything' }),
+      ),
+    );
+    await waitFor(() =>
+      expect(apiMocks.listFeedingPlans).toHaveBeenCalledTimes(2),
+    );
+  });
+
+  it('shows completed history and lets keepers correct supported fields only', async () => {
+    taskApiMocks.listCompletedFeedingTasks.mockResolvedValue([completedTask]);
+    renderSection();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Show feeding history' }),
+    );
+    expect(await screen.findByText('Ate everything')).toBeInTheDocument();
+    expect(screen.getByText('Scheduled')).toBeInTheDocument();
+    expect(screen.getByText('01/07/2030')).toBeInTheDocument();
+    expect(screen.getByText(/Completed by Kira Keeper/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Undo completion' }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Correct feeding' }));
+    fireEvent.change(screen.getByLabelText('Notes (optional)'), {
+      target: { value: ' Left some fruit ' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save correction' }));
+
+    await waitFor(() =>
+      expect(taskApiMocks.updateFeedingTaskCompletion).toHaveBeenCalledWith(
+        'task-1',
+        expect.objectContaining({ notes: 'Left some fruit' }),
+      ),
+    );
+  });
+
+  it('shows administrator undo with confirmation and mutation errors', async () => {
+    taskApiMocks.listCompletedFeedingTasks.mockResolvedValue([completedTask]);
+    taskApiMocks.undoFeedingTaskCompletion.mockRejectedValueOnce(
+      new Error('Only the latest completion can be undone'),
+    );
+    renderSection('admin');
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Show feeding history' }),
+    );
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Undo completion' }),
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Undo Morning fruit?' }),
+    ).toBeInTheDocument();
+    const undoButtons = screen.getAllByRole('button', {
+      name: 'Undo completion',
+    });
+    fireEvent.click(undoButtons[undoButtons.length - 1]);
+
+    expect(
+      await screen.findByText('Only the latest completion can be undone'),
+    ).toBeInTheDocument();
   });
 
   it('lets administrators manage feeding plans', async () => {

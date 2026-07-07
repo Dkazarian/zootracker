@@ -177,21 +177,39 @@ amendment below supersedes that behavior and was validated on 2026-07-01.
 
 ## Amendment Validation - Initial feeding task
 
-- [ ] Creating a feeding plan creates one `AVAILABLE` task with the submitted
+- [x] Creating a feeding plan creates one `AVAILABLE` task with the submitted
   initial scheduled date in the same transaction.
-- [ ] A failed first-task creation leaves no feeding plan behind.
-- [ ] Each existing active plan receives one available task from its previous
+- [x] A failed first-task creation leaves no feeding plan behind.
+- [x] Each existing active plan receives one available task from its previous
   `nextDueDate` during migration.
-- [ ] `FeedingPlan.nextDueDate` is removed after migration and scheduling state
+- [x] `FeedingPlan.nextDueDate` is removed after migration and scheduling state
   is not duplicated.
-- [ ] Active plan responses and the interface derive `Next feeding` and due
+- [x] Active plan responses and the interface derive `Next feeding` and due
   status from the current task.
-- [ ] Archiving a plan removes its current non-completed task while preserving
+- [x] Archiving a plan removes its current non-completed task while preserving
   completed task history.
-- [ ] Plan immutability, archived history, date formatting, permissions, and
+- [x] Plan immutability, archived history, date formatting, permissions, and
   existing creation behavior remain valid.
-- [ ] Focused feeding-plan and feeding-task tests, PostgreSQL API tests, and the
+- [x] Focused feeding-plan and feeding-task tests, PostgreSQL API tests, and the
   full repository validation suite pass.
+
+## Initial Feeding Task Amendment Results - 2026-07-07
+
+- [x] `npm.cmd run prisma:generate` regenerated Prisma Client successfully.
+- [x] `prisma.cmd migrate reset --force` against the isolated
+  `zootracker_test` database applied all four migrations from empty, including
+  `20260703120000_feeding_tasks`.
+- [x] `npm.cmd run test:feeding-plans:e2e` passed with 5 tests and confirmed
+  feeding-plan creation now uses `initialDueDate`, returns `currentTask`, and
+  preserves immutable/archive behavior.
+- [x] `npm.cmd run test:feeding-tasks:e2e` passed with 2 tests and confirmed
+  task completion, duplicate/concurrent completion protection, successor
+  creation, history, correction, administrator-only undo, and restoration.
+- [x] PostgreSQL-backed authentication, personnel, animal-registry,
+  feeding-plan, and feeding-task suites passed with 4, 6, 4, 5, and 2 tests.
+- [x] Repository validation passed with `npm.cmd run format:check`,
+  `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd test`, and
+  `npm.cmd run build`.
 
 ## Merge Criteria
 

@@ -27,7 +27,7 @@ implemented and its directly relevant checkpoint passes.
 6. [x] Confirm the existing seed creates no feeding plans and needs no
    task-specific change.
 7. [x] Regenerate Prisma Client without editing generated files manually.
-8. [ ] Add focused persistence coverage for the unique occurrence key,
+8. [x] Add focused persistence coverage for the unique occurrence key,
    required relations, active-plan backfill, and preservation through archived
    relations.
 
@@ -35,7 +35,7 @@ implemented and its directly relevant checkpoint passes.
 
 - [x] Prisma Client generation succeeds.
 - [x] The migration applies from an empty isolated test database.
-- [ ] Backend type-checking and focused persistence tests pass.
+- [x] Backend type-checking and focused persistence tests pass.
 
 ## Task Group 2 - Adapt feeding-plan creation, listing, and archiving
 
@@ -93,13 +93,13 @@ implemented and its directly relevant checkpoint passes.
    and clears completion-specific fields.
 10. [x] Register the module in `AppModule` and add a focused
     `test:feeding-tasks:e2e` workspace/root script.
-11. [ ] Add unit, repository, and PostgreSQL API tests for authorization,
+11. [x] Add unit, repository, and PostgreSQL API tests for authorization,
     validation, not-found behavior, archived relations, duplicate and
     concurrent completion, rollback, corrections, history, and undo.
 
 ### Task Group 3 checkpoint
 
-- [ ] Focused feeding-task unit and repository tests pass.
+- [x] Focused feeding-task unit and repository tests pass.
 - [x] The PostgreSQL feeding-task API suite passes against the isolated test
   database.
 - [x] Backend linting, type-checking, and build pass.
@@ -124,7 +124,7 @@ implemented and its directly relevant checkpoint passes.
    the restored current task and history.
 9. [x] Remove the scheduled-date display from archived plan cards because an
    archived plan has no current task.
-10. [ ] Add component tests for plan creation, current-task display, completion,
+10. [x] Add component tests for plan creation, current-task display, completion,
     successor refresh, history, correction, undo permissions, date conversion,
     and failure states.
 11. [x] Confirm no queue, filter, claim, release, expiration, or claimant
@@ -144,7 +144,7 @@ implemented and its directly relevant checkpoint passes.
 2. [x] Confirm the Prisma schema, ERD, roadmap, Phase 5 amendment, Phase 6
    requirements, and implementation use the same task terminology and
    lifecycle.
-3. [ ] Mark the Phase 5 initial-task amendment checks only after the migration
+3. [x] Mark the Phase 5 initial-task amendment checks only after the migration
    and plan workflow are validated.
 4. [ ] Run every remaining automated, PostgreSQL-backed, manual, accessibility,
    and browser check in `validation.md`.

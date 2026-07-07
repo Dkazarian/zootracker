@@ -95,19 +95,19 @@ it is implemented with Phase 6.
 This amendment is implemented with Phase 6 because it introduces the
 feeding-task model.
 
-1. Create the first `AVAILABLE` feeding task atomically with a new feeding
+1. âœ… Create the first `AVAILABLE` feeding task atomically with a new feeding
    plan, using the submitted initial scheduled date.
-2. Move mutable scheduling state from `FeedingPlan.nextDueDate` to
+2. âœ… Move mutable scheduling state from `FeedingPlan.nextDueDate` to
    `FeedingTask.scheduledDueDate`.
-3. Migrate each existing active plan's current next-due value into one
+3. âœ… Migrate each existing active plan's current next-due value into one
    available task before removing `nextDueDate` from the plan.
-4. Derive each active plan's next-feeding date and due status from its current
+4. âœ… Derive each active plan's next-feeding date and due status from its current
    task in API responses and the interface.
-5. Remove the current non-completed task when its plan is archived while
+5. âœ… Remove the current non-completed task when its plan is archived while
    preserving completed task history.
-6. Update schema, service, repository, API, frontend, and migration coverage
+6. âœ… Update schema, service, repository, API, frontend, and migration coverage
    without changing immutable plan definitions.
-7. Run the amendment checks in `validation.md` and add checkmarks only after
+7. âœ… Run the amendment checks in `validation.md` and add checkmarks only after
    implementation and directly relevant validation pass.
 
 ## Amendment - UI date presentation (2026-07-02)
