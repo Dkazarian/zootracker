@@ -112,8 +112,8 @@ and the directly relevant check has passed.
 - [x] No queue, availability filter, claim, release, expiration, or claimant
   controls are exposed.
 - [ ] Core keeper and administrator workflows work with keyboard controls.
-- [ ] Core workflows fit a narrow mobile viewport without horizontal overflow.
-- [ ] Tested workflows produce no unexpected browser console warnings or
+- [x] Core workflows fit a narrow mobile viewport without horizontal overflow.
+- [x] Tested workflows produce no unexpected browser console warnings or
   errors.
 
 ## Security and data handling
@@ -192,6 +192,25 @@ Run from the repository root:
   backend -- feeding-plans`, `npm.cmd run typecheck`, and
   `npm.cmd run test:feeding-plans:e2e` confirmed fixed active-plan ordering
   by name, service-to-repository ordering delegation, and repository ordering.
-- [ ] Browser/manual validation remains pending: the dev server process printed
-  Vite readiness but exited before any socket listened on `localhost:5173` or
-  `127.0.0.1:5173`, so the in-app browser could not reach the app.
+- [x] Browser validation succeeded after keeping Vite alive with an open stdin
+  stream and using `http://localhost:5173` to match the backend CORS origin.
+  The browser pass confirmed administrator sign-in, administrator plan
+  creation, administrator completion, history visibility, administrator-only
+  undo visibility, keeper sign-in, keeper plan creation, keeper completion,
+  keeper history visibility, and absence of keeper undo controls.
+- [x] Narrow mobile viewport validation passed at `390x844`: the animal detail
+  and feeding-plan/history workflows reported no horizontal overflow.
+- [x] Console validation for the successful `localhost` browser workflows
+  reported no relevant warning or error entries. Earlier `127.0.0.1` CORS
+  attempts produced expected fetch errors and were excluded from the successful
+  pass.
+- [ ] Keyboard traversal remains pending: browser automation could not move
+  focus with Tab in this environment, so a manual keyboard pass is still needed
+  before checking the keyboard-control item and final merge criterion.
+- [x] Root validation passed after the browser work: `npm.cmd run
+  format:check`, `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd test`,
+  and `npm.cmd run build`.
+- [x] PostgreSQL-backed suites passed after the browser work:
+  `npm.cmd run test:auth:e2e`, `npm.cmd run test:personnel:e2e`,
+  `npm.cmd run test:animals:e2e`, `npm.cmd run test:feeding-plans:e2e`, and
+  `npm.cmd run test:feeding-tasks:e2e`.

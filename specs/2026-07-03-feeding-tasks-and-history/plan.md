@@ -136,7 +136,7 @@ implemented and its directly relevant checkpoint passes.
 
 - [x] Focused feeding-plan and feeding-task frontend tests pass.
 - [x] Frontend linting, type-checking, and build pass.
-- [ ] The required keeper and administrator browser flows in `validation.md`
+- [x] The required keeper and administrator browser flows in `validation.md`
   pass without unexpected console errors.
 
 ## Task Group 5 - Documentation and final validation

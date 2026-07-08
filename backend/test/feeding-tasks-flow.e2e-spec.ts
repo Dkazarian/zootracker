@@ -6,9 +6,16 @@ import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
 import { auth } from '../src/auth/auth';
 import { prisma } from '../src/database/prisma.service';
+import { formatDateOnly } from '../src/feeding-plans/feeding-plan-schedule';
 
 const describeWithDatabase =
   process.env.RUN_DATABASE_TESTS === 'true' ? describe : describe.skip;
+
+function yesterdayDateOnly(): string {
+  // Keep completion tests independent from UTC/local-day rollover. A task
+  // scheduled for yesterday is always available to complete now.
+  return formatDateOnly(new Date(Date.now() - 24 * 60 * 60 * 1000));
+}
 
 describeWithDatabase('Feeding tasks (database e2e)', () => {
   const keeper = {
@@ -67,7 +74,7 @@ describeWithDatabase('Feeding tasks (database e2e)', () => {
   it('completes, lists, corrects, and lets an administrator undo a task', async () => {
     const keeperAgent = await signIn(keeper);
     const adminAgent = await signIn(administrator);
-    const initialDueDate = new Date().toISOString().slice(0, 10);
+    const initialDueDate = yesterdayDateOnly();
     const plan = await keeperAgent
       .post(`/api/animals/${animalId}/feeding-plans`)
       .send({
@@ -137,7 +144,7 @@ describeWithDatabase('Feeding tasks (database e2e)', () => {
 
   it('allows only one concurrent completion and creates one successor', async () => {
     const keeperAgent = await signIn(keeper);
-    const initialDueDate = new Date().toISOString().slice(0, 10);
+    const initialDueDate = yesterdayDateOnly();
     const plan = await keeperAgent
       .post(`/api/animals/${animalId}/feeding-plans`)
       .send({
