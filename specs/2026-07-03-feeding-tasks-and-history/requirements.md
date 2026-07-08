@@ -41,6 +41,9 @@ claims to the same task rather than introducing a separate claim model.
   task before removing the plan field.
 - Derive the plan API and interface's `Next feeding` value and due status from
   the current task.
+- Keep feeding-plan ordering fixed by plan name through the repository rather
+  than sorting response objects in the service. Due-date ordering belongs to
+  feeding tasks, not feeding plan definitions.
 - When an active plan is archived, remove its current non-completed task while
   preserving all completed tasks linked to that plan.
 
@@ -134,6 +137,10 @@ claims to the same task rather than introducing a separate claim model.
   synchronizing the same date in two places.
 - Phase 6 uses `AVAILABLE` and `COMPLETED`. Phase 7 will add `CLAIMED` and
   nullable claimant fields to the same row.
+- Feeding-plan lists use simple repository ordering because they are plan
+  definitions. Feeding-task lists and future queues own due-date ordering.
+  Pagination is intentionally not introduced for per-animal plan lists in this
+  phase.
 - Phase 7 will not introduce expiration or claim-attempt history. Releasing a
   claim will return the task to `AVAILABLE` and clear its claim fields.
 - A future claimed task may be completed by another keeper after a warning.

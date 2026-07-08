@@ -25,8 +25,8 @@ From the repository root, all of the following must succeed:
 3. Confirm the API derives creator and last modifier from the session and
    rejects supplied accountability fields.
 4. Retrieve the animal's plans and confirm all required details are present.
-5. Confirm plans are ordered by next-due date and then morning, afternoon, and
-   evening period.
+5. Confirm active plans are ordered by name and then creation date, while
+   archived plans are ordered by archived date and then creation date.
 6. Confirm each period becomes due at its application-wide start time in the
    configured zoo timezone.
 7. Confirm a plan is upcoming before its date-and-period boundary and remains
@@ -52,7 +52,7 @@ From the repository root, all of the following must succeed:
 3. Create a natural-language plan such as `3 bananas and an apple` and confirm
    it appears without a full page reload.
 4. Create a second routine for the same animal and confirm both appear.
-5. Confirm plan name, instructions, period, recurrence, next-due date, and
+5. Confirm plan name, instructions, period, recurrence, `Next feeding`, and
    status are displayed.
 6. Archive a plan, create a new plan, and confirm the new active plan and old
    archived plan appear in their respective sections.
@@ -91,7 +91,7 @@ From the repository root, all of the following must succeed:
   passed with 4, 3, and 4 tests respectively. The revised feeding-plan suite
   passes with 5 tests.
 - Feeding-plan database coverage confirms authentication, keeper and
-  administrator mutations, validation, date and period ordering,
+  administrator mutations, validation, fixed plan ordering,
   accountability, archiving, read-only archives, relation preservation, and
   the absence of a delete endpoint.
 - Browser checks confirmed the empty state, keeper creation and editing,

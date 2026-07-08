@@ -13,8 +13,7 @@ it is implemented with Phase 6.
    date-only value.
 4. ✅ Define the application-wide period starts and configured zoo timezone used
    for due calculations.
-5. ✅ Add indexes needed to retrieve an animal's plans and order active plans by
-   next-due time.
+5. ✅ Add indexes needed to retrieve an animal's feeding plans.
 6. ✅ Create and apply the feeding-plans database migration.
 7. ✅ Generate the Prisma client.
 8. ✅ Verify a clean test database can be migrated.
@@ -28,7 +27,7 @@ it is implemented with Phase 6.
 4. ✅ Allow keepers and administrators to create plans using the authenticated
    person as creator.
 5. ✅ Validate active-animal status, name, instructions, period, recurrence,
-   next-due date, and unexpected fields.
+   initial feeding date, and unexpected fields.
 6. ✅ Allow keepers and administrators to update plans while preserving
    creation accountability.
 7. ✅ Allow keepers and administrators to archive plans and prevent edits to
@@ -41,7 +40,7 @@ it is implemented with Phase 6.
 1. ✅ Add frontend feeding-plan API types, client operations, and TanStack Query
    state.
 2. ✅ Add a feeding-plans section to the animal profile.
-3. ✅ Show plan instructions, period, recurrence, next-due date, and status.
+3. ✅ Show plan instructions, period, recurrence, `Next feeding`, and status.
 4. ✅ Provide loading, empty, and failure states.
 5. ✅ Add an accessible plan-creation form for keepers and administrators.
 6. ✅ Add accessible update and archive flows for keepers and administrators.

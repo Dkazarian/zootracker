@@ -152,9 +152,8 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
 
     const list = await keeperAgent.get(basePath).expect(200);
     const plans = list.body as Array<{ id: string; status: string }>;
-    expect(plans.map((plan) => plan.id)).toEqual([morning.id, evening.id]);
+    expect(plans.map((plan) => plan.id)).toEqual([evening.id, morning.id]);
     expect(plans.every((plan) => plan.status === 'upcoming')).toBe(true);
-
     await secondKeeperAgent
       .post(`${basePath}/${evening.id}/archive`)
       .expect(201)

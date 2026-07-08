@@ -37,6 +37,9 @@ and the directly relevant check has passed.
 - [x] Failed task creation leaves no feeding plan behind.
 - [x] Plan responses and the interface derive `Next feeding` and due state from
   the current task.
+- [x] Feeding-plan lists use the fixed repository order for active and archived
+  plans.
+- [x] The service delegates ordering to the repository.
 - [x] Archiving a plan removes its current non-completed task.
 - [x] Archiving a plan preserves its completed tasks and history.
 
@@ -185,6 +188,10 @@ Run from the repository root:
   `npm.cmd test`, and `npm.cmd run build` passed.
 - [x] `npm.cmd run test:feeding-plans:e2e` and
   `npm.cmd run test:feeding-tasks:e2e` passed against PostgreSQL.
+- [x] Follow-up feeding-plan ordering validation passed: `npm.cmd test --workspace
+  backend -- feeding-plans`, `npm.cmd run typecheck`, and
+  `npm.cmd run test:feeding-plans:e2e` confirmed fixed active-plan ordering
+  by name, service-to-repository ordering delegation, and repository ordering.
 - [ ] Browser/manual validation remains pending: the dev server process printed
   Vite readiness but exited before any socket listened on `localhost:5173` or
   `127.0.0.1:5173`, so the in-app browser could not reach the app.

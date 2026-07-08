@@ -48,14 +48,16 @@ implemented and its directly relevant checkpoint passes.
 4. [x] Derive each active plan's upcoming/due status and minutes past due from
    `currentTask.scheduledDueDate`, the plan period, current time, and configured
    zoo timezone.
-5. [x] Order active plans by the current task's scheduled date, then period and
-   plan name.
+5. [x] Keep active feeding plans in fixed catalog order by name, then creation
+   date, leaving due-date ordering to feeding-task lists.
 6. [x] Archive a plan and remove its current non-completed task atomically while
    retaining completed tasks.
 7. [x] Update feeding-plan DTOs, records, mappers, repository methods, service
    tests, repository tests, and PostgreSQL API coverage for the new aggregate.
 8. [x] Update the feeding-plan seed and frontend contract fixtures from
    `nextDueDate` to `initialDueDate` and `currentTask`.
+9. [x] Keep feeding-plan ordering fixed in the repository and avoid sorting
+   mapped responses in the service.
 
 ### Task Group 2 checkpoint
 

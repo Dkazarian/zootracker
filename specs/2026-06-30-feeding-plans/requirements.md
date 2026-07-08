@@ -48,6 +48,13 @@ belong to later phases.
   when the history section is expanded.
 - Use `GET /animals/:animalId/feeding-plans` for active plans by default and
   `GET /animals/:animalId/feeding-plans?status=archived` for archived plans.
+- Keep active feeding plans in a fixed catalog order by name, then creation
+  date newest first. Due-date ordering belongs to feeding tasks, not feeding
+  plan definitions.
+- Keep archived plans in a fixed history order: archived date, then creation
+  date, newest first.
+- Do not add pagination to per-animal feeding-plan lists yet; introduce it
+  later if a larger global collection, queue, or history endpoint needs it.
 - Use application-wide period start times in the zoo's configured timezone:
   - morning begins at 06:00;
   - afternoon begins at 12:00; and
@@ -116,6 +123,9 @@ belong to later phases.
   recurrence interval, avoiding schedule drift when completion is late.
 - An active plan has one current non-completed task. The task is the source of
   truth for its next scheduled feeding.
+- Feeding-plan ordering is fixed and performed by Prisma/PostgreSQL through
+  the repository, so the service maps records to responses without owning list
+  ordering.
 - Archiving is used instead of deletion so future feeding history can continue
   to reference the plan.
 - Archived and newly created plans remain independent records; the system does

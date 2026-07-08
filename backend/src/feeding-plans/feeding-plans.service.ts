@@ -19,8 +19,6 @@ import type {
 } from './feeding-plan.types';
 import { FeedingPlansRepository } from './feeding-plans.repository';
 
-const periodOrder = { morning: 0, afternoon: 1, evening: 2 } as const;
-
 @Injectable()
 export class FeedingPlansService {
   constructor(private readonly repository: FeedingPlansRepository) {}
@@ -32,18 +30,9 @@ export class FeedingPlansService {
   ): Promise<FeedingPlanResponse[]> {
     await this.requireVisibleAnimal(animalId, role);
     const now = new Date();
-    const plans = (await this.repository.list(animalId, status)).map((plan) =>
+    return (await this.repository.list(animalId, status)).map((plan) =>
       this.toResponse(plan, now),
     );
-    return plans.sort((left, right) => {
-      const leftDate = left.currentTask?.scheduledDueDate ?? '';
-      const rightDate = right.currentTask?.scheduledDueDate ?? '';
-      return (
-        leftDate.localeCompare(rightDate) ||
-        periodOrder[left.period] - periodOrder[right.period] ||
-        left.name.localeCompare(right.name)
-      );
-    });
   }
 
   async create(

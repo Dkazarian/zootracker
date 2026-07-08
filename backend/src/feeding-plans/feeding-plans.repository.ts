@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import type {
   AnimalStateRecord,
+  CreateFeedingPlanData,
   FeedingPlanListStatus,
   FeedingPlanMutationRecord,
   FeedingPlanRecord,
-  CreateFeedingPlanData,
 } from './feeding-plan.types';
 import { feedingPlanRelations } from './feeding-plan.types';
 
@@ -13,21 +13,20 @@ import { feedingPlanRelations } from './feeding-plan.types';
 export class FeedingPlansRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(
+  async list(
     animalId: string,
     status: FeedingPlanListStatus,
   ): Promise<FeedingPlanRecord[]> {
-    if (status === 'archived') {
-      return this.prisma.feedingPlan.findMany({
-        where: { animalId, archivedAt: { not: null } },
-        include: feedingPlanRelations,
-        orderBy: [{ archivedAt: 'desc' }, { createdAt: 'desc' }],
-      });
-    }
     return this.prisma.feedingPlan.findMany({
-      where: { animalId, archivedAt: null },
+      where: {
+        animalId,
+        archivedAt: status === 'archived' ? { not: null } : null,
+      },
       include: feedingPlanRelations,
-      orderBy: [{ period: 'asc' }, { name: 'asc' }],
+      orderBy:
+        status === 'archived'
+          ? [{ archivedAt: 'desc' }, { createdAt: 'desc' }]
+          : [{ name: 'asc' }, { createdAt: 'desc' }],
     });
   }
 
