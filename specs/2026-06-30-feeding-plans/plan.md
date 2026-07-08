@@ -1,8 +1,9 @@
 # Phase 5: Feeding Plans - Implementation Plan
 
-The checked task groups below record the original Phase 5 delivery. The
-2026-07-01 amendment at the end supersedes in-place definition editing without
-rewriting that implementation history.
+The checked task groups below record the original Phase 5 delivery. Later
+amendments supersede the relevant behavior without rewriting that
+implementation history. The 2026-07-03 task amendment remains unchecked until
+it is implemented with Phase 6.
 
 ## Task Group 1 - Feeding-plan data model
 
@@ -12,8 +13,7 @@ rewriting that implementation history.
    date-only value.
 4. ✅ Define the application-wide period starts and configured zoo timezone used
    for due calculations.
-5. ✅ Add indexes needed to retrieve an animal's plans and order active plans by
-   next-due time.
+5. ✅ Add indexes needed to retrieve an animal's feeding plans.
 6. ✅ Create and apply the feeding-plans database migration.
 7. ✅ Generate the Prisma client.
 8. ✅ Verify a clean test database can be migrated.
@@ -27,7 +27,7 @@ rewriting that implementation history.
 4. ✅ Allow keepers and administrators to create plans using the authenticated
    person as creator.
 5. ✅ Validate active-animal status, name, instructions, period, recurrence,
-   next-due date, and unexpected fields.
+   initial feeding date, and unexpected fields.
 6. ✅ Allow keepers and administrators to update plans while preserving
    creation accountability.
 7. ✅ Allow keepers and administrators to archive plans and prevent edits to
@@ -40,7 +40,7 @@ rewriting that implementation history.
 1. ✅ Add frontend feeding-plan API types, client operations, and TanStack Query
    state.
 2. ✅ Add a feeding-plans section to the animal profile.
-3. ✅ Show plan instructions, period, recurrence, next-due date, and status.
+3. ✅ Show plan instructions, period, recurrence, `Next feeding`, and status.
 4. ✅ Provide loading, empty, and failure states.
 5. ✅ Add an accessible plan-creation form for keepers and administrators.
 6. ✅ Add accessible update and archive flows for keepers and administrators.
@@ -88,6 +88,26 @@ rewriting that implementation history.
    for future feeding-record relations, and introduce no deletion path.
 10. ✅ Run the amendment validation in `validation.md` and add `✅` only after each
    step is implemented and directly validated.
+
+## Amendment - Initial feeding task (2026-07-03)
+
+This amendment is implemented with Phase 6 because it introduces the
+feeding-task model.
+
+1. âœ… Create the first `AVAILABLE` feeding task atomically with a new feeding
+   plan, using the submitted initial scheduled date.
+2. âœ… Move mutable scheduling state from `FeedingPlan.nextDueDate` to
+   `FeedingTask.scheduledDueDate`.
+3. âœ… Migrate each existing active plan's current next-due value into one
+   available task before removing `nextDueDate` from the plan.
+4. âœ… Derive each active plan's next-feeding date and due status from its current
+   task in API responses and the interface.
+5. âœ… Remove the current non-completed task when its plan is archived while
+   preserving completed task history.
+6. âœ… Update schema, service, repository, API, frontend, and migration coverage
+   without changing immutable plan definitions.
+7. âœ… Run the amendment checks in `validation.md` and add checkmarks only after
+   implementation and directly relevant validation pass.
 
 ## Amendment - UI date presentation (2026-07-02)
 

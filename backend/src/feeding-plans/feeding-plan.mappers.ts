@@ -10,7 +10,6 @@ import type {
 export function toCreateFeedingPlanData(
   animalId: string,
   input: CreateFeedingPlanInput,
-  nextDueDate: Date,
   userId: string,
 ): CreateFeedingPlanData {
   return {
@@ -19,7 +18,6 @@ export function toCreateFeedingPlanData(
     instructions: input.instructions,
     period: input.period,
     repeatEveryDays: input.repeatEveryDays,
-    nextDueDate,
     createdById: userId,
     lastModifiedById: userId,
   };
@@ -39,7 +37,14 @@ export function toFeedingPlanResponse(
     instructions: plan.instructions,
     period: plan.period,
     repeatEveryDays: plan.repeatEveryDays,
-    nextDueDate: formatDateOnly(plan.nextDueDate),
+    currentTask: plan.feedingTasks[0]
+      ? {
+          ...plan.feedingTasks[0],
+          scheduledDueDate: formatDateOnly(
+            plan.feedingTasks[0].scheduledDueDate,
+          ),
+        }
+      : null,
     createdBy: plan.createdBy,
     lastModifiedBy: plan.lastModifiedBy,
     createdAt: plan.createdAt,

@@ -25,3 +25,11 @@ export const FeedingPeriod = {
 } as const
 
 export type FeedingPeriod = (typeof FeedingPeriod)[keyof typeof FeedingPeriod]
+
+
+export const FeedingTaskStatus = {
+  AVAILABLE: 'AVAILABLE',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type FeedingTaskStatus = (typeof FeedingTaskStatus)[keyof typeof FeedingTaskStatus]

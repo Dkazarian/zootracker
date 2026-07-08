@@ -38,7 +38,7 @@ export class CreateFeedingPlanDto {
   @IsString()
   @MaxLength(10)
   @Matches(DATE_ONLY_PATTERN, {
-    message: 'nextDueDate must use YYYY-MM-DD format',
+    message: 'initialDueDate must use YYYY-MM-DD format',
   })
-  nextDueDate!: string;
+  initialDueDate!: string;
 }

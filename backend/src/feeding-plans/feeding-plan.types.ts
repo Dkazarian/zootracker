@@ -1,4 +1,8 @@
-import type { FeedingPeriod, Prisma } from '../generated/prisma/client';
+import type {
+  FeedingPeriod,
+  FeedingTaskStatus,
+  Prisma,
+} from '../generated/prisma/client';
 
 export type FeedingPlanStatus = 'upcoming' | 'due';
 export type FeedingPlanListStatus = 'active' | 'archived';
@@ -15,7 +19,11 @@ export interface FeedingPlanResponse {
   instructions: string;
   period: FeedingPeriod;
   repeatEveryDays: number;
-  nextDueDate: string;
+  currentTask: {
+    id: string;
+    scheduledDueDate: string;
+    status: FeedingTaskStatus;
+  } | null;
   createdBy: FeedingPlanPersonResponse;
   lastModifiedBy: FeedingPlanPersonResponse;
   createdAt: Date;
@@ -30,7 +38,7 @@ export interface CreateFeedingPlanInput {
   instructions: string;
   period: FeedingPeriod;
   repeatEveryDays: number;
-  nextDueDate: string;
+  initialDueDate: string;
 }
 
 export interface CreateFeedingPlanData {
@@ -39,18 +47,27 @@ export interface CreateFeedingPlanData {
   instructions: string;
   period: FeedingPeriod;
   repeatEveryDays: number;
-  nextDueDate: Date;
   createdById: string;
   lastModifiedById: string;
 }
 
-export const feedingPlanPeople = {
+export const feedingPlanRelations = {
   createdBy: { select: { id: true, name: true } },
   lastModifiedBy: { select: { id: true, name: true } },
+  feedingTasks: {
+    where: { status: 'AVAILABLE' },
+    orderBy: { scheduledDueDate: 'asc' },
+    take: 1,
+    select: {
+      id: true,
+      scheduledDueDate: true,
+      status: true,
+    },
+  },
 } satisfies Prisma.FeedingPlanInclude;
 
 export type FeedingPlanRecord = Prisma.FeedingPlanGetPayload<{
-  include: typeof feedingPlanPeople;
+  include: typeof feedingPlanRelations;
 }>;
 
 export interface FeedingPlanMutationRecord {

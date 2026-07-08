@@ -1,0 +1,195 @@
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
+import { jest } from '@jest/globals';
+import type { FeedingTaskRecord } from './feeding-task.types';
+import { FeedingTasksRepository } from './feeding-tasks.repository';
+import { FeedingTasksService } from './feeding-tasks.service';
+
+const person = { id: 'keeper-1', name: 'Ada Keeper' };
+
+function taskRecord(
+  overrides: Partial<FeedingTaskRecord> = {},
+): FeedingTaskRecord {
+  return {
+    id: 'task-1',
+    feedingPlanId: 'plan-1',
+    scheduledDueDate: new Date('2026-07-01T00:00:00.000Z'),
+    status: 'AVAILABLE',
+    completedById: null,
+    completedAt: null,
+    notes: null,
+    lastModifiedById: person.id,
+    createdAt: new Date('2026-07-01T00:00:00.000Z'),
+    updatedAt: new Date('2026-07-01T00:00:00.000Z'),
+    completedBy: null,
+    lastModifiedBy: person,
+    feedingPlan: {
+      id: 'plan-1',
+      animalId: 'animal-1',
+      name: 'Morning fruit',
+      instructions: '3 bananas and an apple',
+      period: 'morning',
+      repeatEveryDays: 1,
+      archivedAt: null,
+      animal: { archivedAt: null },
+    },
+    ...overrides,
+  };
+}
+
+describe('FeedingTasksService', () => {
+  const repository = {
+    findVisibleAnimal: jest.fn<FeedingTasksRepository['findVisibleAnimal']>(),
+    listCompleted: jest.fn<FeedingTasksRepository['listCompleted']>(),
+    findById: jest.fn<FeedingTasksRepository['findById']>(),
+    complete: jest.fn<FeedingTasksRepository['complete']>(),
+    updateCompletion: jest.fn<FeedingTasksRepository['updateCompletion']>(),
+    undoCompletion: jest.fn<FeedingTasksRepository['undoCompletion']>(),
+  };
+  const service = new FeedingTasksService(
+    repository as unknown as FeedingTasksRepository,
+  );
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('requires a visible animal before returning completed history', async () => {
+    repository.findVisibleAnimal.mockResolvedValueOnce(null);
+    await expect(
+      service.listCompleted('animal-1', 'keeper'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(repository.listCompleted).not.toHaveBeenCalled();
+  });
+
+  it('completes an available task with authenticated accountability', async () => {
+    const available = taskRecord();
+    const completed = taskRecord({
+      status: 'COMPLETED',
+      completedById: person.id,
+      completedAt: new Date('2026-07-02T10:00:00.000Z'),
+      notes: 'Ate everything',
+      completedBy: person,
+    });
+    repository.findById.mockResolvedValueOnce(available);
+    repository.complete.mockResolvedValueOnce(completed);
+
+    const response = await service.complete(
+      available.id,
+      {
+        completedAt: '2026-07-02T10:00:00.000Z',
+        notes: 'Ate everything',
+      },
+      person.id,
+    );
+
+    expect(repository.complete).toHaveBeenCalledWith(
+      available.id,
+      person.id,
+      new Date('2026-07-02T10:00:00.000Z'),
+      'Ate everything',
+      new Date('2026-07-03T00:00:00.000Z'),
+    );
+    expect(response).toMatchObject({
+      id: available.id,
+      status: 'COMPLETED',
+      completedBy: person,
+      notes: 'Ate everything',
+    });
+  });
+
+  it('rejects archived plans, repeated completion, future completion, and dates before schedule', async () => {
+    repository.findById.mockResolvedValueOnce(
+      taskRecord({
+        feedingPlan: { ...taskRecord().feedingPlan, archivedAt: new Date() },
+      }),
+    );
+    await expect(
+      service.complete('task-1', {}, person.id),
+    ).rejects.toBeInstanceOf(ConflictException);
+
+    repository.findById.mockResolvedValueOnce(
+      taskRecord({ status: 'COMPLETED' }),
+    );
+    await expect(
+      service.complete('task-1', {}, person.id),
+    ).rejects.toBeInstanceOf(ConflictException);
+
+    repository.findById.mockResolvedValueOnce(taskRecord());
+    await expect(
+      service.complete(
+        'task-1',
+        { completedAt: '2999-01-01T00:00:00.000Z' },
+        person.id,
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
+    repository.findById.mockResolvedValueOnce(taskRecord());
+    await expect(
+      service.complete(
+        'task-1',
+        { completedAt: '2026-06-30T23:00:00.000Z' },
+        person.id,
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('corrects only completed tasks and preserves the original completer', async () => {
+    const completed = taskRecord({
+      status: 'COMPLETED',
+      completedById: person.id,
+      completedBy: person,
+      completedAt: new Date('2026-07-02T10:00:00.000Z'),
+    });
+    repository.findById.mockResolvedValueOnce(completed);
+    repository.updateCompletion.mockResolvedValueOnce({
+      ...completed,
+      notes: 'Left some food',
+      lastModifiedBy: { id: 'admin-1', name: 'Admin User' },
+    });
+
+    const response = await service.updateCompletion(
+      completed.id,
+      { notes: 'Left some food' },
+      'admin-1',
+    );
+
+    expect(repository.updateCompletion).toHaveBeenCalledWith(
+      completed.id,
+      'admin-1',
+      undefined,
+      'Left some food',
+    );
+    expect(response.completedBy).toEqual(person);
+    expect(response.lastModifiedBy).toEqual({
+      id: 'admin-1',
+      name: 'Admin User',
+    });
+  });
+
+  it('maps undo repository outcomes to useful responses', async () => {
+    repository.undoCompletion.mockResolvedValueOnce({ kind: 'not-found' });
+    await expect(
+      service.undoCompletion('missing', person.id),
+    ).rejects.toBeInstanceOf(NotFoundException);
+
+    repository.undoCompletion.mockResolvedValueOnce({
+      kind: 'later-completion',
+    });
+    await expect(
+      service.undoCompletion('task-1', person.id),
+    ).rejects.toBeInstanceOf(ConflictException);
+
+    repository.undoCompletion.mockResolvedValueOnce({
+      kind: 'success',
+      task: taskRecord(),
+    });
+    await expect(
+      service.undoCompletion('task-1', person.id),
+    ).resolves.toMatchObject({
+      status: 'AVAILABLE',
+      completedAt: null,
+    });
+  });
+});

@@ -16,7 +16,13 @@ const feedingPlanSchema = z.object({
   instructions: z.string().min(1),
   period: feedingPeriodSchema,
   repeatEveryDays: z.number().int().positive(),
-  nextDueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  currentTask: z
+    .object({
+      id: z.string().min(1),
+      scheduledDueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      status: z.enum(['AVAILABLE', 'COMPLETED']),
+    })
+    .nullable(),
   createdBy: personSchema,
   lastModifiedBy: personSchema,
   createdAt: z.coerce.date(),
@@ -35,7 +41,7 @@ export interface FeedingPlanInput {
   instructions: string;
   period: FeedingPeriod;
   repeatEveryDays: number;
-  nextDueDate: string;
+  initialDueDate: string;
 }
 
 export const feedingPlanQueryKey = (animalId: string) =>

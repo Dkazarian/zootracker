@@ -56,6 +56,11 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
   });
 
   beforeEach(async () => {
+    await prisma.feedingTask.deleteMany({
+      where: {
+        feedingPlan: { animal: { notes: { startsWith: 'plan-e2e:' } } },
+      },
+    });
     await prisma.feedingPlan.deleteMany({
       where: { animal: { notes: { startsWith: 'plan-e2e:' } } },
     });
@@ -114,7 +119,7 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
         instructions: ' Hay and leafy greens ',
         period: 'evening',
         repeatEveryDays: 1,
-        nextDueDate: '2030-07-01',
+        initialDueDate: '2030-07-01',
       })
       .expect(201);
     const morningResponse = await keeperAgent
@@ -124,7 +129,7 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
         instructions: '3 bananas and an apple',
         period: 'morning',
         repeatEveryDays: 2,
-        nextDueDate: '2030-07-01',
+        initialDueDate: '2030-07-01',
       })
       .expect(201);
     const evening = eveningResponse.body as {
@@ -139,13 +144,16 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       name: 'Evening meal',
       instructions: 'Hay and leafy greens',
       createdBy: { name: keeper.name },
+      currentTask: {
+        scheduledDueDate: '2030-07-01',
+        status: 'AVAILABLE',
+      },
     });
 
     const list = await keeperAgent.get(basePath).expect(200);
     const plans = list.body as Array<{ id: string; status: string }>;
-    expect(plans.map((plan) => plan.id)).toEqual([morning.id, evening.id]);
+    expect(plans.map((plan) => plan.id)).toEqual([evening.id, morning.id]);
     expect(plans.every((plan) => plan.status === 'upcoming')).toBe(true);
-
     await secondKeeperAgent
       .post(`${basePath}/${evening.id}/archive`)
       .expect(201)
@@ -162,7 +170,7 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
         instructions: 'Hay, leafy greens, and branches',
         period: 'evening',
         repeatEveryDays: 2,
-        nextDueDate: '2030-07-03',
+        initialDueDate: '2030-07-03',
       })
       .expect(201);
     const newPlan = newPlanResponse.body as { id: string };
@@ -212,7 +220,7 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
         instructions: 'Browse and fresh fruit',
         period: 'afternoon',
         repeatEveryDays: 1,
-        nextDueDate: '2030-07-01',
+        initialDueDate: '2030-07-01',
       })
       .expect(201);
     const created = create.body as { id: string };
@@ -239,7 +247,7 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       instructions: '3 bananas and an apple',
       period: 'morning',
       repeatEveryDays: 1,
-      nextDueDate: '2030-07-01',
+      initialDueDate: '2030-07-01',
     };
 
     await keeperAgent
@@ -260,7 +268,7 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       .expect(400);
     await keeperAgent
       .post(basePath)
-      .send({ ...validPlan, nextDueDate: '2030-02-30' })
+      .send({ ...validPlan, initialDueDate: '2030-02-30' })
       .expect(400);
     await keeperAgent
       .post(basePath)
@@ -283,7 +291,7 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
         instructions: '3 bananas and an apple',
         period: 'morning',
         repeatEveryDays: 1,
-        nextDueDate: '2030-07-01',
+        initialDueDate: '2030-07-01',
       })
       .expect(201);
 
@@ -307,6 +315,11 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
   });
 
   afterAll(async () => {
+    await prisma.feedingTask.deleteMany({
+      where: {
+        feedingPlan: { animal: { notes: { startsWith: 'plan-e2e:' } } },
+      },
+    });
     await prisma.feedingPlan.deleteMany({
       where: { animal: { notes: { startsWith: 'plan-e2e:' } } },
     });

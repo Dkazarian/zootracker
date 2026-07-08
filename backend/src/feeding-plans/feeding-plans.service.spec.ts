@@ -12,7 +12,6 @@ const activePlan: FeedingPlanRecord = {
   instructions: '3 bananas and an apple',
   period: 'morning',
   repeatEveryDays: 1,
-  nextDueDate: new Date('2026-07-01T00:00:00.000Z'),
   createdById: person.id,
   lastModifiedById: person.id,
   createdAt: new Date('2026-06-30T12:00:00.000Z'),
@@ -20,6 +19,13 @@ const activePlan: FeedingPlanRecord = {
   archivedAt: null,
   createdBy: person,
   lastModifiedBy: person,
+  feedingTasks: [
+    {
+      id: 'task-1',
+      scheduledDueDate: new Date('2026-07-01T00:00:00.000Z'),
+      status: 'AVAILABLE',
+    },
+  ],
 };
 
 describe('FeedingPlansService', () => {
@@ -48,7 +54,7 @@ describe('FeedingPlansService', () => {
         instructions: activePlan.instructions,
         period: activePlan.period,
         repeatEveryDays: 1,
-        nextDueDate: '2026-07-01',
+        initialDueDate: '2026-07-01',
       },
       person.id,
     );
@@ -57,8 +63,9 @@ describe('FeedingPlansService', () => {
         animalId: activePlan.animalId,
         createdById: person.id,
         lastModifiedById: person.id,
-        nextDueDate: new Date('2026-07-01T00:00:00.000Z'),
       }),
+      new Date('2026-07-01T00:00:00.000Z'),
+      person.id,
     );
   });
 
@@ -72,7 +79,7 @@ describe('FeedingPlansService', () => {
           instructions: activePlan.instructions,
           period: activePlan.period,
           repeatEveryDays: 1,
-          nextDueDate: '2026-02-31',
+          initialDueDate: '2026-02-31',
         },
         person.id,
       ),
@@ -91,7 +98,7 @@ describe('FeedingPlansService', () => {
           instructions: activePlan.instructions,
           period: activePlan.period,
           repeatEveryDays: 1,
-          nextDueDate: '2026-07-01',
+          initialDueDate: '2026-07-01',
         },
         person.id,
       ),

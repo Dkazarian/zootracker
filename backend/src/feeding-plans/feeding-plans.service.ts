@@ -42,12 +42,9 @@ export class FeedingPlansService {
   ): Promise<FeedingPlanResponse> {
     await this.requireActiveAnimal(animalId);
     const plan = await this.repository.create(
-      toCreateFeedingPlanData(
-        animalId,
-        input,
-        this.parseNextDueDate(input.nextDueDate),
-        userId,
-      ),
+      toCreateFeedingPlanData(animalId, input, userId),
+      this.parseInitialDueDate(input.initialDueDate),
+      userId,
     );
     return this.toResponse(plan, new Date());
   }
@@ -101,18 +98,19 @@ export class FeedingPlansService {
     }
   }
 
-  private parseNextDueDate(value: string): Date {
+  private parseInitialDueDate(value: string): Date {
     try {
       return parseDateOnly(value);
     } catch {
       throw new BadRequestException(
-        'nextDueDate must be a valid calendar date',
+        'initialDueDate must be a valid calendar date',
       );
     }
   }
 
   private toResponse(plan: FeedingPlanRecord, now: Date): FeedingPlanResponse {
-    if (plan.archivedAt) {
+    const currentTask = plan.feedingTasks[0];
+    if (plan.archivedAt || !currentTask) {
       return toFeedingPlanResponse(plan, {
         status: null,
         minutesPastDue: null,
@@ -121,7 +119,7 @@ export class FeedingPlansService {
     return toFeedingPlanResponse(
       plan,
       getFeedingPlanTiming(
-        plan.nextDueDate,
+        currentTask.scheduledDueDate,
         plan.period,
         now,
         getZooTimeZone(),

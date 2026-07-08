@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { ApplicationRole } from '../../shared/auth/application-role';
+import FeedingHistorySection from '../feeding-tasks/FeedingHistorySection';
+import FeedingTaskCompletionForm from '../feeding-tasks/FeedingTaskCompletionForm';
+import {
+  completeFeedingTask,
+  feedingTaskHistoryQueryKey,
+  type FeedingTaskCompletionInput,
+} from '../feeding-tasks/feeding-task-api';
 import {
   archiveFeedingPlan,
   createFeedingPlan,
@@ -40,6 +47,9 @@ function FeedingPlansSection({
   const [formOpen, setFormOpen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [archiveTarget, setArchiveTarget] = useState<FeedingPlan | null>(null);
+  const [completionTarget, setCompletionTarget] = useState<FeedingPlan | null>(
+    null,
+  );
   const plansQuery = useQuery({
     queryKey: feedingPlanQueryKey(animalId),
     queryFn: () => listFeedingPlans(animalId),
@@ -57,6 +67,9 @@ function FeedingPlansSection({
       queryClient.invalidateQueries({
         queryKey: feedingPlanHistoryQueryKey(animalId),
       }),
+      queryClient.invalidateQueries({
+        queryKey: feedingTaskHistoryQueryKey(animalId),
+      }),
     ]);
   };
   const createMutation = useMutation({
@@ -70,6 +83,19 @@ function FeedingPlansSection({
     mutationFn: (planId: string) => archiveFeedingPlan(animalId, planId),
     onSuccess: async () => {
       setArchiveTarget(null);
+      await refreshPlans();
+    },
+  });
+  const completionMutation = useMutation({
+    mutationFn: ({
+      taskId,
+      input,
+    }: {
+      taskId: string;
+      input: FeedingTaskCompletionInput;
+    }) => completeFeedingTask(taskId, input),
+    onSuccess: async () => {
+      setCompletionTarget(null);
       await refreshPlans();
     },
   });
@@ -157,6 +183,32 @@ function FeedingPlansSection({
         </p>
       )}
 
+      {completionTarget?.currentTask && (
+        <section className="feeding-plan-form-card">
+          <h3>Complete {completionTarget.name}</h3>
+          <p>{completionTarget.instructions}</p>
+          <FeedingTaskCompletionForm
+            submitting={completionMutation.isPending}
+            submitLabel="Record feeding"
+            serverError={
+              completionMutation.isError
+                ? getErrorMessage(completionMutation.error)
+                : undefined
+            }
+            onCancel={() => {
+              completionMutation.reset();
+              setCompletionTarget(null);
+            }}
+            onSave={(input) =>
+              completionMutation.mutate({
+                taskId: completionTarget.currentTask!.id,
+                input,
+              })
+            }
+          />
+        </section>
+      )}
+
       {plansQuery.isPending && (
         <p className="page-state" aria-live="polite">
           Loading feeding plans...
@@ -206,8 +258,11 @@ function FeedingPlansSection({
                 <div>
                   <dt>Next feeding</dt>
                   <dd>
-                    {formatFeedingDate(plan.nextDueDate)} ·{' '}
-                    {formatFeedingPeriod(plan.period)}
+                    {plan.currentTask
+                      ? `${formatFeedingDate(
+                          plan.currentTask.scheduledDueDate,
+                        )} · ${formatFeedingPeriod(plan.period)}`
+                      : 'Not scheduled'}
                   </dd>
                 </div>
               </dl>
@@ -217,6 +272,14 @@ function FeedingPlansSection({
               </p>
               {canManage && (
                 <div className="profile-actions">
+                  {plan.currentTask && (
+                    <button
+                      type="button"
+                      onClick={() => setCompletionTarget(plan)}
+                    >
+                      Record feeding
+                    </button>
+                  )}
                   <button
                     className="button-danger"
                     type="button"
@@ -293,13 +356,6 @@ function FeedingPlansSection({
                         <dt>Schedule</dt>
                         <dd>{formatRecurrence(plan.repeatEveryDays)}</dd>
                       </div>
-                      <div>
-                        <dt>Scheduled feeding</dt>
-                        <dd>
-                          {formatFeedingDate(plan.nextDueDate)} ·{' '}
-                          {formatFeedingPeriod(plan.period)}
-                        </dd>
-                      </div>
                     </dl>
                     <p className="feeding-plan-accountability">
                       Created by {plan.createdBy.name} · Last changed by{' '}
@@ -312,6 +368,12 @@ function FeedingPlansSection({
           )}
         </div>
       )}
+
+      <FeedingHistorySection
+        animalId={animalId}
+        currentUserRole={currentUserRole}
+        plansQueryKey={feedingPlanQueryKey(animalId)}
+      />
     </section>
   );
 }

@@ -55,6 +55,11 @@ export type User = Prisma.UserModel
  */
 export type FeedingPlan = Prisma.FeedingPlanModel
 /**
+ * Model FeedingTask
+ * 
+ */
+export type FeedingTask = Prisma.FeedingTaskModel
+/**
  * Model Session
  * 
  */

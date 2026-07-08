@@ -17,7 +17,7 @@ const feedingPlanFormSchema = z.object({
     .int('Enter a whole number of days')
     .min(1, 'The plan must repeat at least every day')
     .max(3650),
-  nextDueDate: z
+  initialDueDate: z
     .string()
     .trim()
     .refine(
@@ -52,17 +52,17 @@ function FeedingPlanForm({
       instructions: '',
       period: 'morning',
       repeatEveryDays: 1,
-      nextDueDate: getTomorrowUiDate(),
+      initialDueDate: getTomorrowUiDate(),
     },
   });
 
   const onSubmit = handleSubmit((values) => {
-    const nextDueDate = parseUiDate(values.nextDueDate);
-    if (!nextDueDate) return;
+    const initialDueDate = parseUiDate(values.initialDueDate);
+    if (!initialDueDate) return;
 
     onSave({
       ...values,
-      nextDueDate,
+      initialDueDate,
       name: values.name.trim(),
       instructions: values.instructions.trim(),
     });
@@ -120,11 +120,11 @@ function FeedingPlanForm({
           inputMode="numeric"
           maxLength={10}
           placeholder="dd/mm/yyyy"
-          aria-invalid={Boolean(errors.nextDueDate)}
-          {...register('nextDueDate')}
+          aria-invalid={Boolean(errors.initialDueDate)}
+          {...register('initialDueDate')}
         />
-        {errors.nextDueDate && (
-          <p className="field-error">{errors.nextDueDate.message}</p>
+        {errors.initialDueDate && (
+          <p className="field-error">{errors.initialDueDate.message}</p>
         )}
       </div>
 

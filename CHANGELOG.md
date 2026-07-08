@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-07-03
+
+- Redesign scheduled feeding work as one persistent `FeedingTask` per plan and
+  due date. Plan creation creates the first available task, completion creates
+  the next task, and completed tasks form feeding history.
+- Simplify claims to an advisory `AVAILABLE` or `CLAIMED` state on the current
+  task. Remove claim expiration and claim-attempt history from the roadmap.
+
 ## 2026-07-02
 
 - Standardize user-facing dates as `dd/mm/yyyy`, rename the feeding-plan date

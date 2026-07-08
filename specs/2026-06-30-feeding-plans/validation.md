@@ -25,8 +25,8 @@ From the repository root, all of the following must succeed:
 3. Confirm the API derives creator and last modifier from the session and
    rejects supplied accountability fields.
 4. Retrieve the animal's plans and confirm all required details are present.
-5. Confirm plans are ordered by next-due date and then morning, afternoon, and
-   evening period.
+5. Confirm active plans are ordered by name and then creation date, while
+   archived plans are ordered by archived date and then creation date.
 6. Confirm each period becomes due at its application-wide start time in the
    configured zoo timezone.
 7. Confirm a plan is upcoming before its date-and-period boundary and remains
@@ -52,7 +52,7 @@ From the repository root, all of the following must succeed:
 3. Create a natural-language plan such as `3 bananas and an apple` and confirm
    it appears without a full page reload.
 4. Create a second routine for the same animal and confirm both appear.
-5. Confirm plan name, instructions, period, recurrence, next-due date, and
+5. Confirm plan name, instructions, period, recurrence, `Next feeding`, and
    status are displayed.
 6. Archive a plan, create a new plan, and confirm the new active plan and old
    archived plan appear in their respective sections.
@@ -91,7 +91,7 @@ From the repository root, all of the following must succeed:
   passed with 4, 3, and 4 tests respectively. The revised feeding-plan suite
   passes with 5 tests.
 - Feeding-plan database coverage confirms authentication, keeper and
-  administrator mutations, validation, date and period ordering,
+  administrator mutations, validation, fixed plan ordering,
   accountability, archiving, read-only archives, relation preservation, and
   the absence of a delete endpoint.
 - Browser checks confirmed the empty state, keeper creation and editing,
@@ -175,6 +175,42 @@ amendment below supersedes that behavior and was validated on 2026-07-01.
   profile and edit form, `Next feeding` with tomorrow as `03/07/2026`, existing
   feeding dates in `dd/mm/yyyy`, and no console warnings or errors.
 
+## Amendment Validation - Initial feeding task
+
+- [x] Creating a feeding plan creates one `AVAILABLE` task with the submitted
+  initial scheduled date in the same transaction.
+- [x] A failed first-task creation leaves no feeding plan behind.
+- [x] Each existing active plan receives one available task from its previous
+  `nextDueDate` during migration.
+- [x] `FeedingPlan.nextDueDate` is removed after migration and scheduling state
+  is not duplicated.
+- [x] Active plan responses and the interface derive `Next feeding` and due
+  status from the current task.
+- [x] Archiving a plan removes its current non-completed task while preserving
+  completed task history.
+- [x] Plan immutability, archived history, date formatting, permissions, and
+  existing creation behavior remain valid.
+- [x] Focused feeding-plan and feeding-task tests, PostgreSQL API tests, and the
+  full repository validation suite pass.
+
+## Initial Feeding Task Amendment Results - 2026-07-07
+
+- [x] `npm.cmd run prisma:generate` regenerated Prisma Client successfully.
+- [x] `prisma.cmd migrate reset --force` against the isolated
+  `zootracker_test` database applied all four migrations from empty, including
+  `20260703120000_feeding_tasks`.
+- [x] `npm.cmd run test:feeding-plans:e2e` passed with 5 tests and confirmed
+  feeding-plan creation now uses `initialDueDate`, returns `currentTask`, and
+  preserves immutable/archive behavior.
+- [x] `npm.cmd run test:feeding-tasks:e2e` passed with 2 tests and confirmed
+  task completion, duplicate/concurrent completion protection, successor
+  creation, history, correction, administrator-only undo, and restoration.
+- [x] PostgreSQL-backed authentication, personnel, animal-registry,
+  feeding-plan, and feeding-task suites passed with 4, 6, 4, 5, and 2 tests.
+- [x] Repository validation passed with `npm.cmd run format:check`,
+  `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd test`, and
+  `npm.cmd run build`.
+
 ## Merge Criteria
 
 The phase can be merged when:
@@ -189,12 +225,13 @@ The phase can be merged when:
 - Plan validation and permissions are enforced by the API.
 - Creator and last-modifier accountability is preserved.
 - Plans survive related archival and cannot be deleted.
-- Plan definitions remain immutable while `nextDueDate` remains operational
-  state.
+- Plan definitions remain immutable while the current feeding task owns the
+  next scheduled date.
 - No general plan-update, replacement, or manual-reschedule endpoint exists;
-  feeding completion is the only workflow that advances `nextDueDate`.
+  task completion is the only workflow that creates the next scheduled task.
 - Authorized personnel can inspect archived plan versions without treating them
   as active feeding work.
-- Feeding records, assignments, queues, and claims remain deferred.
+- Task completion and history belong to Phase 6; queues and claims remain
+  deferred to Phase 7.
 - `requirements.md`, `plan.md`, and `validation.md` agree with the
   implementation.

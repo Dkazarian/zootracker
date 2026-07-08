@@ -12,8 +12,8 @@ physical schema.
 | Animals | Implemented |
 | Feeding plans | Implemented |
 | Immutable feeding plans and archived history | Approved Phase 5 amendment |
-| Completed feeding sessions and history | Planned for Phase 6 |
-| Feeding-session claim lifecycle | Planned for Phase 7 |
+| Feeding tasks and completed history | Planned for Phase 6 |
+| Advisory task claims | Planned for Phase 7 |
 
 ## Model
 
@@ -26,10 +26,10 @@ erDiagram
     USER ||--o{ FEEDING_PLAN : "creates"
     USER ||--o{ FEEDING_PLAN : "last modifies"
 
-    FEEDING_PLAN ||--o{ FEEDING_SESSION : "has occurrences"
-    USER ||--o{ FEEDING_SESSION : "claims"
-    USER ||--o{ FEEDING_SESSION : "completes"
-    USER ||--o{ FEEDING_SESSION : "last modifies"
+    FEEDING_PLAN ||--o{ FEEDING_TASK : "schedules"
+    USER ||--o{ FEEDING_TASK : "claims"
+    USER ||--o{ FEEDING_TASK : "completes"
+    USER ||--o{ FEEDING_TASK : "last modifies"
 
     USER {
         string id PK
@@ -93,7 +93,6 @@ erDiagram
         string instructions
         FeedingPeriod period
         int repeatEveryDays
-        date nextDueDate
         string createdById FK
         string lastModifiedById FK
         datetime archivedAt
@@ -101,15 +100,13 @@ erDiagram
         datetime updatedAt
     }
 
-    FEEDING_SESSION {
+    FEEDING_TASK {
         string id PK
         string feedingPlanId FK
         date scheduledDueDate
-        FeedingSessionStatus status
+        FeedingTaskStatus status
         string claimedById FK
         datetime claimedAt
-        datetime expiresAt
-        datetime releasedAt
         string completedById FK
         datetime completedAt
         string notes
@@ -129,42 +126,36 @@ erDiagram
   instructions, period, and recurrence.
 - Changing a plan definition requires archiving the old plan and creating a new
   independent plan.
-- `FeedingPlan.nextDueDate` is mutable operational state, not immutable
-  definition history. It advances through feeding completion and has no manual
-  reschedule operation.
-- A feeding session references the exact immutable plan and scheduled
-  occurrence involved in the work.
-- `FeedingSession.scheduledDueDate` preserves the occurrence after the plan
-  advances to its next due date.
-- Phase 6 may create a session directly in the completed state without a prior
-  claim; its claim-related fields are nullable.
-- Phase 7 may create multiple sessions for the same plan and scheduled date
-  when earlier claims were released or expired, but only one may be effectively
-  active and only one may be completed.
-- The persisted session status is `CLAIMED`, `RELEASED`, or `COMPLETED`.
-  `EXPIRED` is an effective API and domain status derived when a claimed
-  session's `expiresAt` has passed.
+- A plan's first scheduled date creates its first `AVAILABLE` feeding task.
+- A task references the exact immutable plan and scheduled occurrence involved
+  in the work.
+- `feedingPlanId` plus `scheduledDueDate` is unique, so one task represents one
+  scheduled occurrence.
+- Each active feeding plan has exactly one non-completed task.
+- Phase 6 uses the `AVAILABLE` and `COMPLETED` states. Phase 7 adds `CLAIMED`.
+- A released claim returns the same task to `AVAILABLE` and clears its claim
+  fields. Expiration and claim-attempt history are not part of the model.
 - A claim is advisory. A keeper other than `claimedById` may complete the
-  session after acknowledging the active claim; `completedById` records who
+  task after acknowledging the active claim; `completedById` records who
   actually completed it.
-- Completing a session and advancing `FeedingPlan.nextDueDate` happen
-  atomically.
-- Feeding plans, animals, and personnel referenced by session history are
+- Completing a task and creating its next scheduled task happen atomically.
+- Completed tasks form feeding history; no separate feeding-record model is
+  required.
+- Feeding plans, animals, and personnel referenced by task history are
   preserved rather than cascade-deleted.
 - Authentication credentials and sessions remain owned by Better Auth.
 
 ## Lifecycle
 
 ```text
-direct completion:              COMPLETED
-claim:                 CLAIMED -> RELEASED
-                          |
-                          +----> COMPLETED
-                          |
-                          +----> EXPIRED (derived from expiresAt)
+AVAILABLE ---------------------> COMPLETED
+    |
+    +----> CLAIMED ------------> COMPLETED
+               |
+               +--------------> AVAILABLE (release)
 ```
 
-A released or expired session remains available for operational review. A
-later claim creates another session for the same scheduled occurrence. A
-completed session is the feeding-history entry, so no separate feeding-record
-or feeding-claim entity is required.
+Creating a feeding plan creates its first available task. Completing a task
+creates the next available task from the plan's recurrence. Claim release does
+not preserve claim-attempt history, and no expiration job or derived expired
+state is required.

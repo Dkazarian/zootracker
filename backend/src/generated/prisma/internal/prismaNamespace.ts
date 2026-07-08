@@ -387,6 +387,7 @@ export const ModelName = {
   Animal: 'Animal',
   User: 'User',
   FeedingPlan: 'FeedingPlan',
+  FeedingTask: 'FeedingTask',
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification'
@@ -405,7 +406,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "animal" | "user" | "feedingPlan" | "session" | "account" | "verification"
+    modelProps: "animal" | "user" | "feedingPlan" | "feedingTask" | "session" | "account" | "verification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -628,6 +629,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.FeedingPlanCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.FeedingPlanCountAggregateOutputType> | number
+        }
+      }
+    }
+    FeedingTask: {
+      payload: Prisma.$FeedingTaskPayload<ExtArgs>
+      fields: Prisma.FeedingTaskFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FeedingTaskFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FeedingTaskFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload>
+        }
+        findFirst: {
+          args: Prisma.FeedingTaskFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FeedingTaskFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload>
+        }
+        findMany: {
+          args: Prisma.FeedingTaskFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload>[]
+        }
+        create: {
+          args: Prisma.FeedingTaskCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload>
+        }
+        createMany: {
+          args: Prisma.FeedingTaskCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FeedingTaskCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload>[]
+        }
+        delete: {
+          args: Prisma.FeedingTaskDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload>
+        }
+        update: {
+          args: Prisma.FeedingTaskUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload>
+        }
+        deleteMany: {
+          args: Prisma.FeedingTaskDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FeedingTaskUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FeedingTaskUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload>[]
+        }
+        upsert: {
+          args: Prisma.FeedingTaskUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FeedingTaskPayload>
+        }
+        aggregate: {
+          args: Prisma.FeedingTaskAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFeedingTask>
+        }
+        groupBy: {
+          args: Prisma.FeedingTaskGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FeedingTaskGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FeedingTaskCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FeedingTaskCountAggregateOutputType> | number
         }
       }
     }
@@ -933,7 +1008,6 @@ export const FeedingPlanScalarFieldEnum = {
   instructions: 'instructions',
   period: 'period',
   repeatEveryDays: 'repeatEveryDays',
-  nextDueDate: 'nextDueDate',
   createdById: 'createdById',
   lastModifiedById: 'lastModifiedById',
   createdAt: 'createdAt',
@@ -942,6 +1016,22 @@ export const FeedingPlanScalarFieldEnum = {
 } as const
 
 export type FeedingPlanScalarFieldEnum = (typeof FeedingPlanScalarFieldEnum)[keyof typeof FeedingPlanScalarFieldEnum]
+
+
+export const FeedingTaskScalarFieldEnum = {
+  id: 'id',
+  feedingPlanId: 'feedingPlanId',
+  scheduledDueDate: 'scheduledDueDate',
+  status: 'status',
+  completedById: 'completedById',
+  completedAt: 'completedAt',
+  notes: 'notes',
+  lastModifiedById: 'lastModifiedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FeedingTaskScalarFieldEnum = (typeof FeedingTaskScalarFieldEnum)[keyof typeof FeedingTaskScalarFieldEnum]
 
 
 export const SessionScalarFieldEnum = {
@@ -1098,6 +1188,20 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'FeedingTaskStatus'
+ */
+export type EnumFeedingTaskStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedingTaskStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'FeedingTaskStatus[]'
+ */
+export type ListEnumFeedingTaskStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedingTaskStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1223,6 +1327,7 @@ export type GlobalOmitConfig = {
   animal?: Prisma.AnimalOmit
   user?: Prisma.UserOmit
   feedingPlan?: Prisma.FeedingPlanOmit
+  feedingTask?: Prisma.FeedingTaskOmit
   session?: Prisma.SessionOmit
   account?: Prisma.AccountOmit
   verification?: Prisma.VerificationOmit
