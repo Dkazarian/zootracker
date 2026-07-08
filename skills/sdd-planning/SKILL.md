@@ -16,6 +16,11 @@ Before product planning, read the project's stable planning source documents. Co
 - roadmap or phase list;
 - the active or affected phase spec directory, when one exists.
 
+For phase-specific work, treat the active or affected phase spec directory as
+the default spec scope. Do not inspect or edit other phase directories unless
+the user explicitly asks, stable planning documents require a cross-phase
+change, or an approved amendment targets another phase.
+
 If these documents conflict, stop and ask the user to resolve the conflict.
 After reading stable source documents, summarize the relevant decisions and
 reuse that summary during the turn instead of rereading unchanged files.

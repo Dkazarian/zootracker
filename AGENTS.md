@@ -21,6 +21,10 @@
 - If source documents conflict, identify the conflict and ask the user.
 - Mark plan steps, task groups, and phases complete only after their required
   implementation and validation succeed.
+- When working on one roadmap phase, treat that phase's spec folder as the
+  default editable spec scope. Do not inspect or edit other phase folders unless
+  the user asks, the roadmap/stable docs explicitly require it, or an approved
+  amendment affects that older/future phase.
 
 ## Context discipline
 
