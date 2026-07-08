@@ -1,0 +1,4 @@
+interface:
+  display_name: 'SDD Planning'
+  short_description: 'Create and maintain SDD phase specs.'
+  default_prompt: 'Use this skill to plan the next SDD phase.'

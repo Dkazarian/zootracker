@@ -107,6 +107,7 @@ frontend/src/assets/
 # Repository-local scratch and generated artifact directories
 outputs/
 work/
+.tmp/
 
 # Version-control internals and local agent/editor state
 .git/

@@ -12,18 +12,13 @@
 
 ## Planning source of truth
 
-- Phase specification work means creating or revising a phase's `requirements.md`,
-  `paths.md`, `plan.md`, or `validation.md`.
-- `requirements.md` defines approved feature behavior.
-- `paths.md` defines approved implementation boundaries: paths Codex may inspect
-  or edit for each task group. It does not define product behavior or feature
-  scope.
-- Before product planning, read `specs/mission.md`, `specs/tech-stack.md`, and
-  `specs/roadmap.md`.
-- Obtain explicit user approval before drafting a feature specification and
-  again before implementation. Do not treat silence as approval.
+- Use the `sdd-planning` skill for roadmap phase planning, feature
+  specifications, amendments, and creation or revision of `requirements.md`,
+  `paths.md`, `plan.md`, or `validation.md`. The versioned source lives at
+  `skills/sdd-planning/`.
+- Before product planning, read the skill and follow its file-order and approval
+  gates.
 - If source documents conflict, identify the conflict and ask the user.
-- The first roadmap phase without `✅` is the active phase.
 - Mark plan steps, task groups, and phases complete only after their required
   implementation and validation succeed.
 
@@ -33,16 +28,16 @@
   scans.
 - Do not inspect ignored dependencies, generated code, build outputs, coverage,
   snapshots, or binary assets unless directly relevant.
-- Before implementation, use the active specification's `paths.md` to create a
-  minimal context map of likely paths, tests, and excluded paths.
+- For SDD phase implementation, use the approved phase `paths.md` as the
+  starting context boundary.
 - Start from the narrowest concrete entry point: named file, symbol, route,
   test, feature folder, or import chain.
 - Escalate discovery gradually: symbol/file → dependencies → feature folder →
   workspace → repository.
 - Do not repeat broad searches for the same concept; summarize findings and
   reuse them.
-- Use approved `paths.md` boundaries for roadmap phase implementation. Expand
-  only with concrete evidence from requirements, imports, tests, or failures.
+- Do not reread unchanged planning documents in the same turn after their
+  relevant decisions have been summarized.
 - Ask for user approval when discovery changes feature behavior, architecture,
   validation obligations, or roadmap commitments.
 - Focused code questions, reviews, and maintenance do not require reading
@@ -65,6 +60,17 @@
 ## Verification
 
 - Run focused checks while implementing.
+- For noisy checks, prefer
+  `powershell -ExecutionPolicy Bypass -File scripts/run-check.ps1 <command>`
+  so full logs stay in `.tmp/check-logs/` and only summaries enter context.
+- Treat browser/UI validation as a final confidence check, not the default loop:
+  prefer component/API tests during implementation, then use targeted browser
+  checks for real routing, auth/session, responsive layout, keyboard/focus, and
+  console errors.
+- During browser/UI validation, prefer targeted DOM assertions over full
+  snapshots or screenshots; collect only URL, specific text/control presence,
+  overflow status, console error counts, or similarly small signals unless a
+  visual defect requires more.
 - Do not rerun the same successful focused check unless relevant code changed.
 - At task-group checkpoints, run broader checks relevant to affected workspaces.
 - At each task-group checkpoint, run the checks assigned to that task group in
