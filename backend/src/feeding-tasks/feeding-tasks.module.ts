@@ -8,5 +8,6 @@ import { FeedingTasksService } from './feeding-tasks.service';
   imports: [AnimalsModule],
   controllers: [FeedingTasksController],
   providers: [FeedingTasksRepository, FeedingTasksService],
+  exports: [FeedingTasksService],
 })
 export class FeedingTasksModule {}

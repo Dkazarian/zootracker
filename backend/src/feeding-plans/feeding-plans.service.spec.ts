@@ -1,7 +1,12 @@
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { jest } from '@jest/globals';
 import { AnimalsService } from '../animals/animals.service';
-import type { FeedingPlanRecord } from './feeding-plan.types';
+import { FeedingTasksService } from '../feeding-tasks/feeding-tasks.service';
+import type {
+  FeedingPlanCreationOperations,
+  FeedingPlanRecord,
+} from './feeding-plan.types';
+import type { ScheduledTaskCreationOperations } from '../feeding-tasks/feeding-task.types';
 import { FeedingPlansRepository } from './feeding-plans.repository';
 import { FeedingPlansService } from './feeding-plans.service';
 
@@ -29,26 +34,55 @@ const activePlan: FeedingPlanRecord = {
 };
 
 describe('FeedingPlansService', () => {
+  const createPlanOperation =
+    jest.fn<FeedingPlanCreationOperations['create']>();
+  const findPlanOperation =
+    jest.fn<FeedingPlanCreationOperations['findById']>();
+  const creationOperations: FeedingPlanCreationOperations = {
+    create: createPlanOperation,
+    findById: findPlanOperation,
+  };
+  const transaction = {};
+  const taskCreationOperations: ScheduledTaskCreationOperations = {
+    createScheduledTask:
+      jest.fn<ScheduledTaskCreationOperations['createScheduledTask']>(),
+  };
   const repository = {
     list: jest.fn<FeedingPlansRepository['list']>(),
     findPlanById: jest.fn<FeedingPlansRepository['findPlanById']>(),
-    create: jest.fn<FeedingPlansRepository['create']>(),
+    withCreationTransaction:
+      jest.fn<FeedingPlansRepository['withCreationTransaction']>(),
     archive: jest.fn<FeedingPlansRepository['archive']>(),
   };
   const animalsService = {
     getAnimalRecord: jest.fn<AnimalsService['getAnimalRecord']>(),
     requireActiveAnimal: jest.fn<AnimalsService['requireActiveAnimal']>(),
   };
+  const feedingTasksService = {
+    createScheduledTask: jest.fn<FeedingTasksService['createScheduledTask']>(),
+    scheduledTaskCreationOperations:
+      jest.fn<FeedingTasksService['scheduledTaskCreationOperations']>(),
+  };
   const service = new FeedingPlansService(
     repository as unknown as FeedingPlansRepository,
     animalsService as unknown as AnimalsService,
+    feedingTasksService as unknown as FeedingTasksService,
   );
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    repository.withCreationTransaction.mockImplementation((callback) =>
+      callback(creationOperations, transaction as never),
+    );
+    createPlanOperation.mockResolvedValue({ id: activePlan.id });
+    findPlanOperation.mockResolvedValue(activePlan);
+    feedingTasksService.scheduledTaskCreationOperations.mockReturnValue(
+      taskCreationOperations,
+    );
+  });
 
   it('creates a plan for an active animal with audit identifiers', async () => {
     animalsService.requireActiveAnimal.mockResolvedValueOnce(undefined);
-    repository.create.mockResolvedValueOnce(activePlan);
     await service.create(
       activePlan.animalId,
       {
@@ -59,15 +93,20 @@ describe('FeedingPlansService', () => {
       },
       person.id,
     );
-    expect(repository.create).toHaveBeenCalledWith(
+    expect(createPlanOperation).toHaveBeenCalledWith(
       expect.objectContaining({
         animalId: activePlan.animalId,
         createdById: person.id,
         lastModifiedById: person.id,
       }),
+    );
+    expect(feedingTasksService.createScheduledTask).toHaveBeenCalledWith(
+      activePlan.id,
       new Date('2026-07-01T09:00:00.000Z'),
       person.id,
+      taskCreationOperations,
     );
+    expect(findPlanOperation).toHaveBeenCalledWith(activePlan.id);
   });
 
   it('rejects invalid timestamps', async () => {

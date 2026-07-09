@@ -26,6 +26,16 @@ export interface FeedingTaskResponse {
   };
 }
 
+export interface CreateScheduledTaskData {
+  feedingPlanId: string;
+  scheduledDueAt: Date;
+  lastModifiedById: string;
+}
+
+export interface ScheduledTaskCreationOperations {
+  createScheduledTask(data: CreateScheduledTaskData): Promise<void>;
+}
+
 export const feedingTaskRelations = {
   completedBy: { select: { id: true, name: true } },
   lastModifiedBy: { select: { id: true, name: true } },

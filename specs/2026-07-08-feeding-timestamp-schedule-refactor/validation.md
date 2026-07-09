@@ -68,6 +68,16 @@
 - [x] Animal service method names distinguish public response reads from
   internal record reads.
 
+## Scheduled task creation ownership validation
+
+- [x] `FeedingPlansRepository.create` no longer nests `feedingTasks.create`.
+- [x] `FeedingPlansService.create` asks `FeedingTasksService` to create the
+  first scheduled task.
+- [x] `FeedingTasksService.complete` uses the same scheduled-task creation path
+  for successor tasks.
+- [x] Plan creation plus first task creation remains transaction-bound.
+- [x] Task completion plus successor task creation remains transaction-bound.
+
 ## Focused automated checks
 
 Run focused checks after implementation task groups:
@@ -126,3 +136,21 @@ npm run build
   (frontend 5 files/37 tests, backend 15 suites/77 tests, backend e2e default
   suite passed with database-gated suites skipped).
 - 2026-07-09: `npm.cmd run build` passed.
+- 2026-07-09: `npm.cmd test --workspace backend -- --runInBand feeding-plans feeding-tasks`
+  passed after moving scheduled task creation ownership to `FeedingTasksService`
+  (6 suites, 28 tests).
+- 2026-07-09: `npm.cmd run typecheck --workspace backend` passed after moving
+  scheduled task creation ownership to `FeedingTasksService`.
+- 2026-07-09: `npm.cmd run lint --workspace backend` passed after moving
+  scheduled task creation ownership to `FeedingTasksService`.
+- 2026-07-09: `npm.cmd run format:check` passed after moving scheduled task
+  creation ownership to `FeedingTasksService`.
+- 2026-07-09: Final validation after scheduled task ownership refactor passed:
+  `npm.cmd run format:check`, `npm.cmd run lint`, `npm.cmd run typecheck`,
+  `npm.cmd test`, and `npm.cmd run build`.
+- 2026-07-09: Database-backed feeding checks passed:
+  `npm.cmd run test:feeding-plans:e2e` (5 tests) and
+  `npm.cmd run test:feeding-tasks:e2e` (2 tests).
+- 2026-07-09: Browser smoke passed against local dev server at
+  `http://localhost:5173`; app redirected to `/login`, rendered the Zootracker
+  sign-in screen, and reported no browser console errors.

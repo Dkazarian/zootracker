@@ -44,6 +44,15 @@ export interface CreateFeedingPlanData {
   lastModifiedById: string;
 }
 
+export interface FeedingPlanIdentifierRecord {
+  id: string;
+}
+
+export interface FeedingPlanCreationOperations {
+  create(data: CreateFeedingPlanData): Promise<FeedingPlanIdentifierRecord>;
+  findById(id: string): Promise<FeedingPlanRecord>;
+}
+
 export const feedingPlanRelations = {
   createdBy: { select: { id: true, name: true } },
   lastModifiedBy: { select: { id: true, name: true } },

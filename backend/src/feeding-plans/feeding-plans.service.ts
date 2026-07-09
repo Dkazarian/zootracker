@@ -10,6 +10,7 @@ import {
   toCreateFeedingPlanData,
   toFeedingPlanResponse,
 } from './feeding-plan.mappers';
+import { FeedingTasksService } from '../feeding-tasks/feeding-tasks.service';
 import { getFeedingPlanTiming, parseTimestamp } from './feeding-plan-schedule';
 import type {
   CreateFeedingPlanInput,
@@ -24,6 +25,7 @@ export class FeedingPlansService {
   constructor(
     private readonly repository: FeedingPlansRepository,
     private readonly animalsService: AnimalsService,
+    private readonly feedingTasksService: FeedingTasksService,
   ) {}
 
   async list(
@@ -45,10 +47,20 @@ export class FeedingPlansService {
     userId: string,
   ): Promise<FeedingPlanResponse> {
     await this.animalsService.requireActiveAnimal(animalId);
-    const plan = await this.repository.create(
-      toCreateFeedingPlanData(animalId, input, userId),
-      this.parseInitialDueAt(input.initialDueAt),
-      userId,
+    const initialDueAt = this.parseInitialDueAt(input.initialDueAt);
+    const plan = await this.repository.withCreationTransaction(
+      async (operations, transaction) => {
+        const createdPlan = await operations.create(
+          toCreateFeedingPlanData(animalId, input, userId),
+        );
+        await this.feedingTasksService.createScheduledTask(
+          createdPlan.id,
+          initialDueAt,
+          userId,
+          this.feedingTasksService.scheduledTaskCreationOperations(transaction),
+        );
+        return operations.findById(createdPlan.id);
+      },
     );
     return this.toResponse(plan, new Date());
   }

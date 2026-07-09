@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import type {
   CreateFeedingPlanData,
+  FeedingPlanCreationOperations,
   FeedingPlanListStatus,
   FeedingPlanMutationRecord,
   FeedingPlanRecord,
@@ -39,23 +41,22 @@ export class FeedingPlansRepository {
     });
   }
 
-  create(
-    data: CreateFeedingPlanData,
-    initialDueAt: Date,
-    userId: string,
-  ): Promise<FeedingPlanRecord> {
+  create(data: CreateFeedingPlanData): Promise<FeedingPlanRecord> {
     return this.prisma.feedingPlan.create({
-      data: {
-        ...data,
-        feedingTasks: {
-          create: {
-            scheduledDueAt: initialDueAt,
-            lastModifiedById: userId,
-          },
-        },
-      },
+      data,
       include: feedingPlanRelations,
     });
+  }
+
+  withCreationTransaction<T>(
+    operation: (
+      operations: FeedingPlanCreationOperations,
+      transaction: Prisma.TransactionClient,
+    ) => Promise<T>,
+  ): Promise<T> {
+    return this.prisma.$transaction((transaction) =>
+      operation(this.creationOperations(transaction), transaction),
+    );
   }
 
   archive(planId: string, userId: string): Promise<FeedingPlanRecord> {
@@ -69,5 +70,22 @@ export class FeedingPlansRepository {
         include: feedingPlanRelations,
       });
     });
+  }
+
+  private creationOperations(
+    transaction: Prisma.TransactionClient,
+  ): FeedingPlanCreationOperations {
+    return {
+      create: (data) =>
+        transaction.feedingPlan.create({
+          data,
+          select: { id: true },
+        }),
+      findById: (id) =>
+        transaction.feedingPlan.findUniqueOrThrow({
+          where: { id },
+          include: feedingPlanRelations,
+        }),
+    };
   }
 }

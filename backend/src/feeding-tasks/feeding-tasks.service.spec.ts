@@ -44,6 +44,10 @@ describe('FeedingTasksService', () => {
   const repository = {
     listCompleted: jest.fn<FeedingTasksRepository['listCompleted']>(),
     findById: jest.fn<FeedingTasksRepository['findById']>(),
+    createScheduledTask:
+      jest.fn<FeedingTasksRepository['createScheduledTask']>(),
+    scheduledTaskCreationOperations:
+      jest.fn<FeedingTasksRepository['scheduledTaskCreationOperations']>(),
     complete: jest.fn<FeedingTasksRepository['complete']>(),
     updateCompletion: jest.fn<FeedingTasksRepository['updateCompletion']>(),
     undoCompletion: jest.fn<FeedingTasksRepository['undoCompletion']>(),
@@ -57,6 +61,26 @@ describe('FeedingTasksService', () => {
   );
 
   beforeEach(() => jest.clearAllMocks());
+
+  it('creates a scheduled task with modifier accountability', async () => {
+    const operations = { createScheduledTask: jest.fn<() => Promise<void>>() };
+
+    await service.createScheduledTask(
+      'plan-1',
+      new Date('2026-07-02T09:00:00.000Z'),
+      person.id,
+      operations,
+    );
+
+    expect(repository.createScheduledTask).toHaveBeenCalledWith(
+      {
+        feedingPlanId: 'plan-1',
+        scheduledDueAt: new Date('2026-07-02T09:00:00.000Z'),
+        lastModifiedById: person.id,
+      },
+      operations,
+    );
+  });
 
   it('requires a visible animal before returning completed history', async () => {
     animalsService.getAnimalRecord.mockRejectedValueOnce(
@@ -78,7 +102,13 @@ describe('FeedingTasksService', () => {
       completedBy: person,
     });
     repository.findById.mockResolvedValueOnce(available);
-    repository.complete.mockResolvedValueOnce(completed);
+    const operations = { createScheduledTask: jest.fn<() => Promise<void>>() };
+    repository.complete.mockImplementationOnce(
+      async (_taskId, _userId, _completedAt, _notes, createSuccessor) => {
+        await createSuccessor(operations, available.feedingPlanId);
+        return completed;
+      },
+    );
 
     const response = await service.complete(
       available.id,
@@ -94,7 +124,15 @@ describe('FeedingTasksService', () => {
       person.id,
       new Date('2026-07-02T10:00:00.000Z'),
       'Ate everything',
-      new Date('2026-07-03T09:00:00.000Z'),
+      expect.any(Function),
+    );
+    expect(repository.createScheduledTask).toHaveBeenCalledWith(
+      {
+        feedingPlanId: available.feedingPlanId,
+        scheduledDueAt: new Date('2026-07-03T09:00:00.000Z'),
+        lastModifiedById: person.id,
+      },
+      operations,
     );
     expect(response).toMatchObject({
       id: available.id,

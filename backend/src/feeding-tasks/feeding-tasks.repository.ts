@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import {
+  type CreateScheduledTaskData,
   feedingTaskRelations,
   type FeedingTaskRecord,
+  type ScheduledTaskCreationOperations,
   type UndoCompletionResult,
 } from './feeding-task.types';
 
@@ -28,12 +31,32 @@ export class FeedingTasksRepository {
     });
   }
 
+  createScheduledTask(
+    data: CreateScheduledTaskData,
+    operations = this.scheduledTaskCreationOperations(this.prisma),
+  ): Promise<void> {
+    return operations.createScheduledTask(data);
+  }
+
+  scheduledTaskCreationOperations(
+    client: Prisma.TransactionClient | PrismaService,
+  ): ScheduledTaskCreationOperations {
+    return {
+      createScheduledTask: async (data) => {
+        await client.feedingTask.create({ data });
+      },
+    };
+  }
+
   complete(
     taskId: string,
     userId: string,
     completedAt: Date,
     notes: string | undefined,
-    successorDueAt: Date,
+    createSuccessor: (
+      operations: ScheduledTaskCreationOperations,
+      feedingPlanId: string,
+    ) => Promise<void>,
   ): Promise<FeedingTaskRecord | null> {
     return this.prisma.$transaction(async (transaction) => {
       const transition = await transaction.feedingTask.updateMany({
@@ -52,13 +75,10 @@ export class FeedingTasksRepository {
         where: { id: taskId },
         select: { feedingPlanId: true },
       });
-      await transaction.feedingTask.create({
-        data: {
-          feedingPlanId: current.feedingPlanId,
-          scheduledDueAt: successorDueAt,
-          lastModifiedById: userId,
-        },
-      });
+      await createSuccessor(
+        this.scheduledTaskCreationOperations(transaction),
+        current.feedingPlanId,
+      );
       return transaction.feedingTask.findUniqueOrThrow({
         where: { id: taskId },
         include: feedingTaskRelations,

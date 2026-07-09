@@ -124,3 +124,13 @@ npm run build
   - `getAnimalRecord` returns an `AnimalRecord`;
   - `requireActiveAnimal` validates mutation eligibility.
 - [x] Keep feeding-plan mutation lookup keyed by feeding plan id only.
+
+## Refactor checkpoint - Scheduled task creation ownership
+
+- [x] Move first feeding-task creation out of nested Prisma writes in
+  `FeedingPlansRepository.create`.
+- [x] Add a shared scheduled-task creation path owned by `FeedingTasksService`.
+- [x] Use the shared scheduled-task creation path for both first task creation
+  and successor task creation after completion.
+- [x] Keep plan creation plus first task creation atomic.
+- [x] Keep task completion plus successor task creation atomic.

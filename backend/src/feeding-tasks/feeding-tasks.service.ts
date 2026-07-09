@@ -7,11 +7,15 @@ import {
 import { AnimalsService } from '../animals/animals.service';
 import type { ApplicationRole } from '../common/authorization/application-role';
 import { getZooTimeZone } from '../config/environment';
+import type { Prisma } from '../generated/prisma/client';
 import type { CompleteFeedingTaskDto } from './dto/complete-feeding-task.dto';
 import type { UpdateFeedingTaskCompletionDto } from './dto/update-feeding-task-completion.dto';
 import { toFeedingTaskResponse } from './feeding-task.mappers';
 import { getNextScheduledDueAt } from './feeding-task-schedule';
-import type { FeedingTaskResponse } from './feeding-task.types';
+import type {
+  FeedingTaskResponse,
+  ScheduledTaskCreationOperations,
+} from './feeding-task.types';
 import { FeedingTasksRepository } from './feeding-tasks.repository';
 
 @Injectable()
@@ -29,6 +33,28 @@ export class FeedingTasksService {
     return (await this.repository.listCompleted(animalId)).map(
       toFeedingTaskResponse,
     );
+  }
+
+  createScheduledTask(
+    feedingPlanId: string,
+    scheduledDueAt: Date,
+    userId: string,
+    operations?: ScheduledTaskCreationOperations,
+  ): Promise<void> {
+    return this.repository.createScheduledTask(
+      {
+        feedingPlanId,
+        scheduledDueAt,
+        lastModifiedById: userId,
+      },
+      operations,
+    );
+  }
+
+  scheduledTaskCreationOperations(
+    transaction: Prisma.TransactionClient,
+  ): ScheduledTaskCreationOperations {
+    return this.repository.scheduledTaskCreationOperations(transaction);
   }
 
   async complete(
@@ -60,7 +86,13 @@ export class FeedingTasksService {
       userId,
       completedAt,
       input.notes,
-      successorDueAt,
+      (operations, feedingPlanId) =>
+        this.createScheduledTask(
+          feedingPlanId,
+          successorDueAt,
+          userId,
+          operations,
+        ),
     );
     if (!completed) {
       throw new ConflictException('Feeding task is already completed');
