@@ -121,8 +121,9 @@ function FeedingHistorySection({
               </dl>
               <p>{task.notes || 'No notes.'}</p>
               <p className="feeding-plan-accountability">
-                Completed by {task.completedBy?.name ?? 'Unknown'} · Last
-                changed by {task.lastModifiedBy.name}
+                Claimed by {task.claimedBy?.name ?? 'No one'} · Completed by{' '}
+                {task.completedBy?.name ?? 'Unknown'} · Last changed by{' '}
+                {task.lastModifiedBy.name}
               </p>
               {editTarget?.id === task.id ? (
                 <FeedingTaskCompletionForm

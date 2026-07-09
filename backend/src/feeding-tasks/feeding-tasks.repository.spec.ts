@@ -20,6 +20,7 @@ describe('FeedingTasksRepository', () => {
       findMany: jest.fn<(input: unknown) => Promise<unknown[]>>(),
       findUnique: jest.fn<(input: unknown) => Promise<unknown>>(),
       create: jest.fn<(input: unknown) => Promise<unknown>>(),
+      updateMany: jest.fn<(input: unknown) => Promise<{ count: number }>>(),
       update: jest.fn<(input: unknown) => Promise<unknown>>(),
     },
     $transaction: jest.fn(
@@ -43,6 +44,69 @@ describe('FeedingTasksRepository', () => {
       },
       include: feedingTaskRelations,
       orderBy: [{ completedAt: 'desc' }, { createdAt: 'desc' }],
+    });
+  });
+
+  it('lists open queue tasks with filters and limit', async () => {
+    const now = new Date('2026-07-01T10:00:00.000Z');
+    prisma.feedingTask.findMany.mockResolvedValueOnce([]);
+
+    await repository.listOpen({
+      availability: 'unclaimed',
+      due: 'due',
+      limit: 3,
+      now,
+    });
+
+    expect(prisma.feedingTask.findMany).toHaveBeenCalledWith({
+      where: {
+        status: 'AVAILABLE',
+        feedingPlan: {
+          archivedAt: null,
+          animal: { archivedAt: null },
+        },
+        claimedById: null,
+        scheduledDueAt: { lte: now },
+      },
+      include: feedingTaskRelations,
+      orderBy: [{ scheduledDueAt: 'asc' }, { createdAt: 'asc' }],
+      take: 3,
+    });
+  });
+
+  it('claims and releases tasks conditionally', async () => {
+    prisma.feedingTask.updateMany.mockResolvedValueOnce({ count: 1 });
+    prisma.feedingTask.findUnique.mockResolvedValueOnce({ id: 'task-1' });
+
+    await expect(
+      repository.claim(
+        'task-1',
+        'keeper-1',
+        new Date('2026-07-01T10:00:00.000Z'),
+      ),
+    ).resolves.toEqual({ id: 'task-1' });
+    expect(prisma.feedingTask.updateMany).toHaveBeenCalledWith({
+      where: { id: 'task-1', status: 'AVAILABLE', claimedById: null },
+      data: {
+        claimedById: 'keeper-1',
+        claimedAt: new Date('2026-07-01T10:00:00.000Z'),
+        lastModifiedById: 'keeper-1',
+      },
+    });
+
+    prisma.feedingTask.updateMany.mockResolvedValueOnce({ count: 1 });
+    prisma.feedingTask.findUnique.mockResolvedValueOnce({ id: 'task-1' });
+
+    await expect(
+      repository.releaseClaim('task-1', 'keeper-1'),
+    ).resolves.toEqual({ id: 'task-1' });
+    expect(prisma.feedingTask.updateMany).toHaveBeenCalledWith({
+      where: { id: 'task-1', status: 'AVAILABLE', claimedById: { not: null } },
+      data: {
+        claimedById: null,
+        claimedAt: null,
+        lastModifiedById: 'keeper-1',
+      },
     });
   });
 

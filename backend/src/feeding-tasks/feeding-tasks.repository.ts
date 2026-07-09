@@ -4,6 +4,7 @@ import { PrismaService } from '../database/prisma.service';
 import {
   type CreateScheduledTaskData,
   feedingTaskRelations,
+  type ListOpenFeedingTasksInput,
   type FeedingTaskRecord,
   type ScheduledTaskCreationOperations,
   type UndoCompletionResult,
@@ -24,11 +25,67 @@ export class FeedingTasksRepository {
     });
   }
 
+  listOpen(input: ListOpenFeedingTasksInput): Promise<FeedingTaskRecord[]> {
+    return this.prisma.feedingTask.findMany({
+      where: {
+        status: 'AVAILABLE',
+        feedingPlan: {
+          archivedAt: null,
+          animal: { archivedAt: null },
+        },
+        ...(input.availability === 'unclaimed' ? { claimedById: null } : {}),
+        ...(input.availability === 'claimed'
+          ? { claimedById: { not: null } }
+          : {}),
+        ...(input.due === 'due' ? { scheduledDueAt: { lte: input.now } } : {}),
+        ...(input.due === 'upcoming'
+          ? { scheduledDueAt: { gt: input.now } }
+          : {}),
+      },
+      include: feedingTaskRelations,
+      orderBy: [{ scheduledDueAt: 'asc' }, { createdAt: 'asc' }],
+      ...(input.limit ? { take: input.limit } : {}),
+    });
+  }
+
   findById(taskId: string): Promise<FeedingTaskRecord | null> {
     return this.prisma.feedingTask.findUnique({
       where: { id: taskId },
       include: feedingTaskRelations,
     });
+  }
+
+  async claim(
+    taskId: string,
+    userId: string,
+    claimedAt: Date,
+  ): Promise<FeedingTaskRecord | null> {
+    const transition = await this.prisma.feedingTask.updateMany({
+      where: { id: taskId, status: 'AVAILABLE', claimedById: null },
+      data: {
+        claimedById: userId,
+        claimedAt,
+        lastModifiedById: userId,
+      },
+    });
+    if (transition.count !== 1) return null;
+    return this.findById(taskId);
+  }
+
+  async releaseClaim(
+    taskId: string,
+    userId: string,
+  ): Promise<FeedingTaskRecord | null> {
+    const transition = await this.prisma.feedingTask.updateMany({
+      where: { id: taskId, status: 'AVAILABLE', claimedById: { not: null } },
+      data: {
+        claimedById: null,
+        claimedAt: null,
+        lastModifiedById: userId,
+      },
+    });
+    if (transition.count !== 1) return null;
+    return this.findById(taskId);
   }
 
   createScheduledTask(

@@ -1,6 +1,11 @@
+import { useOutletContext } from 'react-router-dom';
+import type { AuthenticatedOutletContext } from '../auth/AuthenticatedLayout';
+import SharedFeedingQueue from '../feeding-tasks/SharedFeedingQueue';
 import ConnectionCard from './ConnectionCard';
 
 function HomePage() {
+  const { currentUser } = useOutletContext<AuthenticatedOutletContext>();
+
   return (
     <main className="hero">
       <p className="eyebrow">Animal care, clearly tracked</p>
@@ -10,6 +15,7 @@ function HomePage() {
         history into one shared workspace.
       </p>
       <ConnectionCard />
+      <SharedFeedingQueue currentUser={currentUser} />
     </main>
   );
 }

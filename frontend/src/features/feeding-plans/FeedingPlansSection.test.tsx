@@ -62,6 +62,8 @@ const completedTask: FeedingTask = {
   feedingPlanId: plan.id,
   scheduledDueAt: new Date('2030-07-01T09:00:00.000Z'),
   status: 'COMPLETED',
+  claimedBy: null,
+  claimedAt: null,
   completedBy: { id: 'keeper-1', name: 'Kira Keeper' },
   completedAt: new Date('2030-07-01T10:30:00.000Z'),
   notes: 'Ate everything',
@@ -71,6 +73,7 @@ const completedTask: FeedingTask = {
   plan: {
     id: plan.id,
     animalId: plan.animalId,
+    animalName: 'Momo',
     name: plan.name,
     instructions: plan.instructions,
     repeatEveryDays: plan.repeatEveryDays,

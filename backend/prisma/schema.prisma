@@ -41,22 +41,23 @@ model Animal {
 }
 
 model User {
-  id                   String        @id
-  name                 String
-  email                String
-  emailVerified        Boolean       @default(false)
-  image                String?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
-  role                 String        @default("keeper")
-  banned               Boolean?      @default(false)
-  banReason            String?
-  banExpires           DateTime?
-  sessions             Session[]
-  accounts             Account[]
-  createdFeedingPlans  FeedingPlan[] @relation("FeedingPlanCreator")
-  modifiedFeedingPlans FeedingPlan[] @relation("FeedingPlanModifier")
+  id                    String        @id
+  name                  String
+  email                 String
+  emailVerified         Boolean       @default(false)
+  image                 String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  role                  String        @default("keeper")
+  banned                Boolean?      @default(false)
+  banReason             String?
+  banExpires            DateTime?
+  sessions              Session[]
+  accounts              Account[]
+  createdFeedingPlans   FeedingPlan[] @relation("FeedingPlanCreator")
+  modifiedFeedingPlans  FeedingPlan[] @relation("FeedingPlanModifier")
   completedFeedingTasks FeedingTask[] @relation("FeedingTaskCompleter")
+  claimedFeedingTasks   FeedingTask[] @relation("FeedingTaskClaimant")
   modifiedFeedingTasks  FeedingTask[] @relation("FeedingTaskModifier")
 
   @@unique([email])
@@ -92,6 +93,9 @@ model FeedingTask {
   feedingPlan      FeedingPlan       @relation(fields: [feedingPlanId], references: [id], onDelete: Restrict)
   scheduledDueAt   DateTime          @db.Timestamptz(3)
   status           FeedingTaskStatus @default(AVAILABLE)
+  claimedById      String?
+  claimedBy        User?             @relation("FeedingTaskClaimant", fields: [claimedById], references: [id], onDelete: Restrict)
+  claimedAt        DateTime?
   completedById    String?
   completedBy      User?             @relation("FeedingTaskCompleter", fields: [completedById], references: [id], onDelete: Restrict)
   completedAt      DateTime?
@@ -103,7 +107,9 @@ model FeedingTask {
 
   @@index([feedingPlanId, status, scheduledDueAt])
   @@index([status, scheduledDueAt])
+  @@index([status, claimedById, scheduledDueAt])
   @@index([feedingPlanId, status, completedAt])
+  @@index([claimedById])
   @@index([completedById])
   @@index([lastModifiedById])
   @@map("feeding_task")
