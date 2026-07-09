@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { AnimalsService } from '../animals/animals.service';
 import type { ApplicationRole } from '../common/authorization/application-role';
 import {
   toCreateFeedingPlanData,
@@ -20,7 +21,10 @@ import { FeedingPlansRepository } from './feeding-plans.repository';
 
 @Injectable()
 export class FeedingPlansService {
-  constructor(private readonly repository: FeedingPlansRepository) {}
+  constructor(
+    private readonly repository: FeedingPlansRepository,
+    private readonly animalsService: AnimalsService,
+  ) {}
 
   async list(
     animalId: string,
@@ -28,6 +32,7 @@ export class FeedingPlansService {
     status: FeedingPlanListStatus = 'active',
   ): Promise<FeedingPlanResponse[]> {
     await this.requireVisibleAnimal(animalId, role);
+
     const now = new Date();
     return (await this.repository.list(animalId, status)).map((plan) =>
       this.toResponse(plan, now),
@@ -39,7 +44,7 @@ export class FeedingPlansService {
     input: CreateFeedingPlanInput,
     userId: string,
   ): Promise<FeedingPlanResponse> {
-    await this.requireActiveAnimal(animalId);
+    await this.animalsService.requireActiveAnimal(animalId);
     const plan = await this.repository.create(
       toCreateFeedingPlanData(animalId, input, userId),
       this.parseInitialDueAt(input.initialDueAt),
@@ -48,12 +53,8 @@ export class FeedingPlansService {
     return this.toResponse(plan, new Date());
   }
 
-  async archive(
-    animalId: string,
-    planId: string,
-    userId: string,
-  ): Promise<FeedingPlanResponse> {
-    await this.requireMutablePlan(animalId, planId);
+  async archive(planId: string, userId: string): Promise<FeedingPlanResponse> {
+    await this.requireMutablePlan(planId);
     return this.toResponse(
       await this.repository.archive(planId, userId),
       new Date(),
@@ -64,28 +65,14 @@ export class FeedingPlansService {
     animalId: string,
     role: ApplicationRole,
   ): Promise<void> {
-    if (
-      !(await this.repository.findVisibleAnimal(animalId, role === 'admin'))
-    ) {
+    const animal = await this.animalsService.getAnimalRecord(animalId);
+    if (animal.archivedAt && role !== 'admin') {
       throw new NotFoundException('Animal not found');
     }
   }
 
-  private async requireActiveAnimal(animalId: string): Promise<void> {
-    const animal = await this.repository.findAnimalState(animalId);
-    if (!animal) throw new NotFoundException('Animal not found');
-    if (animal.archivedAt) {
-      throw new ConflictException(
-        'Feeding plans cannot be changed for an archived animal',
-      );
-    }
-  }
-
-  private async requireMutablePlan(
-    animalId: string,
-    planId: string,
-  ): Promise<void> {
-    const plan = await this.repository.findPlanForMutation(animalId, planId);
+  private async requireMutablePlan(planId: string): Promise<void> {
+    const plan = await this.repository.findPlanById(planId);
     if (!plan) throw new NotFoundException('Feeding plan not found');
     if (plan.archivedAt) {
       throw new ConflictException('Archived feeding plans cannot be changed');

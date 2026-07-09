@@ -1,5 +1,6 @@
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { jest } from '@jest/globals';
+import { AnimalsService } from '../animals/animals.service';
 import type { FeedingPlanRecord } from './feeding-plan.types';
 import { FeedingPlansRepository } from './feeding-plans.repository';
 import { FeedingPlansService } from './feeding-plans.service';
@@ -30,21 +31,23 @@ const activePlan: FeedingPlanRecord = {
 describe('FeedingPlansService', () => {
   const repository = {
     list: jest.fn<FeedingPlansRepository['list']>(),
-    findVisibleAnimal: jest.fn<FeedingPlansRepository['findVisibleAnimal']>(),
-    findAnimalState: jest.fn<FeedingPlansRepository['findAnimalState']>(),
-    findPlanForMutation:
-      jest.fn<FeedingPlansRepository['findPlanForMutation']>(),
+    findPlanById: jest.fn<FeedingPlansRepository['findPlanById']>(),
     create: jest.fn<FeedingPlansRepository['create']>(),
     archive: jest.fn<FeedingPlansRepository['archive']>(),
   };
+  const animalsService = {
+    getAnimalRecord: jest.fn<AnimalsService['getAnimalRecord']>(),
+    requireActiveAnimal: jest.fn<AnimalsService['requireActiveAnimal']>(),
+  };
   const service = new FeedingPlansService(
     repository as unknown as FeedingPlansRepository,
+    animalsService as unknown as AnimalsService,
   );
 
   beforeEach(() => jest.clearAllMocks());
 
   it('creates a plan for an active animal with audit identifiers', async () => {
-    repository.findAnimalState.mockResolvedValueOnce({ archivedAt: null });
+    animalsService.requireActiveAnimal.mockResolvedValueOnce(undefined);
     repository.create.mockResolvedValueOnce(activePlan);
     await service.create(
       activePlan.animalId,
@@ -68,7 +71,7 @@ describe('FeedingPlansService', () => {
   });
 
   it('rejects invalid timestamps', async () => {
-    repository.findAnimalState.mockResolvedValueOnce({ archivedAt: null });
+    animalsService.requireActiveAnimal.mockResolvedValueOnce(undefined);
     await expect(
       service.create(
         activePlan.animalId,
@@ -84,9 +87,11 @@ describe('FeedingPlansService', () => {
   });
 
   it('rejects plans for archived animals', async () => {
-    repository.findAnimalState.mockResolvedValueOnce({
-      archivedAt: new Date(),
-    });
+    animalsService.requireActiveAnimal.mockRejectedValueOnce(
+      new ConflictException(
+        'Feeding plans cannot be changed for an archived animal',
+      ),
+    );
     await expect(
       service.create(
         activePlan.animalId,
@@ -102,17 +107,17 @@ describe('FeedingPlansService', () => {
   });
 
   it('does not archive an already archived plan', async () => {
-    repository.findPlanForMutation.mockResolvedValueOnce({
+    repository.findPlanById.mockResolvedValueOnce({
       archivedAt: new Date(),
       animal: { archivedAt: null },
     });
     await expect(
-      service.archive(activePlan.animalId, activePlan.id, person.id),
+      service.archive(activePlan.id, person.id),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it('archives an active plan with modifier accountability', async () => {
-    repository.findPlanForMutation.mockResolvedValueOnce({
+    repository.findPlanById.mockResolvedValueOnce({
       archivedAt: null,
       animal: { archivedAt: null },
     });
@@ -120,7 +125,7 @@ describe('FeedingPlansService', () => {
       ...activePlan,
       archivedAt: new Date('2026-07-01T12:00:00.000Z'),
     });
-    await service.archive(activePlan.animalId, activePlan.id, person.id);
+    await service.archive(activePlan.id, person.id);
     expect(repository.archive).toHaveBeenCalledWith(activePlan.id, person.id);
   });
 });

@@ -50,11 +50,10 @@ export class FeedingPlansController {
   @Post(':planId/archive')
   @ApplicationRoles('keeper', 'admin')
   archive(
-    @Param('animalId') animalId: string,
     @Param('planId') planId: string,
     @Session() session: UserSession<typeof auth>,
   ): Promise<FeedingPlanResponse> {
-    return this.feedingPlansService.archive(animalId, planId, session.user.id);
+    return this.feedingPlansService.archive(planId, session.user.id);
   }
 }
 

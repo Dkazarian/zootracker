@@ -56,6 +56,18 @@
 - [x] The refactor is intentionally not final; further component cleanup can
   continue in follow-up commits.
 
+## Backend service-boundary refactor checkpoint validation
+
+- [x] Feeding-plan and feeding-task repositories no longer call `prisma.animal`.
+- [x] `AnimalsRepository.getAnimalById` fetches by id without role visibility
+  options.
+- [x] Feeding services depend on `AnimalsService` for animal existence/state
+  checks.
+- [x] `AnimalsService` does not contain role or permission-specific visibility
+  decisions.
+- [x] Animal service method names distinguish public response reads from
+  internal record reads.
+
 ## Focused automated checks
 
 Run focused checks after implementation task groups:
@@ -105,3 +117,12 @@ npm run build
 - 2026-07-09: `npm.cmd run typecheck --workspace frontend` passed after the
   frontend component extraction and capability-prop refactor. Full test suite
   was intentionally not rerun before this checkpoint commit.
+- 2026-07-09: `npm.cmd test --workspace backend -- --runInBand animals feeding-plans feeding-tasks`
+  passed after the backend service-boundary refactor (8 suites, 45 tests).
+- 2026-07-09: `npm.cmd run format:check` passed.
+- 2026-07-09: `npm.cmd run lint` passed.
+- 2026-07-09: `npm.cmd run typecheck` passed.
+- 2026-07-09: `npm.cmd test` passed
+  (frontend 5 files/37 tests, backend 15 suites/77 tests, backend e2e default
+  suite passed with database-gated suites skipped).
+- 2026-07-09: `npm.cmd run build` passed.

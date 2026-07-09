@@ -16,7 +16,6 @@ describe('FeedingTasksRepository', () => {
     },
   };
   const prisma = {
-    animal: { findFirst: jest.fn<(input: unknown) => Promise<unknown>>() },
     feedingTask: {
       findMany: jest.fn<(input: unknown) => Promise<unknown[]>>(),
       findUnique: jest.fn<(input: unknown) => Promise<unknown>>(),

@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { jest } from '@jest/globals';
+import { AnimalsService } from '../animals/animals.service';
 import type { FeedingTaskRecord } from './feeding-task.types';
 import { FeedingTasksRepository } from './feeding-tasks.repository';
 import { FeedingTasksService } from './feeding-tasks.service';
@@ -41,21 +42,26 @@ function taskRecord(
 
 describe('FeedingTasksService', () => {
   const repository = {
-    findVisibleAnimal: jest.fn<FeedingTasksRepository['findVisibleAnimal']>(),
     listCompleted: jest.fn<FeedingTasksRepository['listCompleted']>(),
     findById: jest.fn<FeedingTasksRepository['findById']>(),
     complete: jest.fn<FeedingTasksRepository['complete']>(),
     updateCompletion: jest.fn<FeedingTasksRepository['updateCompletion']>(),
     undoCompletion: jest.fn<FeedingTasksRepository['undoCompletion']>(),
   };
+  const animalsService = {
+    getAnimalRecord: jest.fn<AnimalsService['getAnimalRecord']>(),
+  };
   const service = new FeedingTasksService(
     repository as unknown as FeedingTasksRepository,
+    animalsService as unknown as AnimalsService,
   );
 
   beforeEach(() => jest.clearAllMocks());
 
   it('requires a visible animal before returning completed history', async () => {
-    repository.findVisibleAnimal.mockResolvedValueOnce(null);
+    animalsService.getAnimalRecord.mockRejectedValueOnce(
+      new NotFoundException('Animal not found'),
+    );
     await expect(
       service.listCompleted('animal-1', 'keeper'),
     ).rejects.toBeInstanceOf(NotFoundException);

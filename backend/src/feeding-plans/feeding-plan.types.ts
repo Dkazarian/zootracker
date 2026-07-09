@@ -67,7 +67,3 @@ export interface FeedingPlanMutationRecord {
   archivedAt: Date | null;
   animal: { archivedAt: Date | null };
 }
-
-export interface AnimalStateRecord {
-  archivedAt: Date | null;
-}

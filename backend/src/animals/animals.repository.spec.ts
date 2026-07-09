@@ -76,20 +76,10 @@ describe('AnimalsRepository', () => {
     });
   });
 
-  it('excludes archived animals from a visibility-scoped read', async () => {
+  it('finds an animal by id without applying visibility rules', async () => {
     animal.findFirst.mockResolvedValueOnce(animalRecord);
 
-    await repository.getAnimalById(animalRecord.id, false);
-
-    expect(animal.findFirst).toHaveBeenCalledWith({
-      where: { id: animalRecord.id, archivedAt: null },
-    });
-  });
-
-  it('includes archived animals when requested', async () => {
-    animal.findFirst.mockResolvedValueOnce(animalRecord);
-
-    await repository.getAnimalById(animalRecord.id, true);
+    await repository.getAnimalById(animalRecord.id);
 
     expect(animal.findFirst).toHaveBeenCalledWith({
       where: { id: animalRecord.id },

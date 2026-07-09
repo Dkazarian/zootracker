@@ -109,3 +109,18 @@ npm run build
   boolean capabilities into `FeedingPlansSection` instead of role/archive state.
 - [x] Keep this as an intermediate refactor checkpoint; further component
   cleanup may continue in later commits.
+
+## Refactor checkpoint - Backend service boundaries
+
+- [x] Move direct animal persistence access out of feeding-plan and feeding-task
+  repositories.
+- [x] Let feeding services ask `AnimalsService` for animal existence/state
+  instead of reading `AnimalsRepository` directly.
+- [x] Keep role visibility decisions in controllers or feature callers, not in
+  `AnimalsService`.
+- [x] Rename animal service methods so public response reads and internal record
+  reads are distinguishable:
+  - `getAnimal` returns an `AnimalResponse`;
+  - `getAnimalRecord` returns an `AnimalRecord`;
+  - `requireActiveAnimal` validates mutation eligibility.
+- [x] Keep feeding-plan mutation lookup keyed by feeding plan id only.

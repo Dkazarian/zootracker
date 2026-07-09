@@ -4,6 +4,7 @@
 
 - `backend/prisma/schema.prisma`
 - `backend/prisma/migrations/`
+- `backend/src/animals/`
 - `backend/src/feeding-plans/`
 - `backend/src/feeding-tasks/`
 - `backend/test/feeding-plans-flow.e2e-spec.ts`
@@ -46,3 +47,5 @@
 - 2026-07-09: Added `frontend/src/features/animals/AnimalDetailPage.tsx` and
   `frontend/src/features/animals/components/` for component extraction around
   animal archive confirmation and animal profile details.
+- 2026-07-09: Added `backend/src/animals/` for the animal service/repository
+  boundary refactor needed by feeding-plan and feeding-task services.

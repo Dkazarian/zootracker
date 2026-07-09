@@ -1,11 +1,9 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { ApplicationRole } from '../common/authorization/application-role';
 import type {
   AnimalRecord,
   AnimalResponse,
@@ -25,17 +23,8 @@ import { AnimalsRepository } from './animals.repository';
 export class AnimalsService {
   constructor(private readonly repository: AnimalsRepository) {}
 
-  async list(
-    query: ListAnimalsInput,
-    role: ApplicationRole,
-  ): Promise<AnimalResponse[]> {
+  async list(query: ListAnimalsInput): Promise<AnimalResponse[]> {
     const status = query.status ?? 'active';
-
-    if (status !== 'active' && role !== 'admin') {
-      throw new ForbiddenException(
-        'You do not have permission to view archived animals',
-      );
-    }
 
     const animals = await this.repository.getAnimalsByQuery({
       search: query.search,
@@ -45,14 +34,26 @@ export class AnimalsService {
     return toAnimalResponses(animals);
   }
 
-  async get(id: string, role: ApplicationRole): Promise<AnimalResponse> {
-    const animal = await this.repository.getAnimalById(id, role === 'admin');
+  async getAnimal(id: string): Promise<AnimalResponse> {
+    const animal = await this.getAnimalRecord(id);
+    return toAnimalResponse(animal);
+  }
+
+  async getAnimalRecord(id: string): Promise<AnimalRecord> {
+    const animal = await this.repository.getAnimalById(id);
 
     if (!animal) {
       throw new NotFoundException('Animal not found');
     }
 
-    return toAnimalResponse(animal);
+    return animal;
+  }
+
+  async requireActiveAnimal(id: string): Promise<void> {
+    const animal = await this.getAnimalRecord(id);
+    if (isAnimalArchived(animal)) {
+      throw new ConflictException('Animal is archived');
+    }
   }
 
   async create(input: CreateAnimalInput): Promise<AnimalResponse> {
@@ -70,11 +71,7 @@ export class AnimalsService {
       throw new BadRequestException('Provide at least one field to update');
     }
 
-    const animal = await this.repository.getAnimalById(id, true);
-
-    if (!animal) {
-      throw new NotFoundException('Animal not found');
-    }
+    const animal = await this.getAnimalRecord(id);
 
     if (isAnimalArchived(animal)) {
       throw new ConflictException('Cannot update an archived animal');
@@ -94,11 +91,7 @@ export class AnimalsService {
   }
 
   async archive(id: string): Promise<AnimalResponse> {
-    const animal = await this.repository.getAnimalById(id, true);
-
-    if (!animal) {
-      throw new NotFoundException('Animal not found');
-    }
+    const animal = await this.getAnimalRecord(id);
 
     if (isAnimalArchived(animal)) {
       throw new ConflictException('Animal is already archived');

@@ -223,7 +223,7 @@ describe('FeedingPlansSection', () => {
       await screen.findByRole('heading', { name: 'Plan history' }),
     ).toBeInTheDocument();
     expect(apiMocks.listFeedingPlanHistory).toHaveBeenCalledWith('animal-1');
-    expect(screen.getByText('Old morning fruit')).toBeInTheDocument();
+    expect(await screen.findByText('Old morning fruit')).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Archive Old morning fruit' }),
     ).not.toBeInTheDocument();

@@ -60,16 +60,9 @@ export class AnimalsRepository {
     });
   }
 
-  async getAnimalById(
-    id: string,
-    includeArchived: boolean,
-  ): Promise<AnimalRecord | null> {
-    const where: Prisma.AnimalWhereInput = includeArchived
-      ? { id }
-      : { id, archivedAt: null };
-
+  async getAnimalById(id: string): Promise<AnimalRecord | null> {
     return this.prisma.animal.findFirst({
-      where,
+      where: { id },
     });
   }
 

@@ -7,6 +7,7 @@ import {
   Post,
   Query,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { auth } from '../auth/auth';
@@ -31,15 +32,25 @@ export class AnimalsController {
     @Query() query: ListAnimalsDto,
     @Session() session: UserSession<typeof auth>,
   ): Promise<AnimalResponse[]> {
-    return this.animalsService.list(query, getSessionRole(session.user.role));
+    const role = getSessionRole(session.user.role);
+    if ((query.status ?? 'active') !== 'active' && role !== 'admin') {
+      throw new ForbiddenException(
+        'You do not have permission to view archived animals',
+      );
+    }
+    return this.animalsService.list(query);
   }
 
   @Get(':id')
-  get(
+  async get(
     @Param('id') id: string,
     @Session() session: UserSession<typeof auth>,
   ): Promise<AnimalResponse> {
-    return this.animalsService.get(id, getSessionRole(session.user.role));
+    const animal = await this.animalsService.getAnimal(id);
+    if (animal.archivedAt && getSessionRole(session.user.role) !== 'admin') {
+      throw new NotFoundException('Animal not found');
+    }
+    return animal;
   }
 
   @Post()

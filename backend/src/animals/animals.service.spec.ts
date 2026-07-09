@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { jest } from '@jest/globals';
@@ -42,27 +41,38 @@ describe('AnimalsService', () => {
   it('defaults lists to active animals and maps repository records', async () => {
     repository.getAnimalsByQuery.mockResolvedValueOnce([activeAnimal]);
 
-    await expect(service.list({}, 'keeper')).resolves.toEqual([activeAnimal]);
+    await expect(service.list({})).resolves.toEqual([activeAnimal]);
     expect(repository.getAnimalsByQuery).toHaveBeenCalledWith({
       search: undefined,
       status: 'active',
     });
   });
 
-  it('does not let a keeper request archived animals', async () => {
-    await expect(
-      service.list({ status: 'archived' }, 'keeper'),
-    ).rejects.toBeInstanceOf(ForbiddenException);
-    expect(repository.getAnimalsByQuery).not.toHaveBeenCalled();
-  });
-
-  it('returns not found when an animal is not visible', async () => {
+  it('returns not found when an animal does not exist', async () => {
     repository.getAnimalById.mockResolvedValueOnce(null);
 
-    await expect(service.get('missing', 'keeper')).rejects.toBeInstanceOf(
+    await expect(service.getAnimal('missing')).rejects.toBeInstanceOf(
       NotFoundException,
     );
-    expect(repository.getAnimalById).toHaveBeenCalledWith('missing', false);
+    expect(repository.getAnimalById).toHaveBeenCalledWith('missing');
+  });
+
+  it('returns archived animals without applying role visibility', async () => {
+    const archived = { ...activeAnimal, archivedAt: new Date() };
+    repository.getAnimalById.mockResolvedValueOnce(archived);
+
+    await expect(service.getAnimal(activeAnimal.id)).resolves.toEqual(archived);
+  });
+
+  it('requires active animals for mutation workflows', async () => {
+    repository.getAnimalById.mockResolvedValueOnce({
+      ...activeAnimal,
+      archivedAt: new Date(),
+    });
+
+    await expect(
+      service.requireActiveAnimal(activeAnimal.id),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it.each([

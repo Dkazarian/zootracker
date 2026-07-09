@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { AnimalsService } from '../animals/animals.service';
 import type { ApplicationRole } from '../common/authorization/application-role';
 import { getZooTimeZone } from '../config/environment';
 import type { CompleteFeedingTaskDto } from './dto/complete-feeding-task.dto';
@@ -15,15 +16,16 @@ import { FeedingTasksRepository } from './feeding-tasks.repository';
 
 @Injectable()
 export class FeedingTasksService {
-  constructor(private readonly repository: FeedingTasksRepository) {}
+  constructor(
+    private readonly repository: FeedingTasksRepository,
+    private readonly animalsService: AnimalsService,
+  ) {}
 
   async listCompleted(
     animalId: string,
     role: ApplicationRole,
   ): Promise<FeedingTaskResponse[]> {
-    if (!(await this.repository.findVisibleAnimal(animalId, role))) {
-      throw new NotFoundException('Animal not found');
-    }
+    await this.requireVisibleAnimal(animalId, role);
     return (await this.repository.listCompleted(animalId)).map(
       toFeedingTaskResponse,
     );
@@ -119,6 +121,16 @@ export class FeedingTasksService {
     const task = await this.repository.findById(taskId);
     if (!task) throw new NotFoundException('Feeding task not found');
     return task;
+  }
+
+  private async requireVisibleAnimal(
+    animalId: string,
+    role: ApplicationRole,
+  ): Promise<void> {
+    const animal = await this.animalsService.getAnimalRecord(animalId);
+    if (animal.archivedAt && role !== 'admin') {
+      throw new NotFoundException('Animal not found');
+    }
   }
 
   private parseCompletionTime(value: string | undefined, now: Date): Date {

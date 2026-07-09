@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import type { ApplicationRole } from '../common/authorization/application-role';
 import {
   feedingTaskRelations,
   type FeedingTaskRecord,
@@ -10,19 +9,6 @@ import {
 @Injectable()
 export class FeedingTasksRepository {
   constructor(private readonly prisma: PrismaService) {}
-
-  findVisibleAnimal(
-    animalId: string,
-    role: ApplicationRole,
-  ): Promise<{ id: string } | null> {
-    return this.prisma.animal.findFirst({
-      where: {
-        id: animalId,
-        ...(role === 'admin' ? {} : { archivedAt: null }),
-      },
-      select: { id: true },
-    });
-  }
 
   listCompleted(animalId: string): Promise<FeedingTaskRecord[]> {
     return this.prisma.feedingTask.findMany({
