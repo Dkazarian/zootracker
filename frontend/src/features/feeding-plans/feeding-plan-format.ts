@@ -1,5 +1,14 @@
 import type { FeedingPeriod, FeedingPlan } from './feeding-plan-api';
-import { formatDateOnlyForUi } from '../../shared/date/date-format';
+import {
+  formatTimestampDateForUi,
+  getZonedHour,
+} from '../../shared/date/date-format';
+
+const FEEDING_PERIOD_BY_HOUR: Record<number, FeedingPeriod> = {
+  6: 'morning',
+  12: 'afternoon',
+  18: 'evening',
+};
 
 export function formatFeedingPeriod(period: FeedingPeriod): string {
   return `${period.charAt(0).toUpperCase()}${period.slice(1)}`;
@@ -9,8 +18,16 @@ export function formatRecurrence(days: number): string {
   return days === 1 ? 'Every day' : `Every ${days} days`;
 }
 
-export function formatFeedingDate(dateOnly: string): string {
-  return formatDateOnlyForUi(dateOnly);
+export function formatFeedingDate(dueAt: Date): string {
+  return formatTimestampDateForUi(dueAt);
+}
+
+export function formatFeedingTimeHint(dueAt: Date): string {
+  const hour = getZonedHour(dueAt);
+  const period = hour === null ? null : FEEDING_PERIOD_BY_HOUR[hour];
+  if (period) return formatFeedingPeriod(period);
+  if (hour === null) return 'Scheduled';
+  return `${String(hour).padStart(2, '0')}:00`;
 }
 
 export function formatPlanStatus(

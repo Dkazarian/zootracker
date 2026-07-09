@@ -1,4 +1,3 @@
-import { formatDateOnly } from '../feeding-plans/feeding-plan-schedule';
 import type {
   FeedingTaskRecord,
   FeedingTaskResponse,
@@ -10,7 +9,7 @@ export function toFeedingTaskResponse(
   return {
     id: task.id,
     feedingPlanId: task.feedingPlanId,
-    scheduledDueDate: formatDateOnly(task.scheduledDueDate),
+    scheduledDueAt: task.scheduledDueAt,
     status: task.status,
     completedBy: task.completedBy,
     completedAt: task.completedAt,
@@ -23,7 +22,6 @@ export function toFeedingTaskResponse(
       animalId: task.feedingPlan.animalId,
       name: task.feedingPlan.name,
       instructions: task.feedingPlan.instructions,
-      period: task.feedingPlan.period,
       repeatEveryDays: task.feedingPlan.repeatEveryDays,
       archivedAt: task.feedingPlan.archivedAt,
     },

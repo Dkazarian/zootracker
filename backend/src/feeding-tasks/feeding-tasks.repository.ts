@@ -47,7 +47,7 @@ export class FeedingTasksRepository {
     userId: string,
     completedAt: Date,
     notes: string | undefined,
-    successorDate: Date,
+    successorDueAt: Date,
   ): Promise<FeedingTaskRecord | null> {
     return this.prisma.$transaction(async (transaction) => {
       const transition = await transaction.feedingTask.updateMany({
@@ -69,7 +69,7 @@ export class FeedingTasksRepository {
       await transaction.feedingTask.create({
         data: {
           feedingPlanId: current.feedingPlanId,
-          scheduledDueDate: successorDate,
+          scheduledDueAt: successorDueAt,
           lastModifiedById: userId,
         },
       });
@@ -114,7 +114,7 @@ export class FeedingTasksRepository {
           where: {
             feedingPlanId: task.feedingPlanId,
             status: 'COMPLETED',
-            scheduledDueDate: { gt: task.scheduledDueDate },
+            scheduledDueAt: { gt: task.scheduledDueAt },
           },
           select: { id: true },
         });

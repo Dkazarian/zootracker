@@ -3,9 +3,11 @@ import {
   formatDateForInput,
   formatDateForUi,
   formatDateOnlyForUi,
+  formatTimestampDateForUi,
   getTodayDateOnly,
   getTomorrowUiDate,
   parseUiDate,
+  zonedDateTimeToIsoTimestamp,
 } from './date-format';
 
 describe('date format helpers', () => {
@@ -14,6 +16,9 @@ describe('date format helpers', () => {
       '12/05/2004',
     );
     expect(formatDateOnlyForUi('2030-07-01')).toBe('01/07/2030');
+    expect(formatTimestampDateForUi(new Date('2030-07-01T09:00:00.000Z'))).toBe(
+      '01/07/2030',
+    );
     expect(formatDateForInput(null)).toBe('');
   });
 
@@ -32,5 +37,11 @@ describe('date format helpers', () => {
     const now = new Date(2026, 6, 1, 23, 59);
     expect(getTodayDateOnly(now)).toBe('2026-07-01');
     expect(getTomorrowUiDate(now)).toBe('02/07/2026');
+  });
+
+  it('converts zoo-local date and hour to an ISO timestamp', () => {
+    expect(zonedDateTimeToIsoTimestamp('2030-07-02', 18)).toBe(
+      '2030-07-02T21:00:00.000Z',
+    );
   });
 });

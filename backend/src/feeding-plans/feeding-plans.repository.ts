@@ -65,7 +65,7 @@ export class FeedingPlansRepository {
 
   create(
     data: CreateFeedingPlanData,
-    initialDueDate: Date,
+    initialDueAt: Date,
     userId: string,
   ): Promise<FeedingPlanRecord> {
     return this.prisma.feedingPlan.create({
@@ -73,7 +73,7 @@ export class FeedingPlansRepository {
         ...data,
         feedingTasks: {
           create: {
-            scheduledDueDate: initialDueDate,
+            scheduledDueAt: initialDueAt,
             lastModifiedById: userId,
           },
         },

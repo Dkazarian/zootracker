@@ -1,11 +1,12 @@
-import type { FeedingPeriod } from '../generated/prisma/client';
 import type { FeedingPlanStatus } from './feeding-plan.types';
 
-export const FEEDING_PERIOD_START_HOURS: Record<FeedingPeriod, number> = {
+export const FEEDING_PERIOD_START_HOURS = {
   morning: 6,
   afternoon: 12,
   evening: 18,
-};
+} as const;
+
+export type FeedingPeriod = keyof typeof FEEDING_PERIOD_START_HOURS;
 
 export interface FeedingPlanTiming {
   status: FeedingPlanStatus;
@@ -13,17 +14,9 @@ export interface FeedingPlanTiming {
 }
 
 export function getFeedingPlanTiming(
-  nextDueDate: Date,
-  period: FeedingPeriod,
+  dueAt: Date,
   now: Date,
-  timeZone: string,
 ): FeedingPlanTiming {
-  const dueAt = zonedDateTimeToUtc(
-    formatDateOnly(nextDueDate),
-    FEEDING_PERIOD_START_HOURS[period],
-    timeZone,
-  );
-
   if (now < dueAt) {
     return { status: 'upcoming', minutesPastDue: null };
   }
@@ -34,25 +27,23 @@ export function getFeedingPlanTiming(
   };
 }
 
-export function formatDateOnly(value: Date): string {
-  return value.toISOString().slice(0, 10);
-}
-
-export function parseDateOnly(value: string): Date {
-  const date = new Date(`${value}T00:00:00.000Z`);
-  if (Number.isNaN(date.getTime()) || formatDateOnly(date) !== value) {
-    throw new Error('Invalid calendar date');
+export function parseTimestamp(value: string): Date {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error('Invalid timestamp');
   }
   return date;
 }
 
-function zonedDateTimeToUtc(
+export function zonedDateTimeToUtc(
   dateOnly: string,
   hour: number,
   timeZone: string,
+  minute = 0,
+  second = 0,
 ): Date {
   const [year, month, day] = dateOnly.split('-').map(Number);
-  const utcGuess = Date.UTC(year, month - 1, day, hour);
+  const utcGuess = Date.UTC(year, month - 1, day, hour, minute, second);
   let result = new Date(utcGuess);
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -71,7 +62,7 @@ function zonedDateTimeToUtc(
   return result;
 }
 
-function getZonedParts(value: Date, timeZone: string) {
+export function getZonedParts(value: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone,
     year: 'numeric',

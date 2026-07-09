@@ -5,12 +5,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { ApplicationRole } from '../common/authorization/application-role';
-import { getZooTimeZone } from '../config/environment';
 import {
   toCreateFeedingPlanData,
   toFeedingPlanResponse,
 } from './feeding-plan.mappers';
-import { getFeedingPlanTiming, parseDateOnly } from './feeding-plan-schedule';
+import { getFeedingPlanTiming, parseTimestamp } from './feeding-plan-schedule';
 import type {
   CreateFeedingPlanInput,
   FeedingPlanListStatus,
@@ -43,7 +42,7 @@ export class FeedingPlansService {
     await this.requireActiveAnimal(animalId);
     const plan = await this.repository.create(
       toCreateFeedingPlanData(animalId, input, userId),
-      this.parseInitialDueDate(input.initialDueDate),
+      this.parseInitialDueAt(input.initialDueAt),
       userId,
     );
     return this.toResponse(plan, new Date());
@@ -98,13 +97,11 @@ export class FeedingPlansService {
     }
   }
 
-  private parseInitialDueDate(value: string): Date {
+  private parseInitialDueAt(value: string): Date {
     try {
-      return parseDateOnly(value);
+      return parseTimestamp(value);
     } catch {
-      throw new BadRequestException(
-        'initialDueDate must be a valid calendar date',
-      );
+      throw new BadRequestException('initialDueAt must be a valid timestamp');
     }
   }
 
@@ -118,12 +115,7 @@ export class FeedingPlansService {
     }
     return toFeedingPlanResponse(
       plan,
-      getFeedingPlanTiming(
-        currentTask.scheduledDueDate,
-        plan.period,
-        now,
-        getZooTimeZone(),
-      ),
+      getFeedingPlanTiming(currentTask.scheduledDueAt, now),
     );
   }
 }

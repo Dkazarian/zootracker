@@ -57,7 +57,7 @@ describe('FeedingTasksRepository', () => {
       'keeper-1',
       new Date('2026-07-01T10:00:00.000Z'),
       'Ate everything',
-      new Date('2026-07-02T00:00:00.000Z'),
+      new Date('2026-07-02T09:00:00.000Z'),
     );
 
     expect(transaction.feedingTask.updateMany).toHaveBeenCalledWith({
@@ -73,7 +73,7 @@ describe('FeedingTasksRepository', () => {
     expect(transaction.feedingTask.create).toHaveBeenCalledWith({
       data: {
         feedingPlanId: 'plan-1',
-        scheduledDueDate: new Date('2026-07-02T00:00:00.000Z'),
+        scheduledDueAt: new Date('2026-07-02T09:00:00.000Z'),
         lastModifiedById: 'keeper-1',
       },
     });
@@ -88,7 +88,7 @@ describe('FeedingTasksRepository', () => {
         'keeper-1',
         new Date('2026-07-01T10:00:00.000Z'),
         undefined,
-        new Date('2026-07-02T00:00:00.000Z'),
+        new Date('2026-07-02T09:00:00.000Z'),
       ),
     ).resolves.toBeNull();
     expect(transaction.feedingTask.create).not.toHaveBeenCalled();
@@ -98,7 +98,7 @@ describe('FeedingTasksRepository', () => {
     transaction.feedingTask.findUnique.mockResolvedValueOnce({
       id: 'task-1',
       feedingPlanId: 'plan-1',
-      scheduledDueDate: new Date('2026-07-01T00:00:00.000Z'),
+      scheduledDueAt: new Date('2026-07-01T09:00:00.000Z'),
       status: 'COMPLETED',
     });
     transaction.feedingTask.findFirst

@@ -1,8 +1,4 @@
-import type {
-  FeedingPeriod,
-  FeedingTaskStatus,
-  Prisma,
-} from '../generated/prisma/client';
+import type { FeedingTaskStatus, Prisma } from '../generated/prisma/client';
 
 export interface FeedingTaskPersonResponse {
   id: string;
@@ -12,7 +8,7 @@ export interface FeedingTaskPersonResponse {
 export interface FeedingTaskResponse {
   id: string;
   feedingPlanId: string;
-  scheduledDueDate: string;
+  scheduledDueAt: Date;
   status: FeedingTaskStatus;
   completedBy: FeedingTaskPersonResponse | null;
   completedAt: Date | null;
@@ -25,7 +21,6 @@ export interface FeedingTaskResponse {
     animalId: string;
     name: string;
     instructions: string;
-    period: FeedingPeriod;
     repeatEveryDays: number;
     archivedAt: Date | null;
   };
@@ -40,7 +35,6 @@ export const feedingTaskRelations = {
       animalId: true,
       name: true,
       instructions: true,
-      period: true,
       repeatEveryDays: true,
       archivedAt: true,
       animal: { select: { archivedAt: true } },

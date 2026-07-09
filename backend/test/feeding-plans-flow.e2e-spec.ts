@@ -117,9 +117,8 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       .send({
         name: ' Evening meal ',
         instructions: ' Hay and leafy greens ',
-        period: 'evening',
         repeatEveryDays: 1,
-        initialDueDate: '2030-07-01',
+        initialDueAt: '2030-07-01T21:00:00.000Z',
       })
       .expect(201);
     const morningResponse = await keeperAgent
@@ -127,9 +126,8 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       .send({
         name: 'Morning fruit',
         instructions: '3 bananas and an apple',
-        period: 'morning',
         repeatEveryDays: 2,
-        initialDueDate: '2030-07-01',
+        initialDueAt: '2030-07-01T09:00:00.000Z',
       })
       .expect(201);
     const evening = eveningResponse.body as {
@@ -145,7 +143,7 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       instructions: 'Hay and leafy greens',
       createdBy: { name: keeper.name },
       currentTask: {
-        scheduledDueDate: '2030-07-01',
+        scheduledDueAt: '2030-07-01T21:00:00.000Z',
         status: 'AVAILABLE',
       },
     });
@@ -168,9 +166,8 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       .send({
         name: 'Revised evening meal',
         instructions: 'Hay, leafy greens, and branches',
-        period: 'evening',
         repeatEveryDays: 2,
-        initialDueDate: '2030-07-03',
+        initialDueAt: '2030-07-03T21:00:00.000Z',
       })
       .expect(201);
     const newPlan = newPlanResponse.body as { id: string };
@@ -218,9 +215,8 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       .send({
         name: 'Administrator plan',
         instructions: 'Browse and fresh fruit',
-        period: 'afternoon',
         repeatEveryDays: 1,
-        initialDueDate: '2030-07-01',
+        initialDueAt: '2030-07-01T15:00:00.000Z',
       })
       .expect(201);
     const created = create.body as { id: string };
@@ -245,9 +241,8 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
     const validPlan = {
       name: 'Morning fruit',
       instructions: '3 bananas and an apple',
-      period: 'morning',
       repeatEveryDays: 1,
-      initialDueDate: '2030-07-01',
+      initialDueAt: '2030-07-01T09:00:00.000Z',
     };
 
     await keeperAgent
@@ -256,7 +251,7 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       .expect(400);
     await keeperAgent
       .post(basePath)
-      .send({ ...validPlan, period: 'night' })
+      .send({ ...validPlan, period: 'morning' })
       .expect(400);
     await keeperAgent
       .post(basePath)
@@ -268,7 +263,11 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       .expect(400);
     await keeperAgent
       .post(basePath)
-      .send({ ...validPlan, initialDueDate: '2030-02-30' })
+      .send({ ...validPlan, initialDueAt: 'not-a-timestamp' })
+      .expect(400);
+    await keeperAgent
+      .post(basePath)
+      .send({ ...validPlan, initialDueDate: '2030-07-01' })
       .expect(400);
     await keeperAgent
       .post(basePath)
@@ -289,9 +288,8 @@ describeWithDatabase('Feeding plans (database e2e)', () => {
       .send({
         name: 'Morning fruit',
         instructions: '3 bananas and an apple',
-        period: 'morning',
         repeatEveryDays: 1,
-        initialDueDate: '2030-07-01',
+        initialDueAt: '2030-07-01T09:00:00.000Z',
       })
       .expect(201);
 

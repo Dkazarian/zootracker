@@ -27,7 +27,7 @@ export type AggregateFeedingTask = {
 export type FeedingTaskMinAggregateOutputType = {
   id: string | null
   feedingPlanId: string | null
-  scheduledDueDate: Date | null
+  scheduledDueAt: Date | null
   status: $Enums.FeedingTaskStatus | null
   completedById: string | null
   completedAt: Date | null
@@ -40,7 +40,7 @@ export type FeedingTaskMinAggregateOutputType = {
 export type FeedingTaskMaxAggregateOutputType = {
   id: string | null
   feedingPlanId: string | null
-  scheduledDueDate: Date | null
+  scheduledDueAt: Date | null
   status: $Enums.FeedingTaskStatus | null
   completedById: string | null
   completedAt: Date | null
@@ -53,7 +53,7 @@ export type FeedingTaskMaxAggregateOutputType = {
 export type FeedingTaskCountAggregateOutputType = {
   id: number
   feedingPlanId: number
-  scheduledDueDate: number
+  scheduledDueAt: number
   status: number
   completedById: number
   completedAt: number
@@ -68,7 +68,7 @@ export type FeedingTaskCountAggregateOutputType = {
 export type FeedingTaskMinAggregateInputType = {
   id?: true
   feedingPlanId?: true
-  scheduledDueDate?: true
+  scheduledDueAt?: true
   status?: true
   completedById?: true
   completedAt?: true
@@ -81,7 +81,7 @@ export type FeedingTaskMinAggregateInputType = {
 export type FeedingTaskMaxAggregateInputType = {
   id?: true
   feedingPlanId?: true
-  scheduledDueDate?: true
+  scheduledDueAt?: true
   status?: true
   completedById?: true
   completedAt?: true
@@ -94,7 +94,7 @@ export type FeedingTaskMaxAggregateInputType = {
 export type FeedingTaskCountAggregateInputType = {
   id?: true
   feedingPlanId?: true
-  scheduledDueDate?: true
+  scheduledDueAt?: true
   status?: true
   completedById?: true
   completedAt?: true
@@ -180,7 +180,7 @@ export type FeedingTaskGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type FeedingTaskGroupByOutputType = {
   id: string
   feedingPlanId: string
-  scheduledDueDate: Date
+  scheduledDueAt: Date
   status: $Enums.FeedingTaskStatus
   completedById: string | null
   completedAt: Date | null
@@ -214,7 +214,7 @@ export type FeedingTaskWhereInput = {
   NOT?: Prisma.FeedingTaskWhereInput | Prisma.FeedingTaskWhereInput[]
   id?: Prisma.StringFilter<"FeedingTask"> | string
   feedingPlanId?: Prisma.StringFilter<"FeedingTask"> | string
-  scheduledDueDate?: Prisma.DateTimeFilter<"FeedingTask"> | Date | string
+  scheduledDueAt?: Prisma.DateTimeFilter<"FeedingTask"> | Date | string
   status?: Prisma.EnumFeedingTaskStatusFilter<"FeedingTask"> | $Enums.FeedingTaskStatus
   completedById?: Prisma.StringNullableFilter<"FeedingTask"> | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"FeedingTask"> | Date | string | null
@@ -230,7 +230,7 @@ export type FeedingTaskWhereInput = {
 export type FeedingTaskOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   feedingPlanId?: Prisma.SortOrder
-  scheduledDueDate?: Prisma.SortOrder
+  scheduledDueAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   completedById?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -245,12 +245,11 @@ export type FeedingTaskOrderByWithRelationInput = {
 
 export type FeedingTaskWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  feedingPlanId_scheduledDueDate?: Prisma.FeedingTaskFeedingPlanIdScheduledDueDateCompoundUniqueInput
   AND?: Prisma.FeedingTaskWhereInput | Prisma.FeedingTaskWhereInput[]
   OR?: Prisma.FeedingTaskWhereInput[]
   NOT?: Prisma.FeedingTaskWhereInput | Prisma.FeedingTaskWhereInput[]
   feedingPlanId?: Prisma.StringFilter<"FeedingTask"> | string
-  scheduledDueDate?: Prisma.DateTimeFilter<"FeedingTask"> | Date | string
+  scheduledDueAt?: Prisma.DateTimeFilter<"FeedingTask"> | Date | string
   status?: Prisma.EnumFeedingTaskStatusFilter<"FeedingTask"> | $Enums.FeedingTaskStatus
   completedById?: Prisma.StringNullableFilter<"FeedingTask"> | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"FeedingTask"> | Date | string | null
@@ -261,12 +260,12 @@ export type FeedingTaskWhereUniqueInput = Prisma.AtLeast<{
   feedingPlan?: Prisma.XOR<Prisma.FeedingPlanScalarRelationFilter, Prisma.FeedingPlanWhereInput>
   completedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   lastModifiedBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id" | "feedingPlanId_scheduledDueDate">
+}, "id">
 
 export type FeedingTaskOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   feedingPlanId?: Prisma.SortOrder
-  scheduledDueDate?: Prisma.SortOrder
+  scheduledDueAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   completedById?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -285,7 +284,7 @@ export type FeedingTaskScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FeedingTaskScalarWhereWithAggregatesInput | Prisma.FeedingTaskScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"FeedingTask"> | string
   feedingPlanId?: Prisma.StringWithAggregatesFilter<"FeedingTask"> | string
-  scheduledDueDate?: Prisma.DateTimeWithAggregatesFilter<"FeedingTask"> | Date | string
+  scheduledDueAt?: Prisma.DateTimeWithAggregatesFilter<"FeedingTask"> | Date | string
   status?: Prisma.EnumFeedingTaskStatusWithAggregatesFilter<"FeedingTask"> | $Enums.FeedingTaskStatus
   completedById?: Prisma.StringNullableWithAggregatesFilter<"FeedingTask"> | string | null
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FeedingTask"> | Date | string | null
@@ -297,7 +296,7 @@ export type FeedingTaskScalarWhereWithAggregatesInput = {
 
 export type FeedingTaskCreateInput = {
   id?: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedAt?: Date | string | null
   notes?: string | null
@@ -311,7 +310,7 @@ export type FeedingTaskCreateInput = {
 export type FeedingTaskUncheckedCreateInput = {
   id?: string
   feedingPlanId: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedById?: string | null
   completedAt?: Date | string | null
@@ -323,7 +322,7 @@ export type FeedingTaskUncheckedCreateInput = {
 
 export type FeedingTaskUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -337,7 +336,7 @@ export type FeedingTaskUpdateInput = {
 export type FeedingTaskUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   feedingPlanId?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -350,7 +349,7 @@ export type FeedingTaskUncheckedUpdateInput = {
 export type FeedingTaskCreateManyInput = {
   id?: string
   feedingPlanId: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedById?: string | null
   completedAt?: Date | string | null
@@ -362,7 +361,7 @@ export type FeedingTaskCreateManyInput = {
 
 export type FeedingTaskUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -373,7 +372,7 @@ export type FeedingTaskUpdateManyMutationInput = {
 export type FeedingTaskUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   feedingPlanId?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -393,15 +392,10 @@ export type FeedingTaskOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type FeedingTaskFeedingPlanIdScheduledDueDateCompoundUniqueInput = {
-  feedingPlanId: string
-  scheduledDueDate: Date | string
-}
-
 export type FeedingTaskCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   feedingPlanId?: Prisma.SortOrder
-  scheduledDueDate?: Prisma.SortOrder
+  scheduledDueAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   completedById?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
@@ -414,7 +408,7 @@ export type FeedingTaskCountOrderByAggregateInput = {
 export type FeedingTaskMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   feedingPlanId?: Prisma.SortOrder
-  scheduledDueDate?: Prisma.SortOrder
+  scheduledDueAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   completedById?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
@@ -427,7 +421,7 @@ export type FeedingTaskMaxOrderByAggregateInput = {
 export type FeedingTaskMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   feedingPlanId?: Prisma.SortOrder
-  scheduledDueDate?: Prisma.SortOrder
+  scheduledDueAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   completedById?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
@@ -569,7 +563,7 @@ export type EnumFeedingTaskStatusFieldUpdateOperationsInput = {
 
 export type FeedingTaskCreateWithoutCompletedByInput = {
   id?: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedAt?: Date | string | null
   notes?: string | null
@@ -582,7 +576,7 @@ export type FeedingTaskCreateWithoutCompletedByInput = {
 export type FeedingTaskUncheckedCreateWithoutCompletedByInput = {
   id?: string
   feedingPlanId: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedAt?: Date | string | null
   notes?: string | null
@@ -603,7 +597,7 @@ export type FeedingTaskCreateManyCompletedByInputEnvelope = {
 
 export type FeedingTaskCreateWithoutLastModifiedByInput = {
   id?: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedAt?: Date | string | null
   notes?: string | null
@@ -616,7 +610,7 @@ export type FeedingTaskCreateWithoutLastModifiedByInput = {
 export type FeedingTaskUncheckedCreateWithoutLastModifiedByInput = {
   id?: string
   feedingPlanId: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedById?: string | null
   completedAt?: Date | string | null
@@ -657,7 +651,7 @@ export type FeedingTaskScalarWhereInput = {
   NOT?: Prisma.FeedingTaskScalarWhereInput | Prisma.FeedingTaskScalarWhereInput[]
   id?: Prisma.StringFilter<"FeedingTask"> | string
   feedingPlanId?: Prisma.StringFilter<"FeedingTask"> | string
-  scheduledDueDate?: Prisma.DateTimeFilter<"FeedingTask"> | Date | string
+  scheduledDueAt?: Prisma.DateTimeFilter<"FeedingTask"> | Date | string
   status?: Prisma.EnumFeedingTaskStatusFilter<"FeedingTask"> | $Enums.FeedingTaskStatus
   completedById?: Prisma.StringNullableFilter<"FeedingTask"> | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"FeedingTask"> | Date | string | null
@@ -685,7 +679,7 @@ export type FeedingTaskUpdateManyWithWhereWithoutLastModifiedByInput = {
 
 export type FeedingTaskCreateWithoutFeedingPlanInput = {
   id?: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedAt?: Date | string | null
   notes?: string | null
@@ -697,7 +691,7 @@ export type FeedingTaskCreateWithoutFeedingPlanInput = {
 
 export type FeedingTaskUncheckedCreateWithoutFeedingPlanInput = {
   id?: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedById?: string | null
   completedAt?: Date | string | null
@@ -736,7 +730,7 @@ export type FeedingTaskUpdateManyWithWhereWithoutFeedingPlanInput = {
 export type FeedingTaskCreateManyCompletedByInput = {
   id?: string
   feedingPlanId: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedAt?: Date | string | null
   notes?: string | null
@@ -748,7 +742,7 @@ export type FeedingTaskCreateManyCompletedByInput = {
 export type FeedingTaskCreateManyLastModifiedByInput = {
   id?: string
   feedingPlanId: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedById?: string | null
   completedAt?: Date | string | null
@@ -759,7 +753,7 @@ export type FeedingTaskCreateManyLastModifiedByInput = {
 
 export type FeedingTaskUpdateWithoutCompletedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -772,7 +766,7 @@ export type FeedingTaskUpdateWithoutCompletedByInput = {
 export type FeedingTaskUncheckedUpdateWithoutCompletedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   feedingPlanId?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -784,7 +778,7 @@ export type FeedingTaskUncheckedUpdateWithoutCompletedByInput = {
 export type FeedingTaskUncheckedUpdateManyWithoutCompletedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   feedingPlanId?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -795,7 +789,7 @@ export type FeedingTaskUncheckedUpdateManyWithoutCompletedByInput = {
 
 export type FeedingTaskUpdateWithoutLastModifiedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -808,7 +802,7 @@ export type FeedingTaskUpdateWithoutLastModifiedByInput = {
 export type FeedingTaskUncheckedUpdateWithoutLastModifiedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   feedingPlanId?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -820,7 +814,7 @@ export type FeedingTaskUncheckedUpdateWithoutLastModifiedByInput = {
 export type FeedingTaskUncheckedUpdateManyWithoutLastModifiedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   feedingPlanId?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -831,7 +825,7 @@ export type FeedingTaskUncheckedUpdateManyWithoutLastModifiedByInput = {
 
 export type FeedingTaskCreateManyFeedingPlanInput = {
   id?: string
-  scheduledDueDate: Date | string
+  scheduledDueAt: Date | string
   status?: $Enums.FeedingTaskStatus
   completedById?: string | null
   completedAt?: Date | string | null
@@ -843,7 +837,7 @@ export type FeedingTaskCreateManyFeedingPlanInput = {
 
 export type FeedingTaskUpdateWithoutFeedingPlanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -855,7 +849,7 @@ export type FeedingTaskUpdateWithoutFeedingPlanInput = {
 
 export type FeedingTaskUncheckedUpdateWithoutFeedingPlanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -867,7 +861,7 @@ export type FeedingTaskUncheckedUpdateWithoutFeedingPlanInput = {
 
 export type FeedingTaskUncheckedUpdateManyWithoutFeedingPlanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  scheduledDueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledDueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumFeedingTaskStatusFieldUpdateOperationsInput | $Enums.FeedingTaskStatus
   completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -882,7 +876,7 @@ export type FeedingTaskUncheckedUpdateManyWithoutFeedingPlanInput = {
 export type FeedingTaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   feedingPlanId?: boolean
-  scheduledDueDate?: boolean
+  scheduledDueAt?: boolean
   status?: boolean
   completedById?: boolean
   completedAt?: boolean
@@ -898,7 +892,7 @@ export type FeedingTaskSelect<ExtArgs extends runtime.Types.Extensions.InternalA
 export type FeedingTaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   feedingPlanId?: boolean
-  scheduledDueDate?: boolean
+  scheduledDueAt?: boolean
   status?: boolean
   completedById?: boolean
   completedAt?: boolean
@@ -914,7 +908,7 @@ export type FeedingTaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
 export type FeedingTaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   feedingPlanId?: boolean
-  scheduledDueDate?: boolean
+  scheduledDueAt?: boolean
   status?: boolean
   completedById?: boolean
   completedAt?: boolean
@@ -930,7 +924,7 @@ export type FeedingTaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 export type FeedingTaskSelectScalar = {
   id?: boolean
   feedingPlanId?: boolean
-  scheduledDueDate?: boolean
+  scheduledDueAt?: boolean
   status?: boolean
   completedById?: boolean
   completedAt?: boolean
@@ -940,7 +934,7 @@ export type FeedingTaskSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FeedingTaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "feedingPlanId" | "scheduledDueDate" | "status" | "completedById" | "completedAt" | "notes" | "lastModifiedById" | "createdAt" | "updatedAt", ExtArgs["result"]["feedingTask"]>
+export type FeedingTaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "feedingPlanId" | "scheduledDueAt" | "status" | "completedById" | "completedAt" | "notes" | "lastModifiedById" | "createdAt" | "updatedAt", ExtArgs["result"]["feedingTask"]>
 export type FeedingTaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   feedingPlan?: boolean | Prisma.FeedingPlanDefaultArgs<ExtArgs>
   completedBy?: boolean | Prisma.FeedingTask$completedByArgs<ExtArgs>
@@ -967,7 +961,7 @@ export type $FeedingTaskPayload<ExtArgs extends runtime.Types.Extensions.Interna
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     feedingPlanId: string
-    scheduledDueDate: Date
+    scheduledDueAt: Date
     status: $Enums.FeedingTaskStatus
     completedById: string | null
     completedAt: Date | null
@@ -1403,7 +1397,7 @@ export interface Prisma__FeedingTaskClient<T, Null = never, ExtArgs extends runt
 export interface FeedingTaskFieldRefs {
   readonly id: Prisma.FieldRef<"FeedingTask", 'String'>
   readonly feedingPlanId: Prisma.FieldRef<"FeedingTask", 'String'>
-  readonly scheduledDueDate: Prisma.FieldRef<"FeedingTask", 'DateTime'>
+  readonly scheduledDueAt: Prisma.FieldRef<"FeedingTask", 'DateTime'>
   readonly status: Prisma.FieldRef<"FeedingTask", 'FeedingTaskStatus'>
   readonly completedById: Prisma.FieldRef<"FeedingTask", 'String'>
   readonly completedAt: Prisma.FieldRef<"FeedingTask", 'DateTime'>

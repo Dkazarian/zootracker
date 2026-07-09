@@ -178,13 +178,6 @@ export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedBoolNullableFilter<$PrismaModel>
 }
 
-export type EnumFeedingPeriodFilter<$PrismaModel = never> = {
-  equals?: $Enums.FeedingPeriod | Prisma.EnumFeedingPeriodFieldRefInput<$PrismaModel>
-  in?: $Enums.FeedingPeriod[] | Prisma.ListEnumFeedingPeriodFieldRefInput<$PrismaModel>
-  notIn?: $Enums.FeedingPeriod[] | Prisma.ListEnumFeedingPeriodFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumFeedingPeriodFilter<$PrismaModel> | $Enums.FeedingPeriod
-}
-
 export type IntFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel>
   in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
@@ -194,16 +187,6 @@ export type IntFilter<$PrismaModel = never> = {
   gt?: number | Prisma.IntFieldRefInput<$PrismaModel>
   gte?: number | Prisma.IntFieldRefInput<$PrismaModel>
   not?: Prisma.NestedIntFilter<$PrismaModel> | number
-}
-
-export type EnumFeedingPeriodWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.FeedingPeriod | Prisma.EnumFeedingPeriodFieldRefInput<$PrismaModel>
-  in?: $Enums.FeedingPeriod[] | Prisma.ListEnumFeedingPeriodFieldRefInput<$PrismaModel>
-  notIn?: $Enums.FeedingPeriod[] | Prisma.ListEnumFeedingPeriodFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumFeedingPeriodWithAggregatesFilter<$PrismaModel> | $Enums.FeedingPeriod
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumFeedingPeriodFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumFeedingPeriodFilter<$PrismaModel>
 }
 
 export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -414,23 +397,6 @@ export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedBoolNullableFilter<$PrismaModel>
   _max?: Prisma.NestedBoolNullableFilter<$PrismaModel>
-}
-
-export type NestedEnumFeedingPeriodFilter<$PrismaModel = never> = {
-  equals?: $Enums.FeedingPeriod | Prisma.EnumFeedingPeriodFieldRefInput<$PrismaModel>
-  in?: $Enums.FeedingPeriod[] | Prisma.ListEnumFeedingPeriodFieldRefInput<$PrismaModel>
-  notIn?: $Enums.FeedingPeriod[] | Prisma.ListEnumFeedingPeriodFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumFeedingPeriodFilter<$PrismaModel> | $Enums.FeedingPeriod
-}
-
-export type NestedEnumFeedingPeriodWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.FeedingPeriod | Prisma.EnumFeedingPeriodFieldRefInput<$PrismaModel>
-  in?: $Enums.FeedingPeriod[] | Prisma.ListEnumFeedingPeriodFieldRefInput<$PrismaModel>
-  notIn?: $Enums.FeedingPeriod[] | Prisma.ListEnumFeedingPeriodFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumFeedingPeriodWithAggregatesFilter<$PrismaModel> | $Enums.FeedingPeriod
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumFeedingPeriodFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumFeedingPeriodFilter<$PrismaModel>
 }
 
 export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {

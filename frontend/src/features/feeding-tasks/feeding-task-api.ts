@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { apiRequest } from '../../shared/api/http';
-import { feedingPeriodSchema } from '../feeding-plans/feeding-plan-api';
 
 const personSchema = z.object({
   id: z.string().min(1),
@@ -10,7 +9,7 @@ const personSchema = z.object({
 const feedingTaskSchema = z.object({
   id: z.string().min(1),
   feedingPlanId: z.string().min(1),
-  scheduledDueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  scheduledDueAt: z.coerce.date(),
   status: z.enum(['AVAILABLE', 'COMPLETED']),
   completedBy: personSchema.nullable(),
   completedAt: z.coerce.date().nullable(),
@@ -23,7 +22,6 @@ const feedingTaskSchema = z.object({
     animalId: z.string().min(1),
     name: z.string().min(1),
     instructions: z.string().min(1),
-    period: feedingPeriodSchema,
     repeatEveryDays: z.number().int().positive(),
     archivedAt: z.coerce.date().nullable(),
   }),

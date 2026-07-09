@@ -8,8 +8,10 @@ import {
 } from 'react-router-dom';
 import type { AuthenticatedOutletContext } from '../auth/AuthenticatedLayout';
 import FeedingPlansSection from '../feeding-plans/FeedingPlansSection';
+import { canManage as canManageFeedingPlans } from '../feeding-plans/feeding-plan-permissions';
 import { animalQueryKey, archiveAnimal, getAnimal } from './animal-api';
-import { formatAnimalDate, formatAnimalSex } from './animal-format';
+import AnimalArchiveConfirmation from './components/AnimalArchiveConfirmation';
+import AnimalProfileDetails from './components/AnimalProfileDetails';
 import SpeciesIllustration from './SpeciesIllustration';
 
 function getErrorMessage(error: unknown): string {
@@ -99,37 +101,12 @@ function AnimalDetailPage() {
       />
 
       {confirmingArchive && (
-        <section
-          className="archive-confirmation"
-          role="alertdialog"
-          aria-labelledby="archive-confirmation-title"
-          aria-describedby="archive-confirmation-description"
-        >
-          <div>
-            <h2 id="archive-confirmation-title">Archive {animal.name}?</h2>
-            <p id="archive-confirmation-description">
-              The profile will leave the active directory and become read-only.
-            </p>
-          </div>
-          <div className="profile-actions">
-            <button
-              className="button-danger"
-              type="button"
-              disabled={archiveMutation.isPending}
-              onClick={() => archiveMutation.mutate()}
-            >
-              {archiveMutation.isPending ? 'Archiving...' : 'Archive animal'}
-            </button>
-            <button
-              className="button-secondary"
-              type="button"
-              disabled={archiveMutation.isPending}
-              onClick={() => setConfirmingArchive(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </section>
+        <AnimalArchiveConfirmation
+          animalName={animal.name}
+          submitting={archiveMutation.isPending}
+          onConfirm={() => archiveMutation.mutate()}
+          onCancel={() => setConfirmingArchive(false)}
+        />
       )}
 
       {archiveMutation.isError && (
@@ -138,33 +115,12 @@ function AnimalDetailPage() {
         </p>
       )}
 
-      <dl className="animal-profile-details">
-        <div>
-          <dt>Sex</dt>
-          <dd>{formatAnimalSex(animal.sex)}</dd>
-        </div>
-        <div>
-          <dt>Date of birth</dt>
-          <dd>{formatAnimalDate(animal.dateOfBirth)}</dd>
-        </div>
-        <div>
-          <dt>Arrival date</dt>
-          <dd>{formatAnimalDate(animal.arrivalDate)}</dd>
-        </div>
-        <div>
-          <dt>Current location</dt>
-          <dd>{animal.currentLocation ?? 'Not recorded'}</dd>
-        </div>
-        <div className="animal-profile-notes">
-          <dt>Notes</dt>
-          <dd>{animal.notes ?? 'No notes recorded.'}</dd>
-        </div>
-      </dl>
+      <AnimalProfileDetails animal={animal} />
 
       <FeedingPlansSection
         animalId={animal.id}
-        animalArchived={Boolean(animal.archivedAt)}
-        currentUserRole={currentUser.role}
+        canManage={canManageFeedingPlans(currentUser) && !animal.archivedAt}
+        canUndoCompletions={currentUser.role === 'admin'}
       />
     </main>
   );

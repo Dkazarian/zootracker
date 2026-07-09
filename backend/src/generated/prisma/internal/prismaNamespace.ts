@@ -1006,7 +1006,6 @@ export const FeedingPlanScalarFieldEnum = {
   animalId: 'animalId',
   name: 'name',
   instructions: 'instructions',
-  period: 'period',
   repeatEveryDays: 'repeatEveryDays',
   createdById: 'createdById',
   lastModifiedById: 'lastModifiedById',
@@ -1021,7 +1020,7 @@ export type FeedingPlanScalarFieldEnum = (typeof FeedingPlanScalarFieldEnum)[key
 export const FeedingTaskScalarFieldEnum = {
   id: 'id',
   feedingPlanId: 'feedingPlanId',
-  scheduledDueDate: 'scheduledDueDate',
+  scheduledDueAt: 'scheduledDueAt',
   status: 'status',
   completedById: 'completedById',
   completedAt: 'completedAt',
@@ -1156,20 +1155,6 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-/**
- * Reference to a field of type 'FeedingPeriod'
- */
-export type EnumFeedingPeriodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedingPeriod'>
-    
-
-
-/**
- * Reference to a field of type 'FeedingPeriod[]'
- */
-export type ListEnumFeedingPeriodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedingPeriod[]'>
     
 
 

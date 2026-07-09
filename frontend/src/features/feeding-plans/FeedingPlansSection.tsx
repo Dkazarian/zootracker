@@ -1,8 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { ApplicationRole } from '../../shared/auth/application-role';
 import FeedingHistorySection from '../feeding-tasks/FeedingHistorySection';
-import FeedingTaskCompletionForm from '../feeding-tasks/FeedingTaskCompletionForm';
 import {
   completeFeedingTask,
   feedingTaskHistoryQueryKey,
@@ -18,18 +16,16 @@ import {
   type FeedingPlan,
   type FeedingPlanInput,
 } from './feeding-plan-api';
-import {
-  formatFeedingDate,
-  formatFeedingPeriod,
-  formatPlanStatus,
-  formatRecurrence,
-} from './feeding-plan-format';
-import FeedingPlanForm from './FeedingPlanForm';
+import ActiveFeedingPlanList from './components/ActiveFeedingPlanList';
+import ArchivedFeedingPlansPanel from './components/ArchivedFeedingPlansPanel';
+import FeedingPlanArchiveConfirmation from './components/FeedingPlanArchiveConfirmation';
+import FeedingTaskCompletionPanel from './components/FeedingTaskCompletionPanel';
+import NewFeedingPlanPanel from './components/NewFeedingPlanPanel';
 
 interface FeedingPlansSectionProps {
   animalId: string;
-  animalArchived: boolean;
-  currentUserRole: ApplicationRole;
+  canManage: boolean;
+  canUndoCompletions: boolean;
 }
 
 function getErrorMessage(error: unknown): string {
@@ -40,8 +36,8 @@ function getErrorMessage(error: unknown): string {
 
 function FeedingPlansSection({
   animalId,
-  animalArchived,
-  currentUserRole,
+  canManage,
+  canUndoCompletions,
 }: FeedingPlansSectionProps) {
   const queryClient = useQueryClient();
   const [formOpen, setFormOpen] = useState(false);
@@ -99,10 +95,6 @@ function FeedingPlansSection({
       await refreshPlans();
     },
   });
-  const canManage =
-    (currentUserRole === 'keeper' || currentUserRole === 'admin') &&
-    !animalArchived;
-
   const savePlan = (input: FeedingPlanInput) => {
     createMutation.mutate(input);
   };
@@ -122,59 +114,29 @@ function FeedingPlansSection({
       </div>
 
       {formOpen && (
-        <section className="feeding-plan-form-card">
-          <h3>New feeding plan</h3>
-          <FeedingPlanForm
-            submitting={createMutation.isPending}
-            serverError={
-              createMutation.isError
-                ? getErrorMessage(createMutation.error)
-                : ''
-            }
-            onCancel={() => {
-              createMutation.reset();
-              setFormOpen(false);
-            }}
-            onSave={savePlan}
-          />
-        </section>
+        <NewFeedingPlanPanel
+          submitting={createMutation.isPending}
+          serverError={
+            createMutation.isError ? getErrorMessage(createMutation.error) : ''
+          }
+          onCancel={() => {
+            createMutation.reset();
+            setFormOpen(false);
+          }}
+          onSave={savePlan}
+        />
       )}
 
       {archiveTarget && (
-        <section
-          className="archive-confirmation"
-          role="alertdialog"
-          aria-labelledby="plan-archive-title"
-          aria-describedby="plan-archive-description"
-        >
-          <div>
-            <h3 id="plan-archive-title">Archive {archiveTarget.name}?</h3>
-            <p id="plan-archive-description">
-              It will stop appearing as active feeding work.
-            </p>
-          </div>
-          <div className="profile-actions">
-            <button
-              className="button-danger"
-              type="button"
-              disabled={archiveMutation.isPending}
-              onClick={() => archiveMutation.mutate(archiveTarget.id)}
-            >
-              {archiveMutation.isPending ? 'Archiving...' : 'Archive plan'}
-            </button>
-            <button
-              className="button-secondary"
-              type="button"
-              disabled={archiveMutation.isPending}
-              onClick={() => {
-                archiveMutation.reset();
-                setArchiveTarget(null);
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </section>
+        <FeedingPlanArchiveConfirmation
+          planName={archiveTarget.name}
+          submitting={archiveMutation.isPending}
+          onConfirm={() => archiveMutation.mutate(archiveTarget.id)}
+          onCancel={() => {
+            archiveMutation.reset();
+            setArchiveTarget(null);
+          }}
+        />
       )}
 
       {archiveMutation.isError && (
@@ -184,29 +146,26 @@ function FeedingPlansSection({
       )}
 
       {completionTarget?.currentTask && (
-        <section className="feeding-plan-form-card">
-          <h3>Complete {completionTarget.name}</h3>
-          <p>{completionTarget.instructions}</p>
-          <FeedingTaskCompletionForm
-            submitting={completionMutation.isPending}
-            submitLabel="Record feeding"
-            serverError={
-              completionMutation.isError
-                ? getErrorMessage(completionMutation.error)
-                : undefined
-            }
-            onCancel={() => {
-              completionMutation.reset();
-              setCompletionTarget(null);
-            }}
-            onSave={(input) =>
-              completionMutation.mutate({
-                taskId: completionTarget.currentTask!.id,
-                input,
-              })
-            }
-          />
-        </section>
+        <FeedingTaskCompletionPanel
+          planName={completionTarget.name}
+          instructions={completionTarget.instructions}
+          submitting={completionMutation.isPending}
+          serverError={
+            completionMutation.isError
+              ? getErrorMessage(completionMutation.error)
+              : undefined
+          }
+          onCancel={() => {
+            completionMutation.reset();
+            setCompletionTarget(null);
+          }}
+          onSave={(input) =>
+            completionMutation.mutate({
+              taskId: completionTarget.currentTask!.id,
+              input,
+            })
+          }
+        />
       )}
 
       {plansQuery.isPending && (
@@ -229,69 +188,12 @@ function FeedingPlansSection({
       )}
 
       {plansQuery.isSuccess && plansQuery.data.length > 0 && (
-        <ul className="feeding-plan-list">
-          {plansQuery.data.map((plan) => (
-            <li
-              className="feeding-plan-card"
-              id={`feeding-plan-${plan.id}`}
-              key={plan.id}
-            >
-              <div className="feeding-plan-summary">
-                <div>
-                  <p className="card-label">
-                    {formatFeedingPeriod(plan.period)}
-                  </p>
-                  <h3>{plan.name}</h3>
-                </div>
-                <span
-                  className={`feeding-status feeding-status--${plan.status}`}
-                >
-                  {formatPlanStatus(plan)}
-                </span>
-              </div>
-              <p className="feeding-plan-instructions">{plan.instructions}</p>
-              <dl className="feeding-plan-details">
-                <div>
-                  <dt>Schedule</dt>
-                  <dd>{formatRecurrence(plan.repeatEveryDays)}</dd>
-                </div>
-                <div>
-                  <dt>Next feeding</dt>
-                  <dd>
-                    {plan.currentTask
-                      ? `${formatFeedingDate(
-                          plan.currentTask.scheduledDueDate,
-                        )} · ${formatFeedingPeriod(plan.period)}`
-                      : 'Not scheduled'}
-                  </dd>
-                </div>
-              </dl>
-              <p className="feeding-plan-accountability">
-                Created by {plan.createdBy.name} · Last changed by{' '}
-                {plan.lastModifiedBy.name}
-              </p>
-              {canManage && (
-                <div className="profile-actions">
-                  {plan.currentTask && (
-                    <button
-                      type="button"
-                      onClick={() => setCompletionTarget(plan)}
-                    >
-                      Record feeding
-                    </button>
-                  )}
-                  <button
-                    className="button-danger"
-                    type="button"
-                    onClick={() => setArchiveTarget(plan)}
-                  >
-                    Archive {plan.name}
-                  </button>
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+        <ActiveFeedingPlanList
+          plans={plansQuery.data}
+          canManage={canManage}
+          onRecordFeeding={setCompletionTarget}
+          onArchive={setArchiveTarget}
+        />
       )}
 
       {plansQuery.isSuccess && (
@@ -307,71 +209,20 @@ function FeedingPlansSection({
       )}
 
       {showHistory && (
-        <div id="feeding-plan-history">
-          {historyQuery.isPending && (
-            <p className="page-state" aria-live="polite">
-              Loading archived plans...
-            </p>
-          )}
-          {historyQuery.isError && (
-            <div className="page-state page-state--error" role="alert">
-              <p>{getErrorMessage(historyQuery.error)}</p>
-              <button type="button" onClick={() => void historyQuery.refetch()}>
-                Try loading archived plans again
-              </button>
-            </div>
-          )}
-          {historyQuery.isSuccess && historyQuery.data.length === 0 && (
-            <p className="page-state">No archived feeding plans.</p>
-          )}
-          {historyQuery.isSuccess && historyQuery.data.length > 0 && (
-            <section aria-labelledby="feeding-plan-history-title">
-              <div className="section-heading">
-                <div>
-                  <p className="eyebrow">Preserved versions</p>
-                  <h3 id="feeding-plan-history-title">Plan history</h3>
-                </div>
-              </div>
-              <ul className="feeding-plan-list">
-                {historyQuery.data.map((plan) => (
-                  <li
-                    className="feeding-plan-card"
-                    id={`feeding-plan-${plan.id}`}
-                    key={plan.id}
-                  >
-                    <div className="feeding-plan-summary">
-                      <div>
-                        <p className="card-label">
-                          {formatFeedingPeriod(plan.period)}
-                        </p>
-                        <h4>{plan.name}</h4>
-                      </div>
-                      <span className="feeding-status">Archived</span>
-                    </div>
-                    <p className="feeding-plan-instructions">
-                      {plan.instructions}
-                    </p>
-                    <dl className="feeding-plan-details">
-                      <div>
-                        <dt>Schedule</dt>
-                        <dd>{formatRecurrence(plan.repeatEveryDays)}</dd>
-                      </div>
-                    </dl>
-                    <p className="feeding-plan-accountability">
-                      Created by {plan.createdBy.name} · Last changed by{' '}
-                      {plan.lastModifiedBy.name}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </div>
+        <ArchivedFeedingPlansPanel
+          isPending={historyQuery.isPending}
+          isError={historyQuery.isError}
+          errorMessage={
+            historyQuery.isError ? getErrorMessage(historyQuery.error) : ''
+          }
+          plans={historyQuery.data}
+          onRetry={() => void historyQuery.refetch()}
+        />
       )}
 
       <FeedingHistorySection
         animalId={animalId}
-        currentUserRole={currentUserRole}
+        canUndoCompletions={canUndoCompletions}
         plansQueryKey={feedingPlanQueryKey(animalId)}
       />
     </section>

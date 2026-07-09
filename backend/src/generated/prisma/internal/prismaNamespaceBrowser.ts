@@ -115,7 +115,6 @@ export const FeedingPlanScalarFieldEnum = {
   animalId: 'animalId',
   name: 'name',
   instructions: 'instructions',
-  period: 'period',
   repeatEveryDays: 'repeatEveryDays',
   createdById: 'createdById',
   lastModifiedById: 'lastModifiedById',
@@ -130,7 +129,7 @@ export type FeedingPlanScalarFieldEnum = (typeof FeedingPlanScalarFieldEnum)[key
 export const FeedingTaskScalarFieldEnum = {
   id: 'id',
   feedingPlanId: 'feedingPlanId',
-  scheduledDueDate: 'scheduledDueDate',
+  scheduledDueAt: 'scheduledDueAt',
   status: 'status',
   completedById: 'completedById',
   completedAt: 'completedAt',

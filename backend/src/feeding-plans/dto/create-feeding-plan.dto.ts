@@ -1,19 +1,6 @@
 import { Transform, Type } from 'class-transformer';
-import {
-  IsEnum,
-  IsInt,
-  IsString,
-  Length,
-  Matches,
-  Max,
-  MaxLength,
-  Min,
-} from 'class-validator';
-import type { FeedingPeriod } from '../../generated/prisma/client';
+import { IsISO8601, IsInt, IsString, Length, Max, Min } from 'class-validator';
 import { normalizeFeedingPlanText } from './feeding-plan-dto.helpers';
-
-const FEEDING_PERIODS = ['morning', 'afternoon', 'evening'] as const;
-const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export class CreateFeedingPlanDto {
   @IsString()
@@ -26,9 +13,6 @@ export class CreateFeedingPlanDto {
   @Transform(normalizeFeedingPlanText)
   instructions!: string;
 
-  @IsEnum(FEEDING_PERIODS)
-  period!: FeedingPeriod;
-
   @Type(() => Number)
   @IsInt()
   @Min(1)
@@ -36,9 +20,6 @@ export class CreateFeedingPlanDto {
   repeatEveryDays!: number;
 
   @IsString()
-  @MaxLength(10)
-  @Matches(DATE_ONLY_PATTERN, {
-    message: 'initialDueDate must use YYYY-MM-DD format',
-  })
-  initialDueDate!: string;
+  @IsISO8601({ strict: true })
+  initialDueAt!: string;
 }

@@ -42,11 +42,10 @@ const plan: FeedingPlan = {
   animalId: 'animal-1',
   name: 'Morning fruit',
   instructions: '3 bananas and an apple',
-  period: 'morning',
   repeatEveryDays: 1,
   currentTask: {
     id: 'task-1',
-    scheduledDueDate: '2030-07-01',
+    scheduledDueAt: new Date('2030-07-01T09:00:00.000Z'),
     status: 'AVAILABLE',
   },
   createdBy: { id: 'keeper-1', name: 'Kira Keeper' },
@@ -61,7 +60,7 @@ const plan: FeedingPlan = {
 const completedTask: FeedingTask = {
   id: 'task-1',
   feedingPlanId: plan.id,
-  scheduledDueDate: '2030-07-01',
+  scheduledDueAt: new Date('2030-07-01T09:00:00.000Z'),
   status: 'COMPLETED',
   completedBy: { id: 'keeper-1', name: 'Kira Keeper' },
   completedAt: new Date('2030-07-01T10:30:00.000Z'),
@@ -74,7 +73,6 @@ const completedTask: FeedingTask = {
     animalId: plan.animalId,
     name: plan.name,
     instructions: plan.instructions,
-    period: plan.period,
     repeatEveryDays: plan.repeatEveryDays,
     archivedAt: null,
   },
@@ -84,12 +82,13 @@ function renderSection(role: 'keeper' | 'admin' = 'keeper') {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
+  const isAdmin = role === 'admin';
   return render(
     <QueryClientProvider client={queryClient}>
       <FeedingPlansSection
         animalId="animal-1"
-        animalArchived={false}
-        currentUserRole={role}
+        canManage
+        canUndoCompletions={isAdmin}
       />
     </QueryClientProvider>,
   );
@@ -166,9 +165,8 @@ describe('FeedingPlansSection', () => {
       expect(apiMocks.createFeedingPlan).toHaveBeenCalledWith('animal-1', {
         name: 'Evening meal',
         instructions: 'Hay and leafy greens',
-        period: 'evening',
         repeatEveryDays: 2,
-        initialDueDate: '2030-07-02',
+        initialDueAt: '2030-07-02T21:00:00.000Z',
       }),
     );
   });

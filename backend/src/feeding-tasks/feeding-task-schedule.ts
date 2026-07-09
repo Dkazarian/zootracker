@@ -1,42 +1,48 @@
-import type { FeedingPeriod } from '../generated/prisma/client';
 import {
-  getFeedingPlanTiming,
-  type FeedingPlanTiming,
+  getZonedParts,
+  zonedDateTimeToUtc,
 } from '../feeding-plans/feeding-plan-schedule';
 
-export function getNextScheduledDueDate(
-  scheduledDueDate: Date,
+export function getNextScheduledDueAt(
+  scheduledDueAt: Date,
   repeatEveryDays: number,
-  period: FeedingPeriod,
   completedAt: Date,
   timeZone: string,
 ): Date {
-  let nextDate = addCalendarDays(scheduledDueDate, repeatEveryDays);
-
-  while (isDue(nextDate, period, completedAt, timeZone)) {
-    nextDate = addCalendarDays(nextDate, repeatEveryDays);
-  }
-
-  return nextDate;
-}
-
-function isDue(
-  date: Date,
-  period: FeedingPeriod,
-  completedAt: Date,
-  timeZone: string,
-): boolean {
-  const timing: FeedingPlanTiming = getFeedingPlanTiming(
-    date,
-    period,
-    completedAt,
+  let nextDueAt = addCalendarDaysInTimeZone(
+    scheduledDueAt,
+    repeatEveryDays,
     timeZone,
   );
-  return timing.status === 'due';
+
+  while (nextDueAt <= completedAt) {
+    nextDueAt = addCalendarDaysInTimeZone(nextDueAt, repeatEveryDays, timeZone);
+  }
+
+  return nextDueAt;
 }
 
-function addCalendarDays(value: Date, days: number): Date {
-  const result = new Date(value);
-  result.setUTCDate(result.getUTCDate() + days);
-  return result;
+function addCalendarDaysInTimeZone(
+  value: Date,
+  days: number,
+  timeZone: string,
+): Date {
+  const parts = getZonedParts(value, timeZone);
+  const nextLocalDate = new Date(
+    Date.UTC(parts.year, parts.month - 1, parts.day + days),
+  );
+  const dateOnly = `${String(nextLocalDate.getUTCFullYear()).padStart(
+    4,
+    '0',
+  )}-${String(nextLocalDate.getUTCMonth() + 1).padStart(2, '0')}-${String(
+    nextLocalDate.getUTCDate(),
+  ).padStart(2, '0')}`;
+
+  return zonedDateTimeToUtc(
+    dateOnly,
+    parts.hour,
+    timeZone,
+    parts.minute,
+    parts.second,
+  );
 }

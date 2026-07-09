@@ -10,7 +10,6 @@ const activePlan: FeedingPlanRecord = {
   animalId: 'animal-1',
   name: 'Morning fruit',
   instructions: '3 bananas and an apple',
-  period: 'morning',
   repeatEveryDays: 1,
   createdById: person.id,
   lastModifiedById: person.id,
@@ -22,7 +21,7 @@ const activePlan: FeedingPlanRecord = {
   feedingTasks: [
     {
       id: 'task-1',
-      scheduledDueDate: new Date('2026-07-01T00:00:00.000Z'),
+      scheduledDueAt: new Date('2026-07-01T09:00:00.000Z'),
       status: 'AVAILABLE',
     },
   ],
@@ -52,9 +51,8 @@ describe('FeedingPlansService', () => {
       {
         name: activePlan.name,
         instructions: activePlan.instructions,
-        period: activePlan.period,
         repeatEveryDays: 1,
-        initialDueDate: '2026-07-01',
+        initialDueAt: '2026-07-01T09:00:00.000Z',
       },
       person.id,
     );
@@ -64,12 +62,12 @@ describe('FeedingPlansService', () => {
         createdById: person.id,
         lastModifiedById: person.id,
       }),
-      new Date('2026-07-01T00:00:00.000Z'),
+      new Date('2026-07-01T09:00:00.000Z'),
       person.id,
     );
   });
 
-  it('rejects invalid calendar dates', async () => {
+  it('rejects invalid timestamps', async () => {
     repository.findAnimalState.mockResolvedValueOnce({ archivedAt: null });
     await expect(
       service.create(
@@ -77,9 +75,8 @@ describe('FeedingPlansService', () => {
         {
           name: activePlan.name,
           instructions: activePlan.instructions,
-          period: activePlan.period,
           repeatEveryDays: 1,
-          initialDueDate: '2026-02-31',
+          initialDueAt: 'not-a-timestamp',
         },
         person.id,
       ),
@@ -96,9 +93,8 @@ describe('FeedingPlansService', () => {
         {
           name: activePlan.name,
           instructions: activePlan.instructions,
-          period: activePlan.period,
           repeatEveryDays: 1,
-          initialDueDate: '2026-07-01',
+          initialDueAt: '2026-07-01T09:00:00.000Z',
         },
         person.id,
       ),

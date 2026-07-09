@@ -1,4 +1,3 @@
-import { formatDateOnly } from './feeding-plan-schedule';
 import type {
   CreateFeedingPlanData,
   CreateFeedingPlanInput,
@@ -16,7 +15,6 @@ export function toCreateFeedingPlanData(
     animalId,
     name: input.name,
     instructions: input.instructions,
-    period: input.period,
     repeatEveryDays: input.repeatEveryDays,
     createdById: userId,
     lastModifiedById: userId,
@@ -35,16 +33,8 @@ export function toFeedingPlanResponse(
     animalId: plan.animalId,
     name: plan.name,
     instructions: plan.instructions,
-    period: plan.period,
     repeatEveryDays: plan.repeatEveryDays,
-    currentTask: plan.feedingTasks[0]
-      ? {
-          ...plan.feedingTasks[0],
-          scheduledDueDate: formatDateOnly(
-            plan.feedingTasks[0].scheduledDueDate,
-          ),
-        }
-      : null,
+    currentTask: plan.feedingTasks[0] ?? null,
     createdBy: plan.createdBy,
     lastModifiedBy: plan.lastModifiedBy,
     createdAt: plan.createdAt,

@@ -6,11 +6,10 @@ import {
 } from '@nestjs/common';
 import type { ApplicationRole } from '../common/authorization/application-role';
 import { getZooTimeZone } from '../config/environment';
-import { formatDateOnly } from '../feeding-plans/feeding-plan-schedule';
 import type { CompleteFeedingTaskDto } from './dto/complete-feeding-task.dto';
 import type { UpdateFeedingTaskCompletionDto } from './dto/update-feeding-task-completion.dto';
 import { toFeedingTaskResponse } from './feeding-task.mappers';
-import { getNextScheduledDueDate } from './feeding-task-schedule';
+import { getNextScheduledDueAt } from './feeding-task-schedule';
 import type { FeedingTaskResponse } from './feeding-task.types';
 import { FeedingTasksRepository } from './feeding-tasks.repository';
 
@@ -47,11 +46,10 @@ export class FeedingTasksService {
 
     const now = new Date();
     const completedAt = this.parseCompletionTime(input.completedAt, now);
-    this.requireNotBeforeScheduledDate(completedAt, task.scheduledDueDate);
-    const successorDate = getNextScheduledDueDate(
-      task.scheduledDueDate,
+    this.requireNotBeforeScheduledDueAt(completedAt, task.scheduledDueAt);
+    const successorDueAt = getNextScheduledDueAt(
+      task.scheduledDueAt,
       task.feedingPlan.repeatEveryDays,
-      task.feedingPlan.period,
       completedAt,
       getZooTimeZone(),
     );
@@ -60,7 +58,7 @@ export class FeedingTasksService {
       userId,
       completedAt,
       input.notes,
-      successorDate,
+      successorDueAt,
     );
     if (!completed) {
       throw new ConflictException('Feeding task is already completed');
@@ -81,7 +79,7 @@ export class FeedingTasksService {
       ? this.parseCompletionTime(input.completedAt, new Date())
       : undefined;
     if (completedAt) {
-      this.requireNotBeforeScheduledDate(completedAt, task.scheduledDueDate);
+      this.requireNotBeforeScheduledDueAt(completedAt, task.scheduledDueAt);
     }
     return toFeedingTaskResponse(
       await this.repository.updateCompletion(
@@ -135,29 +133,14 @@ export class FeedingTasksService {
     return completedAt;
   }
 
-  private requireNotBeforeScheduledDate(
+  private requireNotBeforeScheduledDueAt(
     completedAt: Date,
-    scheduledDueDate: Date,
+    scheduledDueAt: Date,
   ): void {
-    if (
-      formatDateInTimeZone(completedAt, getZooTimeZone()) <
-      formatDateOnly(scheduledDueDate)
-    ) {
+    if (completedAt < scheduledDueAt) {
       throw new BadRequestException(
-        'completedAt cannot be before the scheduled due date',
+        'completedAt cannot be before the scheduled due time',
       );
     }
   }
-}
-
-function formatDateInTimeZone(value: Date, timeZone: string): string {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(value);
-  const part = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((item) => item.type === type)?.value ?? '';
-  return `${part('year')}-${part('month')}-${part('day')}`;
 }

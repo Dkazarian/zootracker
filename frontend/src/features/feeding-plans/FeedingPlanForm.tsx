@@ -1,8 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { getTomorrowUiDate, parseUiDate } from '../../shared/date/date-format';
-import type { FeedingPlanInput } from './feeding-plan-api';
+import {
+  getTomorrowUiDate,
+  parseUiDate,
+  zonedDateTimeToIsoTimestamp,
+} from '../../shared/date/date-format';
+import type { FeedingPeriod, FeedingPlanInput } from './feeding-plan-api';
+
+const FEEDING_PERIOD_START_HOURS: Record<FeedingPeriod, number> = {
+  morning: 6,
+  afternoon: 12,
+  evening: 18,
+};
 
 const feedingPlanFormSchema = z.object({
   name: z.string().trim().min(1, 'Enter a plan name').max(100),
@@ -61,10 +71,13 @@ function FeedingPlanForm({
     if (!initialDueDate) return;
 
     onSave({
-      ...values,
-      initialDueDate,
       name: values.name.trim(),
       instructions: values.instructions.trim(),
+      repeatEveryDays: values.repeatEveryDays,
+      initialDueAt: zonedDateTimeToIsoTimestamp(
+        initialDueDate,
+        FEEDING_PERIOD_START_HOURS[values.period],
+      ),
     });
   });
 

@@ -33,11 +33,11 @@ describe('FeedingPlansRepository', () => {
           lastModifiedBy: { select: { id: true, name: true } },
           feedingTasks: {
             where: { status: 'AVAILABLE' },
-            orderBy: { scheduledDueDate: 'asc' },
+            orderBy: { scheduledDueAt: 'asc' },
             take: 1,
             select: {
               id: true,
-              scheduledDueDate: true,
+              scheduledDueAt: true,
               status: true,
             },
           },

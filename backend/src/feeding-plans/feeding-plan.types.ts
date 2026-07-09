@@ -1,8 +1,4 @@
-import type {
-  FeedingPeriod,
-  FeedingTaskStatus,
-  Prisma,
-} from '../generated/prisma/client';
+import type { FeedingTaskStatus, Prisma } from '../generated/prisma/client';
 
 export type FeedingPlanStatus = 'upcoming' | 'due';
 export type FeedingPlanListStatus = 'active' | 'archived';
@@ -17,11 +13,10 @@ export interface FeedingPlanResponse {
   animalId: string;
   name: string;
   instructions: string;
-  period: FeedingPeriod;
   repeatEveryDays: number;
   currentTask: {
     id: string;
-    scheduledDueDate: string;
+    scheduledDueAt: Date;
     status: FeedingTaskStatus;
   } | null;
   createdBy: FeedingPlanPersonResponse;
@@ -36,16 +31,14 @@ export interface FeedingPlanResponse {
 export interface CreateFeedingPlanInput {
   name: string;
   instructions: string;
-  period: FeedingPeriod;
   repeatEveryDays: number;
-  initialDueDate: string;
+  initialDueAt: string;
 }
 
 export interface CreateFeedingPlanData {
   animalId: string;
   name: string;
   instructions: string;
-  period: FeedingPeriod;
   repeatEveryDays: number;
   createdById: string;
   lastModifiedById: string;
@@ -56,11 +49,11 @@ export const feedingPlanRelations = {
   lastModifiedBy: { select: { id: true, name: true } },
   feedingTasks: {
     where: { status: 'AVAILABLE' },
-    orderBy: { scheduledDueDate: 'asc' },
+    orderBy: { scheduledDueAt: 'asc' },
     take: 1,
     select: {
       id: true,
-      scheduledDueDate: true,
+      scheduledDueAt: true,
       status: true,
     },
   },

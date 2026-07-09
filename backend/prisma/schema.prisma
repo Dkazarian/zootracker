@@ -15,12 +15,6 @@ enum AnimalSex {
   unknown
 }
 
-enum FeedingPeriod {
-  morning
-  afternoon
-  evening
-}
-
 enum FeedingTaskStatus {
   AVAILABLE
   COMPLETED
@@ -75,7 +69,6 @@ model FeedingPlan {
   animal           Animal        @relation(fields: [animalId], references: [id], onDelete: Restrict)
   name             String
   instructions     String
-  period           FeedingPeriod
   repeatEveryDays  Int
   createdById      String
   createdBy        User          @relation("FeedingPlanCreator", fields: [createdById], references: [id], onDelete: Restrict)
@@ -86,8 +79,8 @@ model FeedingPlan {
   archivedAt       DateTime?
   feedingTasks     FeedingTask[]
 
-  @@index([animalId, archivedAt, period])
-  @@index([archivedAt, period])
+  @@index([animalId, archivedAt])
+  @@index([archivedAt])
   @@index([createdById])
   @@index([lastModifiedById])
   @@map("feeding_plan")
@@ -97,7 +90,7 @@ model FeedingTask {
   id               String            @id @default(uuid())
   feedingPlanId    String
   feedingPlan      FeedingPlan       @relation(fields: [feedingPlanId], references: [id], onDelete: Restrict)
-  scheduledDueDate DateTime          @db.Date
+  scheduledDueAt   DateTime          @db.Timestamptz(3)
   status           FeedingTaskStatus @default(AVAILABLE)
   completedById    String?
   completedBy      User?             @relation("FeedingTaskCompleter", fields: [completedById], references: [id], onDelete: Restrict)
@@ -108,9 +101,8 @@ model FeedingTask {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
-  @@unique([feedingPlanId, scheduledDueDate])
-  @@index([feedingPlanId, status, scheduledDueDate])
-  @@index([status, scheduledDueDate])
+  @@index([feedingPlanId, status, scheduledDueAt])
+  @@index([status, scheduledDueAt])
   @@index([feedingPlanId, status, completedAt])
   @@index([completedById])
   @@index([lastModifiedById])

@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import type { ApplicationRole } from '../../shared/auth/application-role';
 import {
   formatFeedingDate,
-  formatFeedingPeriod,
+  formatFeedingTimeHint,
 } from '../feeding-plans/feeding-plan-format';
+import FeedingPlanCardSummary from '../feeding-plans/components/FeedingPlanCardSummary';
 import {
   feedingTaskHistoryQueryKey,
   listCompletedFeedingTasks,
@@ -18,7 +18,7 @@ import FeedingTaskCompletionForm from './FeedingTaskCompletionForm';
 
 interface Props {
   animalId: string;
-  currentUserRole: ApplicationRole;
+  canUndoCompletions: boolean;
   plansQueryKey: readonly unknown[];
 }
 
@@ -27,7 +27,7 @@ const message = (error: unknown) =>
 
 function FeedingHistorySection({
   animalId,
-  currentUserRole,
+  canUndoCompletions,
   plansQueryKey,
 }: Props) {
   const queryClient = useQueryClient();
@@ -99,20 +99,16 @@ function FeedingHistorySection({
         <ul className="feeding-plan-list">
           {query.data.map((task) => (
             <li className="feeding-plan-card" key={task.id}>
-              <div className="feeding-plan-summary">
-                <div>
-                  <p className="card-label">
-                    {formatFeedingPeriod(task.plan.period)}
-                  </p>
-                  <h3>{task.plan.name}</h3>
-                </div>
-                <span className="feeding-status">Completed</span>
-              </div>
+              <FeedingPlanCardSummary
+                label={formatFeedingTimeHint(task.scheduledDueAt)}
+                title={task.plan.name}
+                status="Completed"
+              />
               <p>{task.plan.instructions}</p>
               <dl className="feeding-plan-details">
                 <div>
                   <dt>Scheduled</dt>
-                  <dd>{formatFeedingDate(task.scheduledDueDate)}</dd>
+                  <dd>{formatFeedingDate(task.scheduledDueAt)}</dd>
                 </div>
                 <div>
                   <dt>Completed</dt>
@@ -153,7 +149,7 @@ function FeedingHistorySection({
                   >
                     Correct feeding
                   </button>
-                  {currentUserRole === 'admin' && (
+                  {canUndoCompletions && (
                     <button
                       className="button-danger"
                       type="button"

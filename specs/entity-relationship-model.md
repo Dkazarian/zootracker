@@ -12,8 +12,8 @@ physical schema.
 | Animals | Implemented |
 | Feeding plans | Implemented |
 | Immutable feeding plans and archived history | Approved Phase 5 amendment |
-| Feeding tasks and completed history | Planned for Phase 6 |
-| Advisory task claims | Planned for Phase 7 |
+| Feeding tasks and completed history | Implemented |
+| Timestamp-based feeding schedules | Active Phase 7 |
 
 ## Model
 
@@ -27,7 +27,6 @@ erDiagram
     USER ||--o{ FEEDING_PLAN : "last modifies"
 
     FEEDING_PLAN ||--o{ FEEDING_TASK : "schedules"
-    USER ||--o{ FEEDING_TASK : "claims"
     USER ||--o{ FEEDING_TASK : "completes"
     USER ||--o{ FEEDING_TASK : "last modifies"
 
@@ -91,7 +90,6 @@ erDiagram
         string animalId FK
         string name
         string instructions
-        FeedingPeriod period
         int repeatEveryDays
         string createdById FK
         string lastModifiedById FK
@@ -103,10 +101,8 @@ erDiagram
     FEEDING_TASK {
         string id PK
         string feedingPlanId FK
-        date scheduledDueDate
+        timestamptz scheduledDueAt
         FeedingTaskStatus status
-        string claimedById FK
-        datetime claimedAt
         string completedById FK
         datetime completedAt
         string notes
@@ -123,21 +119,17 @@ erDiagram
 ## Domain invariants
 
 - Feeding-plan definition fields are immutable after creation: animal, name,
-  instructions, period, and recurrence.
+  instructions, and recurrence.
 - Changing a plan definition requires archiving the old plan and creating a new
   independent plan.
-- A plan's first scheduled date creates its first `AVAILABLE` feeding task.
+- A plan's first scheduled timestamp creates its first `AVAILABLE` feeding
+  task.
 - A task references the exact immutable plan and scheduled occurrence involved
   in the work.
-- `feedingPlanId` plus `scheduledDueDate` is unique, so one task represents one
-  scheduled occurrence.
 - Each active feeding plan has exactly one non-completed task.
-- Phase 6 uses the `AVAILABLE` and `COMPLETED` states. Phase 7 adds `CLAIMED`.
-- A released claim returns the same task to `AVAILABLE` and clears its claim
-  fields. Expiration and claim-attempt history are not part of the model.
-- A claim is advisory. A keeper other than `claimedById` may complete the
-  task after acknowledging the active claim; `completedById` records who
-  actually completed it.
+- Phase 6 uses the `AVAILABLE` and `COMPLETED` states.
+- `scheduledDueAt` stores the exact due instant as PostgreSQL `timestamptz`.
+- Duplicate scheduled timestamps for the same feeding plan are allowed.
 - Completing a task and creating its next scheduled task happen atomically.
 - Completed tasks form feeding history; no separate feeding-record model is
   required.
@@ -149,13 +141,7 @@ erDiagram
 
 ```text
 AVAILABLE ---------------------> COMPLETED
-    |
-    +----> CLAIMED ------------> COMPLETED
-               |
-               +--------------> AVAILABLE (release)
 ```
 
 Creating a feeding plan creates its first available task. Completing a task
-creates the next available task from the plan's recurrence. Claim release does
-not preserve claim-attempt history, and no expiration job or derived expired
-state is required.
+creates the next available task from the plan's recurrence.

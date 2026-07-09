@@ -14,12 +14,11 @@ const feedingPlanSchema = z.object({
   animalId: z.string().min(1),
   name: z.string().min(1),
   instructions: z.string().min(1),
-  period: feedingPeriodSchema,
   repeatEveryDays: z.number().int().positive(),
   currentTask: z
     .object({
       id: z.string().min(1),
-      scheduledDueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      scheduledDueAt: z.coerce.date(),
       status: z.enum(['AVAILABLE', 'COMPLETED']),
     })
     .nullable(),
@@ -39,9 +38,8 @@ export type FeedingPlan = z.infer<typeof feedingPlanSchema>;
 export interface FeedingPlanInput {
   name: string;
   instructions: string;
-  period: FeedingPeriod;
   repeatEveryDays: number;
-  initialDueDate: string;
+  initialDueAt: string;
 }
 
 export const feedingPlanQueryKey = (animalId: string) =>

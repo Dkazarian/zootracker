@@ -16,7 +16,7 @@ function taskRecord(
   return {
     id: 'task-1',
     feedingPlanId: 'plan-1',
-    scheduledDueDate: new Date('2026-07-01T00:00:00.000Z'),
+    scheduledDueAt: new Date('2026-07-01T09:00:00.000Z'),
     status: 'AVAILABLE',
     completedById: null,
     completedAt: null,
@@ -31,7 +31,6 @@ function taskRecord(
       animalId: 'animal-1',
       name: 'Morning fruit',
       instructions: '3 bananas and an apple',
-      period: 'morning',
       repeatEveryDays: 1,
       archivedAt: null,
       animal: { archivedAt: null },
@@ -89,7 +88,7 @@ describe('FeedingTasksService', () => {
       person.id,
       new Date('2026-07-02T10:00:00.000Z'),
       'Ate everything',
-      new Date('2026-07-03T00:00:00.000Z'),
+      new Date('2026-07-03T09:00:00.000Z'),
     );
     expect(response).toMatchObject({
       id: available.id,
@@ -129,7 +128,7 @@ describe('FeedingTasksService', () => {
     await expect(
       service.complete(
         'task-1',
-        { completedAt: '2026-06-30T23:00:00.000Z' },
+        { completedAt: '2026-07-01T08:59:59.000Z' },
         person.id,
       ),
     ).rejects.toBeInstanceOf(BadRequestException);

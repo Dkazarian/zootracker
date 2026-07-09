@@ -39,7 +39,6 @@ export type FeedingPlanMinAggregateOutputType = {
   animalId: string | null
   name: string | null
   instructions: string | null
-  period: $Enums.FeedingPeriod | null
   repeatEveryDays: number | null
   createdById: string | null
   lastModifiedById: string | null
@@ -53,7 +52,6 @@ export type FeedingPlanMaxAggregateOutputType = {
   animalId: string | null
   name: string | null
   instructions: string | null
-  period: $Enums.FeedingPeriod | null
   repeatEveryDays: number | null
   createdById: string | null
   lastModifiedById: string | null
@@ -67,7 +65,6 @@ export type FeedingPlanCountAggregateOutputType = {
   animalId: number
   name: number
   instructions: number
-  period: number
   repeatEveryDays: number
   createdById: number
   lastModifiedById: number
@@ -91,7 +88,6 @@ export type FeedingPlanMinAggregateInputType = {
   animalId?: true
   name?: true
   instructions?: true
-  period?: true
   repeatEveryDays?: true
   createdById?: true
   lastModifiedById?: true
@@ -105,7 +101,6 @@ export type FeedingPlanMaxAggregateInputType = {
   animalId?: true
   name?: true
   instructions?: true
-  period?: true
   repeatEveryDays?: true
   createdById?: true
   lastModifiedById?: true
@@ -119,7 +114,6 @@ export type FeedingPlanCountAggregateInputType = {
   animalId?: true
   name?: true
   instructions?: true
-  period?: true
   repeatEveryDays?: true
   createdById?: true
   lastModifiedById?: true
@@ -220,7 +214,6 @@ export type FeedingPlanGroupByOutputType = {
   animalId: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdById: string
   lastModifiedById: string
@@ -257,7 +250,6 @@ export type FeedingPlanWhereInput = {
   animalId?: Prisma.StringFilter<"FeedingPlan"> | string
   name?: Prisma.StringFilter<"FeedingPlan"> | string
   instructions?: Prisma.StringFilter<"FeedingPlan"> | string
-  period?: Prisma.EnumFeedingPeriodFilter<"FeedingPlan"> | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFilter<"FeedingPlan"> | number
   createdById?: Prisma.StringFilter<"FeedingPlan"> | string
   lastModifiedById?: Prisma.StringFilter<"FeedingPlan"> | string
@@ -275,7 +267,6 @@ export type FeedingPlanOrderByWithRelationInput = {
   animalId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   instructions?: Prisma.SortOrder
-  period?: Prisma.SortOrder
   repeatEveryDays?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   lastModifiedById?: Prisma.SortOrder
@@ -296,7 +287,6 @@ export type FeedingPlanWhereUniqueInput = Prisma.AtLeast<{
   animalId?: Prisma.StringFilter<"FeedingPlan"> | string
   name?: Prisma.StringFilter<"FeedingPlan"> | string
   instructions?: Prisma.StringFilter<"FeedingPlan"> | string
-  period?: Prisma.EnumFeedingPeriodFilter<"FeedingPlan"> | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFilter<"FeedingPlan"> | number
   createdById?: Prisma.StringFilter<"FeedingPlan"> | string
   lastModifiedById?: Prisma.StringFilter<"FeedingPlan"> | string
@@ -314,7 +304,6 @@ export type FeedingPlanOrderByWithAggregationInput = {
   animalId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   instructions?: Prisma.SortOrder
-  period?: Prisma.SortOrder
   repeatEveryDays?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   lastModifiedById?: Prisma.SortOrder
@@ -336,7 +325,6 @@ export type FeedingPlanScalarWhereWithAggregatesInput = {
   animalId?: Prisma.StringWithAggregatesFilter<"FeedingPlan"> | string
   name?: Prisma.StringWithAggregatesFilter<"FeedingPlan"> | string
   instructions?: Prisma.StringWithAggregatesFilter<"FeedingPlan"> | string
-  period?: Prisma.EnumFeedingPeriodWithAggregatesFilter<"FeedingPlan"> | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntWithAggregatesFilter<"FeedingPlan"> | number
   createdById?: Prisma.StringWithAggregatesFilter<"FeedingPlan"> | string
   lastModifiedById?: Prisma.StringWithAggregatesFilter<"FeedingPlan"> | string
@@ -349,7 +337,6 @@ export type FeedingPlanCreateInput = {
   id?: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -365,7 +352,6 @@ export type FeedingPlanUncheckedCreateInput = {
   animalId: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdById: string
   lastModifiedById: string
@@ -379,7 +365,6 @@ export type FeedingPlanUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -395,7 +380,6 @@ export type FeedingPlanUncheckedUpdateInput = {
   animalId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   lastModifiedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -410,7 +394,6 @@ export type FeedingPlanCreateManyInput = {
   animalId: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdById: string
   lastModifiedById: string
@@ -423,7 +406,6 @@ export type FeedingPlanUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -435,7 +417,6 @@ export type FeedingPlanUncheckedUpdateManyInput = {
   animalId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   lastModifiedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -459,7 +440,6 @@ export type FeedingPlanCountOrderByAggregateInput = {
   animalId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   instructions?: Prisma.SortOrder
-  period?: Prisma.SortOrder
   repeatEveryDays?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   lastModifiedById?: Prisma.SortOrder
@@ -477,7 +457,6 @@ export type FeedingPlanMaxOrderByAggregateInput = {
   animalId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   instructions?: Prisma.SortOrder
-  period?: Prisma.SortOrder
   repeatEveryDays?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   lastModifiedById?: Prisma.SortOrder
@@ -491,7 +470,6 @@ export type FeedingPlanMinOrderByAggregateInput = {
   animalId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   instructions?: Prisma.SortOrder
-  period?: Prisma.SortOrder
   repeatEveryDays?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   lastModifiedById?: Prisma.SortOrder
@@ -635,10 +613,6 @@ export type FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput = {
   deleteMany?: Prisma.FeedingPlanScalarWhereInput | Prisma.FeedingPlanScalarWhereInput[]
 }
 
-export type EnumFeedingPeriodFieldUpdateOperationsInput = {
-  set?: $Enums.FeedingPeriod
-}
-
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -665,7 +639,6 @@ export type FeedingPlanCreateWithoutAnimalInput = {
   id?: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -679,7 +652,6 @@ export type FeedingPlanUncheckedCreateWithoutAnimalInput = {
   id?: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdById: string
   lastModifiedById: string
@@ -723,7 +695,6 @@ export type FeedingPlanScalarWhereInput = {
   animalId?: Prisma.StringFilter<"FeedingPlan"> | string
   name?: Prisma.StringFilter<"FeedingPlan"> | string
   instructions?: Prisma.StringFilter<"FeedingPlan"> | string
-  period?: Prisma.EnumFeedingPeriodFilter<"FeedingPlan"> | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFilter<"FeedingPlan"> | number
   createdById?: Prisma.StringFilter<"FeedingPlan"> | string
   lastModifiedById?: Prisma.StringFilter<"FeedingPlan"> | string
@@ -736,7 +707,6 @@ export type FeedingPlanCreateWithoutCreatedByInput = {
   id?: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -751,7 +721,6 @@ export type FeedingPlanUncheckedCreateWithoutCreatedByInput = {
   animalId: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   lastModifiedById: string
   createdAt?: Date | string
@@ -774,7 +743,6 @@ export type FeedingPlanCreateWithoutLastModifiedByInput = {
   id?: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -789,7 +757,6 @@ export type FeedingPlanUncheckedCreateWithoutLastModifiedByInput = {
   animalId: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdById: string
   createdAt?: Date | string
@@ -844,7 +811,6 @@ export type FeedingPlanCreateWithoutFeedingTasksInput = {
   id?: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -859,7 +825,6 @@ export type FeedingPlanUncheckedCreateWithoutFeedingTasksInput = {
   animalId: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdById: string
   lastModifiedById: string
@@ -888,7 +853,6 @@ export type FeedingPlanUpdateWithoutFeedingTasksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -903,7 +867,6 @@ export type FeedingPlanUncheckedUpdateWithoutFeedingTasksInput = {
   animalId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   lastModifiedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -916,7 +879,6 @@ export type FeedingPlanCreateManyAnimalInput = {
   id?: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdById: string
   lastModifiedById: string
@@ -929,7 +891,6 @@ export type FeedingPlanUpdateWithoutAnimalInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -943,7 +904,6 @@ export type FeedingPlanUncheckedUpdateWithoutAnimalInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   lastModifiedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -957,7 +917,6 @@ export type FeedingPlanUncheckedUpdateManyWithoutAnimalInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   lastModifiedById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -971,7 +930,6 @@ export type FeedingPlanCreateManyCreatedByInput = {
   animalId: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   lastModifiedById: string
   createdAt?: Date | string
@@ -984,7 +942,6 @@ export type FeedingPlanCreateManyLastModifiedByInput = {
   animalId: string
   name: string
   instructions: string
-  period: $Enums.FeedingPeriod
   repeatEveryDays: number
   createdById: string
   createdAt?: Date | string
@@ -996,7 +953,6 @@ export type FeedingPlanUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1011,7 +967,6 @@ export type FeedingPlanUncheckedUpdateWithoutCreatedByInput = {
   animalId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   lastModifiedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1025,7 +980,6 @@ export type FeedingPlanUncheckedUpdateManyWithoutCreatedByInput = {
   animalId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   lastModifiedById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1037,7 +991,6 @@ export type FeedingPlanUpdateWithoutLastModifiedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1052,7 +1005,6 @@ export type FeedingPlanUncheckedUpdateWithoutLastModifiedByInput = {
   animalId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1066,7 +1018,6 @@ export type FeedingPlanUncheckedUpdateManyWithoutLastModifiedByInput = {
   animalId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   instructions?: Prisma.StringFieldUpdateOperationsInput | string
-  period?: Prisma.EnumFeedingPeriodFieldUpdateOperationsInput | $Enums.FeedingPeriod
   repeatEveryDays?: Prisma.IntFieldUpdateOperationsInput | number
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1110,7 +1061,6 @@ export type FeedingPlanSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   animalId?: boolean
   name?: boolean
   instructions?: boolean
-  period?: boolean
   repeatEveryDays?: boolean
   createdById?: boolean
   lastModifiedById?: boolean
@@ -1129,7 +1079,6 @@ export type FeedingPlanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   animalId?: boolean
   name?: boolean
   instructions?: boolean
-  period?: boolean
   repeatEveryDays?: boolean
   createdById?: boolean
   lastModifiedById?: boolean
@@ -1146,7 +1095,6 @@ export type FeedingPlanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   animalId?: boolean
   name?: boolean
   instructions?: boolean
-  period?: boolean
   repeatEveryDays?: boolean
   createdById?: boolean
   lastModifiedById?: boolean
@@ -1163,7 +1111,6 @@ export type FeedingPlanSelectScalar = {
   animalId?: boolean
   name?: boolean
   instructions?: boolean
-  period?: boolean
   repeatEveryDays?: boolean
   createdById?: boolean
   lastModifiedById?: boolean
@@ -1172,7 +1119,7 @@ export type FeedingPlanSelectScalar = {
   archivedAt?: boolean
 }
 
-export type FeedingPlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "animalId" | "name" | "instructions" | "period" | "repeatEveryDays" | "createdById" | "lastModifiedById" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["feedingPlan"]>
+export type FeedingPlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "animalId" | "name" | "instructions" | "repeatEveryDays" | "createdById" | "lastModifiedById" | "createdAt" | "updatedAt" | "archivedAt", ExtArgs["result"]["feedingPlan"]>
 export type FeedingPlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   animal?: boolean | Prisma.AnimalDefaultArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1204,7 +1151,6 @@ export type $FeedingPlanPayload<ExtArgs extends runtime.Types.Extensions.Interna
     animalId: string
     name: string
     instructions: string
-    period: $Enums.FeedingPeriod
     repeatEveryDays: number
     createdById: string
     lastModifiedById: string
@@ -1642,7 +1588,6 @@ export interface FeedingPlanFieldRefs {
   readonly animalId: Prisma.FieldRef<"FeedingPlan", 'String'>
   readonly name: Prisma.FieldRef<"FeedingPlan", 'String'>
   readonly instructions: Prisma.FieldRef<"FeedingPlan", 'String'>
-  readonly period: Prisma.FieldRef<"FeedingPlan", 'FeedingPeriod'>
   readonly repeatEveryDays: Prisma.FieldRef<"FeedingPlan", 'Int'>
   readonly createdById: Prisma.FieldRef<"FeedingPlan", 'String'>
   readonly lastModifiedById: Prisma.FieldRef<"FeedingPlan", 'String'>
