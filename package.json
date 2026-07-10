@@ -29,5 +29,9 @@
     "concurrently": "^10.0.3",
     "cross-env": "^10.1.0",
     "prettier": "^3.9.1"
+  },
+  "dependencies": {
+    "@nestjs/swagger": "^11.4.5",
+    "swagger-ui-express": "^5.0.1"
   }
 }
