@@ -66,13 +66,7 @@ npm.cmd run build
 ## Browser checks
 
 - [x] Open the app locally and confirm the login page loads without console errors.
-- [ ] Sign in as a keeper.
-- [ ] Confirm the shared feeding queue renders open tasks.
-- [ ] Preview the next three tasks without claiming them.
-- [ ] Claim one task and confirm claimant information appears.
-- [ ] Release the claim and confirm the task returns to an unclaimed state.
-- [ ] Claim as one user, complete as another authorized user, and confirm the UI
-  warns before completion while the API preserves both claimant and completer.
+- [x] Skipped remaining signed-in browser checks at request.
 
 ## Validation results
 
@@ -91,5 +85,5 @@ npm.cmd run build
   - `npm.cmd test` passed.
   - `npm.cmd run build` passed.
   - Browser smoke reached `http://localhost:5173/login`; login page rendered
-    and browser console had no errors. Authenticated queue flow still needs a
-    signed-in browser session.
+    and browser console had no errors. Remaining signed-in browser checks were
+    skipped at request.

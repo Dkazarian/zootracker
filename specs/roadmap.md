@@ -77,7 +77,7 @@ rather than postponed until the end.
 - Keep the web form friendly by letting the frontend convert date-and-period
   inputs into API timestamps.
 
-## Phase 8 - Shared Feeding Queue and Task Claims
+## ✅ Phase 8 - Shared Feeding Queue and Task Claims
 
 - Let keepers request open feeding tasks from a shared queue.
 - Preview the next three needs without claiming all of them.
