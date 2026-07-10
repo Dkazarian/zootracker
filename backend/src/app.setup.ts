@@ -1,5 +1,5 @@
 import { ValidationPipe, type INestApplication } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function configureApp(app: INestApplication): void {
   app.setGlobalPrefix('api');
@@ -15,16 +15,32 @@ export function configureApp(app: INestApplication): void {
     credentials: true,
   });
 
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
+
   const config = new DocumentBuilder()
     .setTitle('Zootracker API')
-    .setDescription('Zootracker API Reference - Zoo animal feeding management and tracking')
+    .setDescription(
+      [
+        'Developer reference for Zootracker animal-care operations.',
+        'Protected product endpoints require a Better Auth cookie session.',
+        'Application roles are Keeper and Administrator; endpoint role requirements are shown in each operation.',
+        'Public registration is disabled. Administrators create personnel accounts.',
+      ].join(' '),
+    )
     .setVersion('1.0.0')
-    .addCookieAuth('session', {
-      type: 'apiKey',
-      in: 'cookie',
-      name: 'session',
-      description: 'Better Auth session cookie for authenticated endpoints',
-    })
+    .addServer('http://localhost:3000', 'Local development')
+    .addCookieAuth(
+      'better-auth.session_token',
+      {
+        type: 'apiKey',
+        in: 'cookie',
+        description:
+          'Better Auth HttpOnly session cookie. Sign in through /api/auth/sign-in/email; public sign-up is disabled.',
+      },
+      'session',
+    )
     .addTag('Health', 'Service health and status')
     .addTag('Authentication', 'Current user information and session management')
     .addTag('Personnel', 'Zoo staff management (admin only)')
@@ -35,5 +51,10 @@ export function configureApp(app: INestApplication): void {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
+  SwaggerModule.setup('api-docs', app, document, {
+    jsonDocumentUrl: 'api-docs-json',
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
 }

@@ -10,24 +10,28 @@ import {
   Query,
 } from '@nestjs/common';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiCookieAuth,
-  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
-  ApiNotFoundResponse,
   ApiForbiddenResponse,
-  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
   ApiParam,
+  ApiQuery,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { auth } from '../auth/auth';
-import { ApplicationRoles } from '../common/authorization/application-roles.decorator';
 import {
   isApplicationRole,
   type ApplicationRole,
 } from '../common/authorization/application-role';
+import { ApplicationRoles } from '../common/authorization/application-roles.decorator';
+import { ApiAccess } from '../common/openapi/api-access.decorator';
+import { ErrorResponseDto } from '../common/openapi/error-response.dto';
 import { CompleteFeedingTaskDto } from './dto/complete-feeding-task.dto';
+import { FeedingTaskResponseDto } from './dto/feeding-task-response.dto';
 import { ListFeedingTaskQueueQueryDto } from './dto/list-feeding-task-queue-query.dto';
 import { ListFeedingTasksQueryDto } from './dto/list-feeding-tasks-query.dto';
 import { UpdateFeedingTaskCompletionDto } from './dto/update-feeding-task-completion.dto';
@@ -42,34 +46,25 @@ export class FeedingTasksController {
 
   @Get('feeding-tasks/queue')
   @ApiOperation({
-    summary: 'Get feeding task queue',
-    description: 'Returns a list of open feeding tasks available for claiming',
+    summary: 'List open feeding tasks',
+    description:
+      'Keeper or Administrator. Returns shared available work filtered by claim availability and due state.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('keeper', 'admin')
+  @ApiQuery({ type: ListFeedingTaskQueueQueryDto })
   @ApiOkResponse({
-    description: 'List of feeding tasks in queue',
-    schema: {
-      type: 'array',
-      example: [
-        {
-          id: 'task-uuid',
-          feedingPlanId: 'plan-uuid',
-          animalId: 'animal-uuid',
-          dueAt: '2024-01-15T09:00:00Z',
-          planName: 'Morning Feeding',
-          instructions: 'Give 5kg of meat',
-          animalName: 'Simba',
-          claimedBy: null,
-          claimedAt: null,
-          completedBy: null,
-          completedAt: null,
-          notes: null,
-        },
-      ],
-    },
+    description: 'Open feeding-task queue',
+    type: FeedingTaskResponseDto,
+    isArray: true,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have keeper or admin role' })
+  @ApiBadRequestResponse({
+    description: 'Query validation failed',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Keeper or Administrator role required',
+    type: ErrorResponseDto,
+  })
   listQueue(
     @Query() query: ListFeedingTaskQueueQueryDto,
   ): Promise<FeedingTaskResponse[]> {
@@ -78,40 +73,34 @@ export class FeedingTasksController {
 
   @Get('animals/:animalId/feeding-tasks')
   @ApiOperation({
-    summary: 'List completed feeding tasks for an animal',
-    description: 'Returns completed feeding tasks for a specific animal',
+    summary: 'List completed animal feeding tasks',
+    description:
+      'Keeper or Administrator. Returns chronological feeding history for one visible animal.',
   })
+  @ApiAccess('keeper', 'admin')
   @ApiParam({
     name: 'animalId',
-    description: 'UUID of the animal',
-    example: 'animal-uuid',
+    format: 'uuid',
+    description: 'Animal identifier',
   })
-  @ApiCookieAuth('session')
+  @ApiQuery({ type: ListFeedingTasksQueryDto })
   @ApiOkResponse({
-    description: 'List of completed feeding tasks',
-    schema: {
-      type: 'array',
-      example: [
-        {
-          id: 'task-uuid',
-          feedingPlanId: 'plan-uuid',
-          animalId: 'animal-uuid',
-          dueAt: '2024-01-15T09:00:00Z',
-          planName: 'Morning Feeding',
-          instructions: 'Give 5kg of meat',
-          animalName: 'Simba',
-          claimedBy: 'user-uuid',
-          claimedAt: '2024-01-15T08:30:00Z',
-          completedBy: 'user-uuid',
-          completedAt: '2024-01-15T09:15:00Z',
-          notes: 'Ate all food',
-        },
-      ],
-    },
+    description: 'Completed feeding tasks',
+    type: FeedingTaskResponseDto,
+    isArray: true,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have keeper or admin role' })
-  @ApiNotFoundResponse({ description: 'Animal not found' })
+  @ApiBadRequestResponse({
+    description: 'Query validation failed',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Keeper or Administrator role required',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Animal not found or hidden from keeper access',
+    type: ErrorResponseDto,
+  })
   listCompleted(
     @Param('animalId') animalId: string,
     @Query() _query: ListFeedingTasksQueryDto,
@@ -126,38 +115,32 @@ export class FeedingTasksController {
   @Post('feeding-tasks/:taskId/claim')
   @ApiOperation({
     summary: 'Claim feeding task',
-    description: 'Claims a feeding task for the current user',
+    description:
+      'Keeper or Administrator. Adds an advisory claim to an available task.',
   })
+  @ApiAccess('keeper', 'admin')
   @ApiParam({
     name: 'taskId',
-    description: 'UUID of the feeding task',
-    example: 'task-uuid',
+    format: 'uuid',
+    description: 'Feeding-task identifier',
   })
-  @ApiCookieAuth('session')
   @ApiCreatedResponse({
-    description: 'Task claimed successfully',
-    schema: {
-      example: {
-        id: 'task-uuid',
-        feedingPlanId: 'plan-uuid',
-        animalId: 'animal-uuid',
-        dueAt: '2024-01-15T09:00:00Z',
-        planName: 'Morning Feeding',
-        instructions: 'Give 5kg of meat',
-        animalName: 'Simba',
-        claimedBy: 'user-uuid',
-        claimedAt: '2024-01-15T08:30:00Z',
-        completedBy: null,
-        completedAt: null,
-        notes: null,
-      },
-    },
+    description: 'Task claimed',
+    type: FeedingTaskResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
+  @ApiConflictResponse({
+    description:
+      'Task is completed, already claimed, or belongs to archived data',
+    type: ErrorResponseDto,
+  })
   @ApiForbiddenResponse({
-    description: 'Task is already claimed by another user',
+    description: 'Keeper or Administrator role required',
+    type: ErrorResponseDto,
   })
-  @ApiNotFoundResponse({ description: 'Task not found' })
+  @ApiNotFoundResponse({
+    description: 'Feeding task not found',
+    type: ErrorResponseDto,
+  })
   claim(
     @Param('taskId') taskId: string,
     @Session() session: UserSession<typeof auth>,
@@ -167,39 +150,32 @@ export class FeedingTasksController {
 
   @Delete('feeding-tasks/:taskId/claim')
   @ApiOperation({
-    summary: 'Release feeding task claim',
-    description: 'Releases a claim on a feeding task. Only the claiming user or an admin can release.',
+    summary: 'Release feeding-task claim',
+    description:
+      'Keeper or Administrator. Claimant can release their claim; Administrator can release any claim.',
   })
+  @ApiAccess('keeper', 'admin')
   @ApiParam({
     name: 'taskId',
-    description: 'UUID of the feeding task',
-    example: 'task-uuid',
+    format: 'uuid',
+    description: 'Feeding-task identifier',
   })
-  @ApiCookieAuth('session')
   @ApiOkResponse({
-    description: 'Claim released successfully',
-    schema: {
-      example: {
-        id: 'task-uuid',
-        feedingPlanId: 'plan-uuid',
-        animalId: 'animal-uuid',
-        dueAt: '2024-01-15T09:00:00Z',
-        planName: 'Morning Feeding',
-        instructions: 'Give 5kg of meat',
-        animalName: 'Simba',
-        claimedBy: null,
-        claimedAt: null,
-        completedBy: null,
-        completedAt: null,
-        notes: null,
-      },
-    },
+    description: 'Claim released',
+    type: FeedingTaskResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
+  @ApiConflictResponse({
+    description: 'Task is completed, unclaimed, or belongs to archived data',
+    type: ErrorResponseDto,
+  })
   @ApiForbiddenResponse({
-    description: 'User does not have permission to release this claim',
+    description: "Keeper attempted to release another keeper's claim",
+    type: ErrorResponseDto,
   })
-  @ApiNotFoundResponse({ description: 'Task not found' })
+  @ApiNotFoundResponse({
+    description: 'Feeding task not found',
+    type: ErrorResponseDto,
+  })
   releaseClaim(
     @Param('taskId') taskId: string,
     @Session() session: UserSession<typeof auth>,
@@ -214,38 +190,35 @@ export class FeedingTasksController {
   @Post('feeding-tasks/:taskId/completion')
   @ApiOperation({
     summary: 'Complete feeding task',
-    description: 'Marks a feeding task as completed',
+    description:
+      'Keeper or Administrator. Records completion regardless of advisory claimant and creates the next task.',
   })
+  @ApiAccess('keeper', 'admin')
   @ApiParam({
     name: 'taskId',
-    description: 'UUID of the feeding task',
-    example: 'task-uuid',
+    format: 'uuid',
+    description: 'Feeding-task identifier',
   })
-  @ApiCookieAuth('session')
   @ApiCreatedResponse({
-    description: 'Task completed successfully',
-    schema: {
-      example: {
-        id: 'task-uuid',
-        feedingPlanId: 'plan-uuid',
-        animalId: 'animal-uuid',
-        dueAt: '2024-01-15T09:00:00Z',
-        planName: 'Morning Feeding',
-        instructions: 'Give 5kg of meat',
-        animalName: 'Simba',
-        claimedBy: 'user-uuid',
-        claimedAt: '2024-01-15T08:30:00Z',
-        completedBy: 'user-uuid',
-        completedAt: '2024-01-15T09:15:00Z',
-        notes: 'Ate all food',
-      },
-    },
+    description: 'Task completed and successor scheduled',
+    type: FeedingTaskResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
+  @ApiBadRequestResponse({
+    description: 'Body or completion timestamp validation failed',
+    type: ErrorResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Task is completed or belongs to archived data',
+    type: ErrorResponseDto,
+  })
   @ApiForbiddenResponse({
-    description: 'Task is not claimed by the current user',
+    description: 'Keeper or Administrator role required',
+    type: ErrorResponseDto,
   })
-  @ApiNotFoundResponse({ description: 'Task not found' })
+  @ApiNotFoundResponse({
+    description: 'Feeding task not found',
+    type: ErrorResponseDto,
+  })
   complete(
     @Param('taskId') taskId: string,
     @Body() input: CompleteFeedingTaskDto,
@@ -256,39 +229,36 @@ export class FeedingTasksController {
 
   @Patch('feeding-tasks/:taskId/completion')
   @ApiOperation({
-    summary: 'Update task completion details',
-    description: 'Updates completion timestamp or notes for a completed task',
+    summary: 'Correct feeding-task completion',
+    description:
+      'Keeper or Administrator. Corrects completion time or notes and records the modifier.',
   })
+  @ApiAccess('keeper', 'admin')
   @ApiParam({
     name: 'taskId',
-    description: 'UUID of the feeding task',
-    example: 'task-uuid',
+    format: 'uuid',
+    description: 'Feeding-task identifier',
   })
-  @ApiCookieAuth('session')
   @ApiOkResponse({
-    description: 'Task completion updated successfully',
-    schema: {
-      example: {
-        id: 'task-uuid',
-        feedingPlanId: 'plan-uuid',
-        animalId: 'animal-uuid',
-        dueAt: '2024-01-15T09:00:00Z',
-        planName: 'Morning Feeding',
-        instructions: 'Give 5kg of meat',
-        animalName: 'Simba',
-        claimedBy: 'user-uuid',
-        claimedAt: '2024-01-15T08:30:00Z',
-        completedBy: 'user-uuid',
-        completedAt: '2024-01-15T09:15:00Z',
-        notes: 'Ate most of the food',
-      },
-    },
+    description: 'Completion corrected',
+    type: FeedingTaskResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
+  @ApiBadRequestResponse({
+    description: 'Body or completion timestamp validation failed',
+    type: ErrorResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Only completed tasks can be corrected',
+    type: ErrorResponseDto,
+  })
   @ApiForbiddenResponse({
-    description: 'Only the completer or admin can update completion',
+    description: 'Keeper or Administrator role required',
+    type: ErrorResponseDto,
   })
-  @ApiNotFoundResponse({ description: 'Task not found' })
+  @ApiNotFoundResponse({
+    description: 'Feeding task not found',
+    type: ErrorResponseDto,
+  })
   updateCompletion(
     @Param('taskId') taskId: string,
     @Body() input: UpdateFeedingTaskCompletionDto,
@@ -300,37 +270,33 @@ export class FeedingTasksController {
   @Delete('feeding-tasks/:taskId/completion')
   @ApplicationRoles('admin')
   @ApiOperation({
-    summary: 'Undo task completion',
-    description: 'Reverts a completed task back to claimed status (admin only)',
+    summary: 'Undo feeding-task completion',
+    description:
+      'Administrator only. Restores the latest completed occurrence and removes its successor.',
   })
+  @ApiAccess('admin')
   @ApiParam({
     name: 'taskId',
-    description: 'UUID of the feeding task',
-    example: 'task-uuid',
+    format: 'uuid',
+    description: 'Feeding-task identifier',
   })
-  @ApiCookieAuth('session')
   @ApiOkResponse({
-    description: 'Task completion undone successfully',
-    schema: {
-      example: {
-        id: 'task-uuid',
-        feedingPlanId: 'plan-uuid',
-        animalId: 'animal-uuid',
-        dueAt: '2024-01-15T09:00:00Z',
-        planName: 'Morning Feeding',
-        instructions: 'Give 5kg of meat',
-        animalName: 'Simba',
-        claimedBy: 'user-uuid',
-        claimedAt: '2024-01-15T08:30:00Z',
-        completedBy: null,
-        completedAt: null,
-        notes: null,
-      },
-    },
+    description: 'Completion undone',
+    type: FeedingTaskResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have admin role' })
-  @ApiNotFoundResponse({ description: 'Task not found' })
+  @ApiConflictResponse({
+    description:
+      'Task is not completed, a later task is completed, or successor state is inconsistent',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Administrator role required',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Feeding task not found',
+    type: ErrorResponseDto,
+  })
   undoCompletion(
     @Param('taskId') taskId: string,
     @Session() session: UserSession<typeof auth>,

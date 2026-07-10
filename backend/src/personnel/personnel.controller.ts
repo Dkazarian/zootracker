@@ -1,18 +1,22 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiCookieAuth,
-  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
-  ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { auth } from '../auth/auth';
 import { ApplicationRoles } from '../common/authorization/application-roles.decorator';
+import { ApiAccess } from '../common/openapi/api-access.decorator';
+import { ErrorResponseDto } from '../common/openapi/error-response.dto';
 import { CreatePersonnelDto } from './dto/create-personnel.dto';
+import { PersonnelResponseDto } from './dto/personnel-response.dto';
 import { PersonnelService } from './personnel.service';
 import type { PersonnelResponse } from './personnel.types';
 
@@ -24,28 +28,19 @@ export class PersonnelController {
 
   @Get()
   @ApiOperation({
-    summary: 'List all personnel',
-    description: 'Returns a list of all zoo personnel accounts',
+    summary: 'List personnel',
+    description: 'Administrator only. Returns all personnel accounts.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('admin')
   @ApiOkResponse({
-    description: 'List of personnel',
-    schema: {
-      type: 'array',
-      example: [
-        {
-          id: 'user-uuid',
-          name: 'Jane Smith',
-          email: 'jane@zoo.local',
-          role: 'keeper',
-          createdAt: '2024-01-15T10:00:00Z',
-          deactivatedAt: null,
-        },
-      ],
-    },
+    description: 'Personnel directory',
+    type: PersonnelResponseDto,
+    isArray: true,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have admin role' })
+  @ApiForbiddenResponse({
+    description: 'Administrator role required',
+    type: ErrorResponseDto,
+  })
   list(): Promise<PersonnelResponse[]> {
     return this.personnelService.list();
   }
@@ -53,24 +48,26 @@ export class PersonnelController {
   @Post()
   @ApiOperation({
     summary: 'Create personnel account',
-    description: 'Creates a new zoo personnel account with the specified role',
+    description:
+      'Administrator only. Creates a keeper or administrator account. Public registration is unavailable.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('admin')
   @ApiCreatedResponse({
-    description: 'Personnel account created successfully',
-    schema: {
-      example: {
-        id: 'user-uuid',
-        name: 'Jane Smith',
-        email: 'jane@zoo.local',
-        role: 'keeper',
-        createdAt: '2024-01-15T10:00:00Z',
-        deactivatedAt: null,
-      },
-    },
+    description: 'Personnel account created',
+    type: PersonnelResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have admin role' })
+  @ApiBadRequestResponse({
+    description: 'Body validation failed',
+    type: ErrorResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Email address already belongs to a personnel account',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Administrator role required',
+    type: ErrorResponseDto,
+  })
   create(@Body() input: CreatePersonnelDto): Promise<PersonnelResponse> {
     return this.personnelService.create(input);
   }
@@ -79,27 +76,27 @@ export class PersonnelController {
   @ApiOperation({
     summary: 'Deactivate personnel account',
     description:
-      'Deactivates a personnel account, preventing login. The requesting admin user cannot deactivate their own account.',
+      'Administrator only. Revokes sessions and deactivates an eligible account.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('admin')
+  @ApiParam({ name: 'id', format: 'uuid', description: 'Personnel identifier' })
   @ApiOkResponse({
     description: 'Personnel account deactivated',
-    schema: {
-      example: {
-        id: 'user-uuid',
-        name: 'Jane Smith',
-        email: 'jane@zoo.local',
-        role: 'keeper',
-        createdAt: '2024-01-15T10:00:00Z',
-        deactivatedAt: '2024-01-20T15:30:00Z',
-      },
-    },
+    type: PersonnelResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
+  @ApiConflictResponse({
+    description:
+      'Self-deactivation, inactive account, or last active administrator constraint',
+    type: ErrorResponseDto,
+  })
   @ApiForbiddenResponse({
-    description: 'User does not have admin role or attempted to deactivate own account',
+    description: 'Administrator role required',
+    type: ErrorResponseDto,
   })
-  @ApiNotFoundResponse({ description: 'Personnel account not found' })
+  @ApiNotFoundResponse({
+    description: 'Personnel account not found',
+    type: ErrorResponseDto,
+  })
   deactivate(
     @Param('id') id: string,
     @Session() session: UserSession<typeof auth>,
@@ -110,25 +107,26 @@ export class PersonnelController {
   @Patch(':id/reactivate')
   @ApiOperation({
     summary: 'Reactivate personnel account',
-    description: 'Reactivates a deactivated personnel account, allowing login again',
+    description: 'Administrator only. Reactivates an inactive account.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('admin')
+  @ApiParam({ name: 'id', format: 'uuid', description: 'Personnel identifier' })
   @ApiOkResponse({
     description: 'Personnel account reactivated',
-    schema: {
-      example: {
-        id: 'user-uuid',
-        name: 'Jane Smith',
-        email: 'jane@zoo.local',
-        role: 'keeper',
-        createdAt: '2024-01-15T10:00:00Z',
-        deactivatedAt: null,
-      },
-    },
+    type: PersonnelResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have admin role' })
-  @ApiNotFoundResponse({ description: 'Personnel account not found' })
+  @ApiConflictResponse({
+    description: 'Personnel account is already active',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Administrator role required',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Personnel account not found',
+    type: ErrorResponseDto,
+  })
   reactivate(@Param('id') id: string): Promise<PersonnelResponse> {
     return this.personnelService.reactivate(id);
   }

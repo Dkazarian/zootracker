@@ -7,7 +7,9 @@
 - `README.md`
 - `backend/src/app.setup.ts`
 - `backend/src/health/health.controller.ts`
+- `backend/src/health/dto/`
 - `backend/src/auth/auth.controller.ts`
+- `backend/src/auth/dto/`
 - `backend/src/personnel/personnel.controller.ts`
 - `backend/src/personnel/dto/`
 - `backend/src/animals/animals.controller.ts`

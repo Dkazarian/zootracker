@@ -1,23 +1,25 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
   Query,
-  ForbiddenException,
-  NotFoundException,
 } from '@nestjs/common';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiCookieAuth,
-  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
-  ApiNotFoundResponse,
   ApiForbiddenResponse,
-  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { auth } from '../auth/auth';
@@ -26,8 +28,11 @@ import {
   type ApplicationRole,
 } from '../common/authorization/application-role';
 import { ApplicationRoles } from '../common/authorization/application-roles.decorator';
+import { ApiAccess } from '../common/openapi/api-access.decorator';
+import { ErrorResponseDto } from '../common/openapi/error-response.dto';
 import type { AnimalResponse } from './animal.types';
 import { AnimalsService } from './animals.service';
+import { AnimalResponseDto } from './dto/animal-response.dto';
 import { CreateAnimalDto } from './dto/create-animal.dto';
 import { ListAnimalsDto } from './dto/list-animals.dto';
 import { UpdateAnimalDto } from './dto/update-animal.dto';
@@ -41,32 +46,23 @@ export class AnimalsController {
   @Get()
   @ApiOperation({
     summary: 'List animals',
-    description: 'Returns a list of animals. Keepers can only view active animals. Admins can filter by status.',
+    description:
+      'Keeper or Administrator. Keepers can view active animals only; Administrators can filter by status.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('keeper', 'admin')
+  @ApiQuery({ type: ListAnimalsDto })
   @ApiOkResponse({
-    description: 'List of animals',
-    schema: {
-      type: 'array',
-      example: [
-        {
-          id: 'animal-uuid',
-          name: 'Simba',
-          species: 'Lion',
-          sex: 'male',
-          dateOfBirth: '2015-06-15T00:00:00Z',
-          arrivalDate: '2020-03-20T00:00:00Z',
-          currentLocation: 'Savanna Enclosure A',
-          notes: 'Very active',
-          archivedAt: null,
-          createdAt: '2024-01-10T00:00:00Z',
-        },
-      ],
-    },
+    description: 'Animals matching the requested filters',
+    type: AnimalResponseDto,
+    isArray: true,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
+  @ApiBadRequestResponse({
+    description: 'Query validation failed',
+    type: ErrorResponseDto,
+  })
   @ApiForbiddenResponse({
-    description: 'Keeper attempted to view archived animals or invalid role',
+    description: 'Keeper requested archived animals or account role is invalid',
+    type: ErrorResponseDto,
   })
   list(
     @Query() query: ListAnimalsDto,
@@ -84,31 +80,23 @@ export class AnimalsController {
   @Get(':id')
   @ApiOperation({
     summary: 'Get animal details',
-    description: 'Returns detailed information for a specific animal. Keepers cannot view archived animals.',
+    description:
+      'Keeper or Administrator. Keepers cannot view archived animals.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('keeper', 'admin')
+  @ApiParam({ name: 'id', format: 'uuid', description: 'Animal identifier' })
   @ApiOkResponse({
     description: 'Animal details',
-    schema: {
-      example: {
-        id: 'animal-uuid',
-        name: 'Simba',
-        species: 'Lion',
-        sex: 'male',
-        dateOfBirth: '2015-06-15T00:00:00Z',
-        arrivalDate: '2020-03-20T00:00:00Z',
-        currentLocation: 'Savanna Enclosure A',
-        notes: 'Very active',
-        archivedAt: null,
-        createdAt: '2024-01-10T00:00:00Z',
-      },
-    },
+    type: AnimalResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
   @ApiForbiddenResponse({
-    description: 'Keeper attempted to view archived animal or invalid role',
+    description: 'Account role is invalid',
+    type: ErrorResponseDto,
   })
-  @ApiNotFoundResponse({ description: 'Animal not found' })
+  @ApiNotFoundResponse({
+    description: 'Animal not found or hidden from keeper access',
+    type: ErrorResponseDto,
+  })
   async get(
     @Param('id') id: string,
     @Session() session: UserSession<typeof auth>,
@@ -124,28 +112,21 @@ export class AnimalsController {
   @ApplicationRoles('admin')
   @ApiOperation({
     summary: 'Create animal',
-    description: 'Creates a new animal record in the system',
+    description: 'Administrator only. Creates an animal profile.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('admin')
   @ApiCreatedResponse({
-    description: 'Animal created successfully',
-    schema: {
-      example: {
-        id: 'animal-uuid',
-        name: 'Simba',
-        species: 'Lion',
-        sex: 'male',
-        dateOfBirth: '2015-06-15T00:00:00Z',
-        arrivalDate: '2020-03-20T00:00:00Z',
-        currentLocation: 'Savanna Enclosure A',
-        notes: 'Very active',
-        archivedAt: null,
-        createdAt: '2024-01-10T00:00:00Z',
-      },
-    },
+    description: 'Animal created',
+    type: AnimalResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have admin role' })
+  @ApiBadRequestResponse({
+    description: 'Body or animal date validation failed',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Administrator role required',
+    type: ErrorResponseDto,
+  })
   create(@Body() input: CreateAnimalDto): Promise<AnimalResponse> {
     return this.animalsService.create(input);
   }
@@ -154,29 +135,30 @@ export class AnimalsController {
   @ApplicationRoles('admin')
   @ApiOperation({
     summary: 'Update animal',
-    description: 'Updates information for an existing animal',
+    description: 'Administrator only. Updates an active animal profile.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('admin')
+  @ApiParam({ name: 'id', format: 'uuid', description: 'Animal identifier' })
   @ApiOkResponse({
-    description: 'Animal updated successfully',
-    schema: {
-      example: {
-        id: 'animal-uuid',
-        name: 'Simba',
-        species: 'Lion',
-        sex: 'male',
-        dateOfBirth: '2015-06-15T00:00:00Z',
-        arrivalDate: '2020-03-20T00:00:00Z',
-        currentLocation: 'Savanna Enclosure A',
-        notes: 'Very active',
-        archivedAt: null,
-        createdAt: '2024-01-10T00:00:00Z',
-      },
-    },
+    description: 'Animal updated',
+    type: AnimalResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have admin role' })
-  @ApiNotFoundResponse({ description: 'Animal not found' })
+  @ApiBadRequestResponse({
+    description: 'Body validation failed or no update fields were supplied',
+    type: ErrorResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Archived animals cannot be updated',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Administrator role required',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Animal not found',
+    type: ErrorResponseDto,
+  })
   update(
     @Param('id') id: string,
     @Body() input: UpdateAnimalDto,
@@ -188,29 +170,26 @@ export class AnimalsController {
   @ApplicationRoles('admin')
   @ApiOperation({
     summary: 'Archive animal',
-    description: 'Archives an animal, hiding it from keeper view',
+    description: 'Administrator only. Archives an active animal profile.',
   })
-  @ApiCookieAuth('session')
-  @ApiOkResponse({
-    description: 'Animal archived successfully',
-    schema: {
-      example: {
-        id: 'animal-uuid',
-        name: 'Simba',
-        species: 'Lion',
-        sex: 'male',
-        dateOfBirth: '2015-06-15T00:00:00Z',
-        arrivalDate: '2020-03-20T00:00:00Z',
-        currentLocation: 'Savanna Enclosure A',
-        notes: 'Very active',
-        archivedAt: '2024-01-20T00:00:00Z',
-        createdAt: '2024-01-10T00:00:00Z',
-      },
-    },
+  @ApiAccess('admin')
+  @ApiParam({ name: 'id', format: 'uuid', description: 'Animal identifier' })
+  @ApiCreatedResponse({
+    description: 'Animal archived',
+    type: AnimalResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have admin role' })
-  @ApiNotFoundResponse({ description: 'Animal not found' })
+  @ApiConflictResponse({
+    description: 'Animal is already archived',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Administrator role required',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Animal not found',
+    type: ErrorResponseDto,
+  })
   archive(@Param('id') id: string): Promise<AnimalResponse> {
     return this.animalsService.archive(id);
   }

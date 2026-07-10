@@ -63,4 +63,29 @@ npm.cmd run build
 
 ## Validation results
 
-- Not run yet.
+- 2026-07-10: `npm.cmd run typecheck --workspace backend` passed.
+- 2026-07-10:
+  `npm.cmd test --workspace backend -- --runInBand dashboard feeding-tasks feeding-plans animals personnel auth`
+  passed: 16 suites, 89 tests.
+- 2026-07-10: `npm.cmd run build --workspace backend` passed and generated
+  the Prisma client.
+- 2026-07-10: Local backend served Swagger successfully:
+  - `GET http://localhost:3000/api-docs-json` returned valid OpenAPI JSON.
+  - OpenAPI metadata: version `3.0.0`, title `Zootracker API`, API version
+    `1.0.0`, cookie auth scheme `session`, 16 documented paths.
+  - `GET http://localhost:3000/api-docs` returned Swagger UI HTML.
+- 2026-07-10: Browser check passed for Swagger UI at
+  `http://localhost:3000/api-docs`; it rendered `Zootracker API`, `Authorize`,
+  `Animals`, and `Feeding Tasks` with no browser console errors.
+- 2026-07-10: `npm.cmd run format:check` passed.
+- 2026-07-10: `npm.cmd run lint` passed.
+- 2026-07-10: `npm.cmd run typecheck` passed.
+- 2026-07-10: `npm.cmd test` passed:
+  - frontend: 6 files, 43 tests;
+  - backend unit/integration: 17 suites, 90 tests;
+  - backend e2e: 1 suite passed, 5 skipped by existing database-test gating.
+- 2026-07-10: `npm.cmd run build` passed for frontend and backend.
+- 2026-07-10: Normal app login browser smoke was not completed because the
+  frontend dev server could not be kept listening on `localhost:5173` from a
+  background process in this Codex session. Frontend automated tests,
+  typecheck, and production build passed.

@@ -1,26 +1,19 @@
 import { Controller, ForbiddenException, Get } from '@nestjs/common';
 import {
   ApiOkResponse,
-  ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiTags,
-  ApiCookieAuth,
   ApiOperation,
 } from '@nestjs/swagger';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
-import {
-  isApplicationRole,
-  type ApplicationRole,
-} from '../common/authorization/application-role';
+import { isApplicationRole } from '../common/authorization/application-role';
 import { ApplicationRoles } from '../common/authorization/application-roles.decorator';
+import { ApiAccess } from '../common/openapi/api-access.decorator';
+import { ErrorResponseDto } from '../common/openapi/error-response.dto';
 import { auth } from './auth';
+import { CurrentUserResponseDto } from './dto/current-user-response.dto';
 
-export interface CurrentUserResponse {
-  id: string;
-  name: string;
-  email: string;
-  role: ApplicationRole;
-}
+export type CurrentUserResponse = CurrentUserResponseDto;
 
 @ApiTags('Authentication')
 @Controller('me')
@@ -29,25 +22,17 @@ export class AuthController {
   @Get()
   @ApiOperation({
     summary: 'Get current user information',
-    description: 'Returns the authenticated user profile and role information',
+    description:
+      'Keeper or Administrator. Returns the authenticated Better Auth user identity and application role.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('keeper', 'admin')
   @ApiOkResponse({
     description: 'Current user information',
-    schema: {
-      example: {
-        id: 'user-uuid',
-        name: 'John Doe',
-        email: 'john@zoo.local',
-        role: 'keeper',
-      },
-    },
-  })
-  @ApiUnauthorizedResponse({
-    description: 'User is not authenticated',
+    type: CurrentUserResponseDto,
   })
   @ApiForbiddenResponse({
     description: 'User account does not have a valid role',
+    type: ErrorResponseDto,
   })
   getCurrentUser(
     @Session() session: UserSession<typeof auth>,

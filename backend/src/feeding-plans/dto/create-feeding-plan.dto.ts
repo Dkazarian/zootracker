@@ -40,7 +40,8 @@ export class CreateFeedingPlanDto {
   repeatEveryDays!: number;
 
   @ApiProperty({
-    description: 'Initial due date for the first feeding task in ISO 8601 format',
+    description:
+      'Initial due date for the first feeding task in ISO 8601 format',
     format: 'date-time',
     example: '2024-01-15T09:00:00Z',
   })

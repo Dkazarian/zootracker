@@ -1,18 +1,18 @@
 import { Controller, Get } from '@nestjs/common';
 import {
-  ApiTags,
-  ApiOperation,
-  ApiCookieAuth,
-  ApiOkResponse,
-  ApiUnauthorizedResponse,
   ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { auth } from '../auth/auth';
 import { ApplicationRoles } from '../common/authorization/application-roles.decorator';
-import type { AdminDashboardResponseDto } from './dto/admin-dashboard-response.dto';
-import type { KeeperDashboardResponseDto } from './dto/keeper-dashboard-response.dto';
+import { ApiAccess } from '../common/openapi/api-access.decorator';
+import { ErrorResponseDto } from '../common/openapi/error-response.dto';
 import { DashboardService } from './dashboard.service';
+import { AdminDashboardResponseDto } from './dto/admin-dashboard-response.dto';
+import { KeeperDashboardResponseDto } from './dto/keeper-dashboard-response.dto';
 
 @ApiTags('Dashboard')
 @Controller()
@@ -24,51 +24,17 @@ export class DashboardController {
   @ApiOperation({
     summary: 'Get keeper dashboard',
     description:
-      'Returns keeper-specific dashboard data including due tasks, active claims, and recent completions',
+      'Keeper only. Derived read-only view over existing feeding tasks, plans, animals, and personnel; no dashboard records are persisted.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('keeper')
   @ApiOkResponse({
-    description: 'Keeper dashboard data',
-    schema: {
-      example: {
-        dueTasks: [
-          {
-            id: 'task-uuid',
-            animalId: 'animal-uuid',
-            animalName: 'Simba',
-            feedingPlanId: 'plan-uuid',
-            feedingPlanName: 'Morning Feeding',
-            dueAt: '2024-01-15T09:00:00Z',
-            claimedBy: null,
-          },
-        ],
-        activeClaims: [
-          {
-            id: 'task-uuid',
-            animalId: 'animal-uuid',
-            animalName: 'Nala',
-            feedingPlanId: 'plan-uuid',
-            feedingPlanName: 'Afternoon Feeding',
-            dueAt: '2024-01-15T14:00:00Z',
-            claimedBy: { id: 'user-uuid', name: 'John Doe' },
-          },
-        ],
-        recentCompletions: [
-          {
-            id: 'task-uuid',
-            animalId: 'animal-uuid',
-            animalName: 'Simba',
-            feedingPlanId: 'plan-uuid',
-            feedingPlanName: 'Morning Feeding',
-            completedAt: '2024-01-15T09:30:00Z',
-            completedBy: { id: 'user-uuid', name: 'Jane Smith' },
-          },
-        ],
-      },
-    },
+    description: 'Keeper feeding-board summary',
+    type: KeeperDashboardResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have keeper role' })
+  @ApiForbiddenResponse({
+    description: 'Keeper role required',
+    type: ErrorResponseDto,
+  })
   getKeeperDashboard(
     @Session() session: UserSession<typeof auth>,
   ): Promise<KeeperDashboardResponseDto> {
@@ -78,48 +44,19 @@ export class DashboardController {
   @Get('admin/dashboard')
   @ApplicationRoles('admin')
   @ApiOperation({
-    summary: 'Get admin dashboard',
-    description: 'Returns admin-specific dashboard with system-wide statistics and summaries',
+    summary: 'Get administrator dashboard',
+    description:
+      'Administrator only. Derived read-only aggregation over existing tables; no dashboard records are persisted.',
   })
-  @ApiCookieAuth('session')
+  @ApiAccess('admin')
   @ApiOkResponse({
-    description: 'Admin dashboard data',
-    schema: {
-      example: {
-        animals: {
-          total: 42,
-          active: 40,
-          archived: 2,
-        },
-        personnel: {
-          total: 8,
-          active: 7,
-          inactive: 1,
-          byRole: {
-            keeper: 6,
-            admin: 2,
-          },
-        },
-        species: [
-          { label: 'Lion', count: 5 },
-          { label: 'Giraffe', count: 3 },
-          { label: 'Zebra', count: 8 },
-        ],
-        locations: [
-          { label: 'Savanna Enclosure A', count: 6 },
-          { label: 'Savanna Enclosure B', count: 4 },
-        ],
-        feedingActivity: {
-          openTasks: 12,
-          claimedTasks: 5,
-          completedToday: 23,
-          completedThisWeek: 156,
-        },
-      },
-    },
+    description: 'Administrator operational summary',
+    type: AdminDashboardResponseDto,
   })
-  @ApiUnauthorizedResponse({ description: 'User is not authenticated' })
-  @ApiForbiddenResponse({ description: 'User does not have admin role' })
+  @ApiForbiddenResponse({
+    description: 'Administrator role required',
+    type: ErrorResponseDto,
+  })
   getAdminDashboard(): Promise<AdminDashboardResponseDto> {
     return this.dashboardService.getAdminDashboard();
   }

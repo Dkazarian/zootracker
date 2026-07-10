@@ -7,7 +7,8 @@ const trimOptionalText = ({ value }: { value: unknown }) =>
 
 export class CompleteFeedingTaskDto {
   @ApiProperty({
-    description: 'Timestamp when the feeding task was completed in ISO 8601 format',
+    description:
+      'Timestamp when the feeding task was completed in ISO 8601 format',
     format: 'date-time',
     example: '2024-01-15T14:30:00Z',
     required: false,
