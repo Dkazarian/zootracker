@@ -36,6 +36,11 @@ const feedingPlanMocks = vi.hoisted(() => ({
   archiveFeedingPlan: vi.fn(),
 }));
 
+const dashboardMocks = vi.hoisted(() => ({
+  getKeeperDashboard: vi.fn(),
+  getAdminDashboard: vi.fn(),
+}));
+
 vi.mock('../shared/auth/auth-client', () => ({
   authClient: {
     getSession: authMocks.getSession,
@@ -78,6 +83,18 @@ vi.mock(
     };
   },
 );
+
+vi.mock('../features/dashboard/dashboard-api', async (importOriginal) => {
+  const original =
+    await importOriginal<
+      typeof import('../features/dashboard/dashboard-api')
+    >();
+  return {
+    ...original,
+    getKeeperDashboard: dashboardMocks.getKeeperDashboard,
+    getAdminDashboard: dashboardMocks.getAdminDashboard,
+  };
+});
 
 const authenticatedSession = {
   session: {
@@ -162,6 +179,73 @@ const animals = [
   },
 ];
 
+const keeperDashboard = {
+  dueTasks: [
+    {
+      id: 'task-1',
+      animalId: 'animal-1',
+      animalName: 'Amara',
+      feedingPlanId: 'plan-1',
+      feedingPlanName: 'Morning feed',
+      dueAt: new Date('2026-07-09T09:00:00Z'),
+      claimedBy: null,
+    },
+  ],
+  activeClaims: [
+    {
+      id: 'task-2',
+      animalId: 'animal-2',
+      animalName: 'Bruno',
+      feedingPlanId: 'plan-2',
+      feedingPlanName: 'Evening feed',
+      dueAt: new Date('2026-07-09T18:00:00Z'),
+      claimedBy: { id: 'user-1', name: 'Ada Keeper' },
+    },
+  ],
+  recentCompletions: [
+    {
+      id: 'task-3',
+      animalId: 'animal-1',
+      animalName: 'Amara',
+      feedingPlanId: 'plan-1',
+      feedingPlanName: 'Morning feed',
+      completedAt: new Date('2026-07-09T10:00:00Z'),
+      completedBy: { id: 'user-1', name: 'Ada Keeper' },
+    },
+  ],
+};
+
+const adminDashboard = {
+  animals: {
+    total: 2,
+    active: 2,
+    archived: 0,
+  },
+  personnel: {
+    total: 3,
+    active: 3,
+    inactive: 0,
+    byRole: {
+      keeper: 2,
+      admin: 1,
+    },
+  },
+  species: [
+    { label: 'African elephant', count: 1 },
+    { label: 'Spectacled bear', count: 1 },
+  ],
+  locations: [
+    { label: 'Savanna Habitat', count: 1 },
+    { label: 'Andean Forest', count: 1 },
+  ],
+  feedingActivity: {
+    openTasks: 2,
+    claimedTasks: 1,
+    completedToday: 1,
+    completedThisWeek: 2,
+  },
+};
+
 function renderApp(initialPath = '/') {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -233,6 +317,8 @@ describe('App authentication', () => {
       archivedAt: new Date(),
     });
     feedingPlanMocks.listFeedingPlans.mockResolvedValue([]);
+    dashboardMocks.getKeeperDashboard.mockResolvedValue(keeperDashboard);
+    dashboardMocks.getAdminDashboard.mockResolvedValue(adminDashboard);
   });
 
   afterEach(() => {
@@ -310,6 +396,9 @@ describe('App authentication', () => {
         name: 'A reliable home for daily zoo care.',
       }),
     ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Registry summary' }),
+    ).toBeInTheDocument();
   });
 
   it('restores a session and renders the protected application', async () => {
@@ -339,7 +428,9 @@ describe('App authentication', () => {
     expect(screen.getByText('Ada Keeper')).toBeInTheDocument();
     expect(screen.getByText('Administrator')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Personnel' })).toBeInTheDocument();
-    expect(await screen.findByText('API available')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Registry summary' }),
+    ).toBeInTheDocument();
   });
 
   it('signs out and returns to the login page', async () => {
@@ -366,6 +457,52 @@ describe('App authentication', () => {
       await screen.findByRole('heading', { name: 'Sign in to Zootracker' }),
     ).toBeInTheDocument();
     expect(authMocks.signOut).toHaveBeenCalledOnce();
+  });
+
+  it('renders the keeper dashboard on the keeper dashboard route', async () => {
+    currentUserMocks.getCurrentUser.mockResolvedValue({
+      id: 'keeper-1',
+      name: 'Kira Keeper',
+      email: 'kira@example.com',
+      role: 'keeper',
+    });
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+
+    renderApp('/dashboard');
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'A reliable home for daily zoo care.',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Next feedings' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText('Amara')).not.toHaveLength(0);
+    expect(dashboardMocks.getKeeperDashboard).toHaveBeenCalledOnce();
+  });
+
+  it('renders the admin dashboard on the admin dashboard route', async () => {
+    authMocks.getSession.mockResolvedValue({
+      data: authenticatedSession,
+      error: null,
+    });
+
+    renderApp('/admin/dashboard');
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'A reliable home for daily zoo care.',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Registry summary' }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText('Open tasks')).toBeInTheDocument();
+    expect(dashboardMocks.getAdminDashboard).toHaveBeenCalledOnce();
   });
 
   it('hides administrator navigation and forbids a keeper direct route', async () => {
