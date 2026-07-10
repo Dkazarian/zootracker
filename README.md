@@ -1,6 +1,6 @@
 # Zootracker
 
-Zootracker is an internal animal-care application built with a React frontend and a NestJS API.
+Zootracker is a fictional internal animal-care application built with a React frontend and a NestJS API, for practicing SDD.
 
 ## Requirements
 
