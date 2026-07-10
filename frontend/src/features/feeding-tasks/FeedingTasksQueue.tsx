@@ -15,9 +15,9 @@ import {
   type FeedingTaskQueueDue,
   type FeedingTaskQueueFilters,
 } from './feeding-task-api';
-import SharedFeedingQueueItem from './SharedFeedingQueueItem';
+import FeedingTasksQueueItem from './components/FeedingTasksQueueItem';
 
-interface SharedFeedingQueueProps {
+interface FeedingTasksQueueProps {
   currentUser: CurrentUser;
 }
 
@@ -34,7 +34,7 @@ function shouldWarnBeforeCompletion(
   return Boolean(task.claimedBy && task.claimedBy.id !== currentUser.id);
 }
 
-function SharedFeedingQueue({ currentUser }: SharedFeedingQueueProps) {
+function FeedingTasksQueue({ currentUser }: FeedingTasksQueueProps) {
   const queryClient = useQueryClient();
   const [availability, setAvailability] =
     useState<FeedingTaskQueueAvailability>('all');
@@ -157,7 +157,7 @@ function SharedFeedingQueue({ currentUser }: SharedFeedingQueueProps) {
       {queueQuery.isSuccess && queueQuery.data.length > 0 && (
         <ul className="feeding-queue-list">
           {queueQuery.data.map((task) => (
-            <SharedFeedingQueueItem
+            <FeedingTasksQueueItem
               key={task.id}
               task={task}
               currentUser={currentUser}
@@ -209,4 +209,4 @@ function SharedFeedingQueue({ currentUser }: SharedFeedingQueueProps) {
   );
 }
 
-export default SharedFeedingQueue;
+export default FeedingTasksQueue;

@@ -37,7 +37,7 @@ function ConnectionCard() {
       </div>
 
       {healthQuery.isError && (
-        <button type="button" onClick={() => healthQuery.refetch()}>
+        <button type="button" onClick={() => void healthQuery.refetch()}>
           Try again
         </button>
       )}

@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import FormError from '../../shared/components/form/FormError';
 import type { CreatePersonnelInput } from './personnel-api';
 
 const personnelFormSchema = z.object({
@@ -113,11 +114,7 @@ function PersonnelForm({
           )}
         </div>
 
-        {serverError && (
-          <p className="form-error" role="alert">
-            {serverError}
-          </p>
-        )}
+        {serverError && <FormError>{serverError}</FormError>}
 
         <div className="form-actions">
           <button type="submit" disabled={submitting}>

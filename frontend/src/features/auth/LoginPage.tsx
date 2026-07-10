@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
+import FormError from '../../shared/components/form/FormError';
 import { authClient } from '../../shared/auth/auth-client';
 import {
   sessionQueryKey,
@@ -117,11 +118,7 @@ function LoginPage() {
             )}
           </div>
 
-          {authenticationError && (
-            <p className="form-error" role="alert">
-              {authenticationError}
-            </p>
-          )}
+          {authenticationError && <FormError>{authenticationError}</FormError>}
 
           <button type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Signing in...' : 'Sign in'}

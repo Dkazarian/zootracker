@@ -90,7 +90,7 @@ function AnimalEditorPage() {
           onCancel={() =>
             void navigate(animalId ? `/animals/${animalId}` : '/animals')
           }
-          onSave={(input) => saveMutation.mutate(input)}
+          onSave={saveMutation.mutate}
         />
       </section>
     </main>

@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import FormError from '../../shared/components/form/FormError';
 import {
   getTomorrowUiDate,
   parseUiDate,
@@ -156,9 +157,7 @@ function FeedingPlanForm({
       </div>
 
       {serverError && (
-        <p className="form-error form-field--wide" role="alert">
-          {serverError}
-        </p>
+        <FormError className="form-field--wide">{serverError}</FormError>
       )}
 
       <div className="form-actions">

@@ -579,25 +579,33 @@ textarea:focus-visible {
   box-shadow: 0 0.75rem 2rem rgb(41 64 54 / 6%);
 }
 
-.feeding-plan-summary {
+.feeding-plan-card-summary {
   display: flex;
   align-items: start;
   justify-content: space-between;
   gap: 1rem;
 }
 
-.feeding-plan-summary h3 {
+.feeding-plan-card-summary__title {
   margin: 0.35rem 0 0;
   font-size: 1.35rem;
 }
 
-.feeding-status {
+.feeding-plan-card-summary--archived .feeding-plan-card-summary__title {
+  font-size: 1.15rem;
+}
+
+.feeding-plan-card-summary__status {
   width: fit-content;
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.feeding-status {
+  color: inherit;
 }
 
 .feeding-status--upcoming {
@@ -856,7 +864,7 @@ footer p {
   .profile-actions,
   .archive-confirmation,
   .personnel-confirmation,
-  .feeding-plan-summary {
+  .feeding-plan-card-summary {
     align-items: stretch;
     flex-direction: column;
   }

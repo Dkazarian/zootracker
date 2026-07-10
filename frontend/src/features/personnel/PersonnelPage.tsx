@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { formatApplicationRole } from '../../shared/auth/application-role';
+import FormError from '../../shared/components/form/FormError';
 import { sessionQueryKey } from '../../shared/auth/session';
 import type { AuthenticatedOutletContext } from '../auth/AuthenticatedLayout';
 import PersonnelForm from './PersonnelForm';
@@ -10,7 +11,6 @@ import {
   deactivatePersonnel,
   listPersonnel,
   reactivatePersonnel,
-  type CreatePersonnelInput,
   type Personnel,
 } from './personnel-api';
 
@@ -70,6 +70,11 @@ function PersonnelPage() {
       await refreshLifecycleState();
     },
   });
+  const confirmDeactivation = useCallback(() => {
+    if (confirmingDeactivation) {
+      deactivateMutation.mutate(confirmingDeactivation);
+    }
+  }, [confirmingDeactivation, deactivateMutation]);
 
   const openForm = () => {
     createMutation.reset();
@@ -116,9 +121,7 @@ function PersonnelPage() {
             createMutation.isError ? getErrorMessage(createMutation.error) : ''
           }
           onCancel={() => setShowForm(false)}
-          onCreate={(input: CreatePersonnelInput) =>
-            createMutation.mutate(input)
-          }
+          onCreate={createMutation.mutate}
         />
       )}
 
@@ -143,7 +146,7 @@ function PersonnelPage() {
               className="button-danger"
               type="button"
               disabled={deactivateMutation.isPending}
-              onClick={() => deactivateMutation.mutate(confirmingDeactivation)}
+              onClick={confirmDeactivation}
             >
               {deactivateMutation.isPending
                 ? 'Deactivating...'
@@ -162,9 +165,7 @@ function PersonnelPage() {
       )}
 
       {lifecycleError && (
-        <p className="form-error" role="alert">
-          {getErrorMessage(lifecycleError)}
-        </p>
+        <FormError>{getErrorMessage(lifecycleError)}</FormError>
       )}
 
       {personnelQuery.isPending && (

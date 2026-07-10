@@ -42,7 +42,7 @@ function AuthenticatedLayout() {
       <Header
         userName={sessionQuery.data.name}
         userRole={sessionQuery.data.role}
-        onSignOut={() => void signOut()}
+        onSignOut={signOut}
       />
       <Outlet context={{ currentUser: sessionQuery.data }} />
       <Footer />
