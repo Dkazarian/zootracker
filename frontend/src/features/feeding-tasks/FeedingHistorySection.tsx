@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import FormError from '../../shared/components/form/FormError';
 import {
   formatFeedingDate,
   formatFeedingTimeHint,
@@ -67,6 +68,11 @@ function FeedingHistorySection({
       await refresh();
     },
   });
+  const undoCompletion = useCallback(() => {
+    if (undoTarget) {
+      undoMutation.mutate(undoTarget.id);
+    }
+  }, [undoMutation, undoTarget]);
 
   return (
     <section
@@ -88,9 +94,9 @@ function FeedingHistorySection({
         <p className="page-state">Loading history...</p>
       )}
       {open && query.isError && (
-        <p className="page-state page-state--error" role="alert">
+        <FormError className="page-state page-state--error">
           {message(query.error)}
-        </p>
+        </FormError>
       )}
       {open && query.isSuccess && query.data.length === 0 && (
         <p className="page-state">No completed feedings yet.</p>
@@ -121,8 +127,9 @@ function FeedingHistorySection({
               </dl>
               <p>{task.notes || 'No notes.'}</p>
               <p className="feeding-plan-accountability">
-                Completed by {task.completedBy?.name ?? 'Unknown'} · Last
-                changed by {task.lastModifiedBy.name}
+                Claimed by {task.claimedBy?.name ?? 'No one'} · Completed by{' '}
+                {task.completedBy?.name ?? 'Unknown'} · Last changed by{' '}
+                {task.lastModifiedBy.name}
               </p>
               {editTarget?.id === task.id ? (
                 <FeedingTaskCompletionForm
@@ -175,7 +182,7 @@ function FeedingHistorySection({
               className="button-danger"
               type="button"
               disabled={undoMutation.isPending}
-              onClick={() => undoMutation.mutate(undoTarget.id)}
+              onClick={undoCompletion}
             >
               {undoMutation.isPending ? 'Undoing...' : 'Undo completion'}
             </button>
@@ -189,9 +196,7 @@ function FeedingHistorySection({
             </button>
           </div>
           {undoMutation.isError && (
-            <p className="form-error" role="alert">
-              {message(undoMutation.error)}
-            </p>
+            <FormError>{message(undoMutation.error)}</FormError>
           )}
         </section>
       )}

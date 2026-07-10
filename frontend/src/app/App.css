@@ -493,6 +493,29 @@ textarea:focus-visible {
   margin-top: clamp(2.5rem, 7vw, 5rem);
 }
 
+.feeding-queue {
+  margin-top: 2.5rem;
+}
+
+.feeding-queue-filters {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  display: flex;
+  align-items: end;
+  gap: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 75%);
+}
+
+.feeding-queue-list {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+}
+
 .section-heading {
   display: flex;
   align-items: end;
@@ -556,25 +579,33 @@ textarea:focus-visible {
   box-shadow: 0 0.75rem 2rem rgb(41 64 54 / 6%);
 }
 
-.feeding-plan-summary {
+.feeding-plan-card-summary {
   display: flex;
   align-items: start;
   justify-content: space-between;
   gap: 1rem;
 }
 
-.feeding-plan-summary h3 {
+.feeding-plan-card-summary__title {
   margin: 0.35rem 0 0;
   font-size: 1.35rem;
 }
 
-.feeding-status {
+.feeding-plan-card-summary--archived .feeding-plan-card-summary__title {
+  font-size: 1.15rem;
+}
+
+.feeding-plan-card-summary__status {
   width: fit-content;
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.feeding-status {
+  color: inherit;
 }
 
 .feeding-status--upcoming {
@@ -829,10 +860,11 @@ footer p {
   .section-heading,
   .personnel-summary,
   .animal-filters,
+  .feeding-queue-filters,
   .profile-actions,
   .archive-confirmation,
   .personnel-confirmation,
-  .feeding-plan-summary {
+  .feeding-plan-card-summary {
     align-items: stretch;
     flex-direction: column;
   }

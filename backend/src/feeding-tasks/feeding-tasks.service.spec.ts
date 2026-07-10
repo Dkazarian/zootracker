@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { jest } from '@jest/globals';
@@ -19,12 +20,15 @@ function taskRecord(
     feedingPlanId: 'plan-1',
     scheduledDueAt: new Date('2026-07-01T09:00:00.000Z'),
     status: 'AVAILABLE',
+    claimedById: null,
+    claimedAt: null,
     completedById: null,
     completedAt: null,
     notes: null,
     lastModifiedById: person.id,
     createdAt: new Date('2026-07-01T00:00:00.000Z'),
     updatedAt: new Date('2026-07-01T00:00:00.000Z'),
+    claimedBy: null,
     completedBy: null,
     lastModifiedBy: person,
     feedingPlan: {
@@ -34,7 +38,7 @@ function taskRecord(
       instructions: '3 bananas and an apple',
       repeatEveryDays: 1,
       archivedAt: null,
-      animal: { archivedAt: null },
+      animal: { id: 'animal-1', name: 'Momo', archivedAt: null },
     },
     ...overrides,
   };
@@ -42,8 +46,11 @@ function taskRecord(
 
 describe('FeedingTasksService', () => {
   const repository = {
+    listOpen: jest.fn<FeedingTasksRepository['listOpen']>(),
     listCompleted: jest.fn<FeedingTasksRepository['listCompleted']>(),
     findById: jest.fn<FeedingTasksRepository['findById']>(),
+    claim: jest.fn<FeedingTasksRepository['claim']>(),
+    releaseClaim: jest.fn<FeedingTasksRepository['releaseClaim']>(),
     createScheduledTask:
       jest.fn<FeedingTasksRepository['createScheduledTask']>(),
     scheduledTaskCreationOperations:
@@ -90,6 +97,63 @@ describe('FeedingTasksService', () => {
       service.listCompleted('animal-1', 'keeper'),
     ).rejects.toBeInstanceOf(NotFoundException);
     expect(repository.listCompleted).not.toHaveBeenCalled();
+  });
+
+  it('lists open queue tasks with default filters', async () => {
+    repository.listOpen.mockResolvedValueOnce([taskRecord()]);
+
+    await expect(service.listOpen({})).resolves.toMatchObject([
+      { id: 'task-1', claimedBy: null },
+    ]);
+    expect(repository.listOpen).toHaveBeenCalledWith(
+      expect.objectContaining({
+        availability: 'all',
+        due: 'all',
+      }),
+    );
+  });
+
+  it('claims and releases available tasks', async () => {
+    const claimed = taskRecord({
+      claimedById: person.id,
+      claimedAt: new Date('2026-07-01T10:00:00.000Z'),
+      claimedBy: person,
+    });
+    repository.findById.mockResolvedValueOnce(taskRecord());
+    repository.claim.mockResolvedValueOnce(claimed);
+
+    await expect(service.claim('task-1', person.id)).resolves.toMatchObject({
+      claimedBy: person,
+    });
+
+    repository.findById.mockResolvedValueOnce(claimed);
+    repository.releaseClaim.mockResolvedValueOnce(taskRecord());
+
+    await expect(
+      service.releaseClaim('task-1', person.id, 'keeper'),
+    ).resolves.toMatchObject({ claimedBy: null });
+  });
+
+  it('rejects duplicate claims and keeper release of another user claim', async () => {
+    repository.findById.mockResolvedValueOnce(
+      taskRecord({
+        claimedById: 'keeper-2',
+        claimedBy: { id: 'keeper-2', name: 'Other Keeper' },
+      }),
+    );
+    await expect(service.claim('task-1', person.id)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+
+    repository.findById.mockResolvedValueOnce(
+      taskRecord({
+        claimedById: 'keeper-2',
+        claimedBy: { id: 'keeper-2', name: 'Other Keeper' },
+      }),
+    );
+    await expect(
+      service.releaseClaim('task-1', person.id, 'keeper'),
+    ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
   it('completes an available task with authenticated accountability', async () => {

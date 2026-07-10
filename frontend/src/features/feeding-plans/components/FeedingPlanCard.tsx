@@ -31,7 +31,7 @@ function FeedingPlanCard({
         }
         title={plan.name}
         status={archived ? 'Archived' : formatPlanStatus(plan)}
-        headingLevel={archived ? 4 : 3}
+        archived={archived}
         statusClassName={
           archived
             ? 'feeding-status'

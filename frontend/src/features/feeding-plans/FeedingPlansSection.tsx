@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import FormError from '../../shared/components/form/FormError';
 import FeedingHistorySection from '../feeding-tasks/FeedingHistorySection';
 import {
   completeFeedingTask,
@@ -13,8 +14,8 @@ import {
   feedingPlanQueryKey,
   listFeedingPlanHistory,
   listFeedingPlans,
-  type FeedingPlan,
   type FeedingPlanInput,
+  type FeedingPlan,
 } from './feeding-plan-api';
 import ActiveFeedingPlanList from './components/ActiveFeedingPlanList';
 import ArchivedFeedingPlansPanel from './components/ArchivedFeedingPlansPanel';
@@ -95,10 +96,11 @@ function FeedingPlansSection({
       await refreshPlans();
     },
   });
-  const savePlan = (input: FeedingPlanInput) => {
-    createMutation.mutate(input);
-  };
-
+  const confirmArchive = useCallback(() => {
+    if (archiveTarget) {
+      archiveMutation.mutate(archiveTarget.id);
+    }
+  }, [archiveMutation, archiveTarget]);
   return (
     <section className="feeding-plans" aria-labelledby="feeding-plans-title">
       <div className="section-heading">
@@ -123,7 +125,7 @@ function FeedingPlansSection({
             createMutation.reset();
             setFormOpen(false);
           }}
-          onSave={savePlan}
+          onSave={createMutation.mutate}
         />
       )}
 
@@ -131,7 +133,7 @@ function FeedingPlansSection({
         <FeedingPlanArchiveConfirmation
           planName={archiveTarget.name}
           submitting={archiveMutation.isPending}
-          onConfirm={() => archiveMutation.mutate(archiveTarget.id)}
+          onConfirm={confirmArchive}
           onCancel={() => {
             archiveMutation.reset();
             setArchiveTarget(null);
@@ -140,9 +142,7 @@ function FeedingPlansSection({
       )}
 
       {archiveMutation.isError && (
-        <p className="form-error" role="alert">
-          {getErrorMessage(archiveMutation.error)}
-        </p>
+        <FormError>{getErrorMessage(archiveMutation.error)}</FormError>
       )}
 
       {completionTarget?.currentTask && (

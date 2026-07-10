@@ -177,6 +177,65 @@ describeWithDatabase('Feeding tasks (database e2e)', () => {
     ).toBe(1);
   });
 
+  it('lists open feedings, claims one task, and still permits another user to complete it', async () => {
+    const keeperAgent = await signIn(keeper);
+    const adminAgent = await signIn(administrator);
+    const initialDueAt = yesterdayDueAt();
+    const plan = await keeperAgent
+      .post(`/api/animals/${animalId}/feeding-plans`)
+      .send({
+        name: 'Shared queue feeding',
+        instructions: 'Browse and fruit',
+        repeatEveryDays: 1,
+        initialDueAt,
+      })
+      .expect(201);
+    const taskId = (plan.body as { currentTask: { id: string } }).currentTask
+      .id;
+
+    const queue = await keeperAgent
+      .get('/api/feeding-tasks/queue?availability=unclaimed&due=due&limit=3')
+      .expect(200);
+    const queueBody = (queue as { body: unknown }).body;
+    expect(Array.isArray(queueBody)).toBe(true);
+    const [queueTask] = queueBody as [
+      {
+        id: string;
+        claimedBy: unknown;
+        plan: { animalName: string; name: string };
+      },
+    ];
+    expect(queueTask.id).toBe(taskId);
+    expect(queueTask.claimedBy).toBeNull();
+    expect(queueTask.plan.animalName).toBe('Task animal');
+    expect(queueTask.plan.name).toBe('Shared queue feeding');
+
+    const claimed = await keeperAgent
+      .post(`/api/feeding-tasks/${taskId}/claim`)
+      .send({})
+      .expect(201);
+    expect(claimed.body).toMatchObject({
+      id: taskId,
+      claimedBy: { name: keeper.name },
+    });
+
+    await adminAgent
+      .post(`/api/feeding-tasks/${taskId}/claim`)
+      .send({})
+      .expect(409);
+
+    const completed = await adminAgent
+      .post(`/api/feeding-tasks/${taskId}/completion`)
+      .send({ notes: 'Completed while covering the queue' })
+      .expect(201);
+    expect(completed.body).toMatchObject({
+      id: taskId,
+      status: 'COMPLETED',
+      claimedBy: { name: keeper.name },
+      completedBy: { name: administrator.name },
+    });
+  });
+
   afterAll(async () => {
     await prisma.feedingTask.deleteMany({
       where: { feedingPlan: { animal: { notes: 'task-e2e' } } },

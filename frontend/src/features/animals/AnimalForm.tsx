@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import FormError from '../../shared/components/form/FormError';
 import { getTodayDateOnly, parseUiDate } from '../../shared/date/date-format';
 import type { Animal, AnimalInput } from './animal-api';
 import { toDateInputValue } from './animal-format';
@@ -190,9 +191,7 @@ function AnimalForm({
         {errors.notes && <p className="field-error">{errors.notes.message}</p>}
       </div>
       {serverError && (
-        <p className="form-error form-field--wide" role="alert">
-          {serverError}
-        </p>
+        <FormError className="form-field--wide">{serverError}</FormError>
       )}
       <div className="form-actions">
         <button type="submit" disabled={submitting}>

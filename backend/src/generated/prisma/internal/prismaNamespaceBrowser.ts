@@ -131,6 +131,8 @@ export const FeedingTaskScalarFieldEnum = {
   feedingPlanId: 'feedingPlanId',
   scheduledDueAt: 'scheduledDueAt',
   status: 'status',
+  claimedById: 'claimedById',
+  claimedAt: 'claimedAt',
   completedById: 'completedById',
   completedAt: 'completedAt',
   notes: 'notes',

@@ -235,6 +235,7 @@ export type UserWhereInput = {
   createdFeedingPlans?: Prisma.FeedingPlanListRelationFilter
   modifiedFeedingPlans?: Prisma.FeedingPlanListRelationFilter
   completedFeedingTasks?: Prisma.FeedingTaskListRelationFilter
+  claimedFeedingTasks?: Prisma.FeedingTaskListRelationFilter
   modifiedFeedingTasks?: Prisma.FeedingTaskListRelationFilter
 }
 
@@ -255,6 +256,7 @@ export type UserOrderByWithRelationInput = {
   createdFeedingPlans?: Prisma.FeedingPlanOrderByRelationAggregateInput
   modifiedFeedingPlans?: Prisma.FeedingPlanOrderByRelationAggregateInput
   completedFeedingTasks?: Prisma.FeedingTaskOrderByRelationAggregateInput
+  claimedFeedingTasks?: Prisma.FeedingTaskOrderByRelationAggregateInput
   modifiedFeedingTasks?: Prisma.FeedingTaskOrderByRelationAggregateInput
 }
 
@@ -278,6 +280,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdFeedingPlans?: Prisma.FeedingPlanListRelationFilter
   modifiedFeedingPlans?: Prisma.FeedingPlanListRelationFilter
   completedFeedingTasks?: Prisma.FeedingTaskListRelationFilter
+  claimedFeedingTasks?: Prisma.FeedingTaskListRelationFilter
   modifiedFeedingTasks?: Prisma.FeedingTaskListRelationFilter
 }, "id" | "email">
 
@@ -332,6 +335,7 @@ export type UserCreateInput = {
   createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
   modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
   completedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -352,6 +356,7 @@ export type UserUncheckedCreateInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -372,6 +377,7 @@ export type UserUpdateInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -392,6 +398,7 @@ export type UserUncheckedUpdateInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -525,6 +532,12 @@ export type UserUpdateOneRequiredWithoutModifiedFeedingPlansNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutModifiedFeedingPlansInput, Prisma.UserUpdateWithoutModifiedFeedingPlansInput>, Prisma.UserUncheckedUpdateWithoutModifiedFeedingPlansInput>
 }
 
+export type UserCreateNestedOneWithoutClaimedFeedingTasksInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutClaimedFeedingTasksInput, Prisma.UserUncheckedCreateWithoutClaimedFeedingTasksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutClaimedFeedingTasksInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserCreateNestedOneWithoutCompletedFeedingTasksInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCompletedFeedingTasksInput, Prisma.UserUncheckedCreateWithoutCompletedFeedingTasksInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCompletedFeedingTasksInput
@@ -535,6 +548,16 @@ export type UserCreateNestedOneWithoutModifiedFeedingTasksInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutModifiedFeedingTasksInput, Prisma.UserUncheckedCreateWithoutModifiedFeedingTasksInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutModifiedFeedingTasksInput
   connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutClaimedFeedingTasksNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutClaimedFeedingTasksInput, Prisma.UserUncheckedCreateWithoutClaimedFeedingTasksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutClaimedFeedingTasksInput
+  upsert?: Prisma.UserUpsertWithoutClaimedFeedingTasksInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutClaimedFeedingTasksInput, Prisma.UserUpdateWithoutClaimedFeedingTasksInput>, Prisma.UserUncheckedUpdateWithoutClaimedFeedingTasksInput>
 }
 
 export type UserUpdateOneWithoutCompletedFeedingTasksNestedInput = {
@@ -599,6 +622,7 @@ export type UserCreateWithoutCreatedFeedingPlansInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
   completedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -618,6 +642,7 @@ export type UserUncheckedCreateWithoutCreatedFeedingPlansInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -642,6 +667,7 @@ export type UserCreateWithoutModifiedFeedingPlansInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
   completedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -661,6 +687,7 @@ export type UserUncheckedCreateWithoutModifiedFeedingPlansInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -696,6 +723,7 @@ export type UserUpdateWithoutCreatedFeedingPlansInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -715,6 +743,7 @@ export type UserUncheckedUpdateWithoutCreatedFeedingPlansInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -745,6 +774,7 @@ export type UserUpdateWithoutModifiedFeedingPlansInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -764,7 +794,53 @@ export type UserUncheckedUpdateWithoutModifiedFeedingPlansInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutLastModifiedByNestedInput
+}
+
+export type UserCreateWithoutClaimedFeedingTasksInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role?: string
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
+  completedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutCompletedByInput
+  modifiedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutLastModifiedByInput
+}
+
+export type UserUncheckedCreateWithoutClaimedFeedingTasksInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role?: string
+  banned?: boolean | null
+  banReason?: string | null
+  banExpires?: Date | string | null
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
+  completedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutCompletedByInput
+  modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutLastModifiedByInput
+}
+
+export type UserCreateOrConnectWithoutClaimedFeedingTasksInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutClaimedFeedingTasksInput, Prisma.UserUncheckedCreateWithoutClaimedFeedingTasksInput>
 }
 
 export type UserCreateWithoutCompletedFeedingTasksInput = {
@@ -783,6 +859,7 @@ export type UserCreateWithoutCompletedFeedingTasksInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
   modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -802,6 +879,7 @@ export type UserUncheckedCreateWithoutCompletedFeedingTasksInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -827,6 +905,7 @@ export type UserCreateWithoutModifiedFeedingTasksInput = {
   createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
   modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
   completedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutClaimedByInput
 }
 
 export type UserUncheckedCreateWithoutModifiedFeedingTasksInput = {
@@ -846,11 +925,63 @@ export type UserUncheckedCreateWithoutModifiedFeedingTasksInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutClaimedByInput
 }
 
 export type UserCreateOrConnectWithoutModifiedFeedingTasksInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutModifiedFeedingTasksInput, Prisma.UserUncheckedCreateWithoutModifiedFeedingTasksInput>
+}
+
+export type UserUpsertWithoutClaimedFeedingTasksInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutClaimedFeedingTasksInput, Prisma.UserUncheckedUpdateWithoutClaimedFeedingTasksInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutClaimedFeedingTasksInput, Prisma.UserUncheckedCreateWithoutClaimedFeedingTasksInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutClaimedFeedingTasksInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutClaimedFeedingTasksInput, Prisma.UserUncheckedUpdateWithoutClaimedFeedingTasksInput>
+}
+
+export type UserUpdateWithoutClaimedFeedingTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
+  completedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutCompletedByNestedInput
+  modifiedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutLastModifiedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutClaimedFeedingTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
+  modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
+  completedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutLastModifiedByNestedInput
 }
 
 export type UserUpsertWithoutCompletedFeedingTasksInput = {
@@ -880,6 +1011,7 @@ export type UserUpdateWithoutCompletedFeedingTasksInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -899,6 +1031,7 @@ export type UserUncheckedUpdateWithoutCompletedFeedingTasksInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -930,6 +1063,7 @@ export type UserUpdateWithoutModifiedFeedingTasksInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutClaimedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutModifiedFeedingTasksInput = {
@@ -949,6 +1083,7 @@ export type UserUncheckedUpdateWithoutModifiedFeedingTasksInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutClaimedByNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -967,6 +1102,7 @@ export type UserCreateWithoutSessionsInput = {
   createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
   modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
   completedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -986,6 +1122,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -1021,6 +1158,7 @@ export type UserUpdateWithoutSessionsInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -1040,6 +1178,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -1059,6 +1198,7 @@ export type UserCreateWithoutAccountsInput = {
   createdFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutCreatedByInput
   modifiedFeedingPlans?: Prisma.FeedingPlanCreateNestedManyWithoutLastModifiedByInput
   completedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -1078,6 +1218,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutCreatedByInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedCreateNestedManyWithoutLastModifiedByInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutCompletedByInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutClaimedByInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedCreateNestedManyWithoutLastModifiedByInput
 }
 
@@ -1113,6 +1254,7 @@ export type UserUpdateWithoutAccountsInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutCreatedByNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUpdateManyWithoutLastModifiedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -1132,6 +1274,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   createdFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutCreatedByNestedInput
   modifiedFeedingPlans?: Prisma.FeedingPlanUncheckedUpdateManyWithoutLastModifiedByNestedInput
   completedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  claimedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutClaimedByNestedInput
   modifiedFeedingTasks?: Prisma.FeedingTaskUncheckedUpdateManyWithoutLastModifiedByNestedInput
 }
 
@@ -1146,6 +1289,7 @@ export type UserCountOutputType = {
   createdFeedingPlans: number
   modifiedFeedingPlans: number
   completedFeedingTasks: number
+  claimedFeedingTasks: number
   modifiedFeedingTasks: number
 }
 
@@ -1155,6 +1299,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   createdFeedingPlans?: boolean | UserCountOutputTypeCountCreatedFeedingPlansArgs
   modifiedFeedingPlans?: boolean | UserCountOutputTypeCountModifiedFeedingPlansArgs
   completedFeedingTasks?: boolean | UserCountOutputTypeCountCompletedFeedingTasksArgs
+  claimedFeedingTasks?: boolean | UserCountOutputTypeCountClaimedFeedingTasksArgs
   modifiedFeedingTasks?: boolean | UserCountOutputTypeCountModifiedFeedingTasksArgs
 }
 
@@ -1206,6 +1351,13 @@ export type UserCountOutputTypeCountCompletedFeedingTasksArgs<ExtArgs extends ru
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountClaimedFeedingTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FeedingTaskWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountModifiedFeedingTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.FeedingTaskWhereInput
 }
@@ -1228,6 +1380,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdFeedingPlans?: boolean | Prisma.User$createdFeedingPlansArgs<ExtArgs>
   modifiedFeedingPlans?: boolean | Prisma.User$modifiedFeedingPlansArgs<ExtArgs>
   completedFeedingTasks?: boolean | Prisma.User$completedFeedingTasksArgs<ExtArgs>
+  claimedFeedingTasks?: boolean | Prisma.User$claimedFeedingTasksArgs<ExtArgs>
   modifiedFeedingTasks?: boolean | Prisma.User$modifiedFeedingTasksArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -1281,6 +1434,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   createdFeedingPlans?: boolean | Prisma.User$createdFeedingPlansArgs<ExtArgs>
   modifiedFeedingPlans?: boolean | Prisma.User$modifiedFeedingPlansArgs<ExtArgs>
   completedFeedingTasks?: boolean | Prisma.User$completedFeedingTasksArgs<ExtArgs>
+  claimedFeedingTasks?: boolean | Prisma.User$claimedFeedingTasksArgs<ExtArgs>
   modifiedFeedingTasks?: boolean | Prisma.User$modifiedFeedingTasksArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1295,6 +1449,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     createdFeedingPlans: Prisma.$FeedingPlanPayload<ExtArgs>[]
     modifiedFeedingPlans: Prisma.$FeedingPlanPayload<ExtArgs>[]
     completedFeedingTasks: Prisma.$FeedingTaskPayload<ExtArgs>[]
+    claimedFeedingTasks: Prisma.$FeedingTaskPayload<ExtArgs>[]
     modifiedFeedingTasks: Prisma.$FeedingTaskPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1708,6 +1863,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   createdFeedingPlans<T extends Prisma.User$createdFeedingPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdFeedingPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedingPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   modifiedFeedingPlans<T extends Prisma.User$modifiedFeedingPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$modifiedFeedingPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedingPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   completedFeedingTasks<T extends Prisma.User$completedFeedingTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$completedFeedingTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedingTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  claimedFeedingTasks<T extends Prisma.User$claimedFeedingTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$claimedFeedingTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedingTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   modifiedFeedingTasks<T extends Prisma.User$modifiedFeedingTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$modifiedFeedingTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeedingTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2241,6 +2397,30 @@ export type User$modifiedFeedingPlansArgs<ExtArgs extends runtime.Types.Extensio
  * User.completedFeedingTasks
  */
 export type User$completedFeedingTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FeedingTask
+   */
+  select?: Prisma.FeedingTaskSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FeedingTask
+   */
+  omit?: Prisma.FeedingTaskOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeedingTaskInclude<ExtArgs> | null
+  where?: Prisma.FeedingTaskWhereInput
+  orderBy?: Prisma.FeedingTaskOrderByWithRelationInput | Prisma.FeedingTaskOrderByWithRelationInput[]
+  cursor?: Prisma.FeedingTaskWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FeedingTaskScalarFieldEnum | Prisma.FeedingTaskScalarFieldEnum[]
+}
+
+/**
+ * User.claimedFeedingTasks
+ */
+export type User$claimedFeedingTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the FeedingTask
    */

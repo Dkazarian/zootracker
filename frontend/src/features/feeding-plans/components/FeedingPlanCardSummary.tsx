@@ -4,7 +4,7 @@ interface FeedingPlanCardSummaryProps {
   label: ReactNode;
   title: ReactNode;
   status: ReactNode;
-  headingLevel?: 3 | 4;
+  archived?: boolean;
   statusClassName?: string;
 }
 
@@ -12,18 +12,22 @@ function FeedingPlanCardSummary({
   label,
   title,
   status,
-  headingLevel = 3,
+  archived = false,
   statusClassName = 'feeding-status',
 }: FeedingPlanCardSummaryProps) {
-  const Heading = headingLevel === 4 ? 'h4' : 'h3';
-
   return (
-    <div className="feeding-plan-summary">
+    <div
+      className={`feeding-plan-card-summary${
+        archived ? ' feeding-plan-card-summary--archived' : ''
+      }`}
+    >
       <div>
         <p className="card-label">{label}</p>
-        <Heading>{title}</Heading>
+        <h3 className="feeding-plan-card-summary__title">{title}</h3>
       </div>
-      <span className={statusClassName}>{status}</span>
+      <span className={`feeding-plan-card-summary__status ${statusClassName}`}>
+        {status}
+      </span>
     </div>
   );
 }

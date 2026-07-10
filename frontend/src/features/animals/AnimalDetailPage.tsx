@@ -13,6 +13,7 @@ import { animalQueryKey, archiveAnimal, getAnimal } from './animal-api';
 import AnimalArchiveConfirmation from './components/AnimalArchiveConfirmation';
 import AnimalProfileDetails from './components/AnimalProfileDetails';
 import SpeciesIllustration from './SpeciesIllustration';
+import FormError from '../../shared/components/form/FormError';
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error
@@ -104,15 +105,13 @@ function AnimalDetailPage() {
         <AnimalArchiveConfirmation
           animalName={animal.name}
           submitting={archiveMutation.isPending}
-          onConfirm={() => archiveMutation.mutate()}
+          onConfirm={archiveMutation.mutate}
           onCancel={() => setConfirmingArchive(false)}
         />
       )}
 
       {archiveMutation.isError && (
-        <p className="form-error" role="alert">
-          {getErrorMessage(archiveMutation.error)}
-        </p>
+        <FormError>{getErrorMessage(archiveMutation.error)}</FormError>
       )}
 
       <AnimalProfileDetails animal={animal} />

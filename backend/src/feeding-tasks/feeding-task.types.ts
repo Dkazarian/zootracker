@@ -10,6 +10,8 @@ export interface FeedingTaskResponse {
   feedingPlanId: string;
   scheduledDueAt: Date;
   status: FeedingTaskStatus;
+  claimedBy: FeedingTaskPersonResponse | null;
+  claimedAt: Date | null;
   completedBy: FeedingTaskPersonResponse | null;
   completedAt: Date | null;
   notes: string | null;
@@ -19,6 +21,7 @@ export interface FeedingTaskResponse {
   plan: {
     id: string;
     animalId: string;
+    animalName: string;
     name: string;
     instructions: string;
     repeatEveryDays: number;
@@ -32,11 +35,22 @@ export interface CreateScheduledTaskData {
   lastModifiedById: string;
 }
 
+export type FeedingTaskQueueAvailability = 'all' | 'unclaimed' | 'claimed';
+export type FeedingTaskQueueDueState = 'all' | 'due' | 'upcoming';
+
+export interface ListOpenFeedingTasksInput {
+  availability: FeedingTaskQueueAvailability;
+  due: FeedingTaskQueueDueState;
+  limit?: number;
+  now: Date;
+}
+
 export interface ScheduledTaskCreationOperations {
   createScheduledTask(data: CreateScheduledTaskData): Promise<void>;
 }
 
 export const feedingTaskRelations = {
+  claimedBy: { select: { id: true, name: true } },
   completedBy: { select: { id: true, name: true } },
   lastModifiedBy: { select: { id: true, name: true } },
   feedingPlan: {
@@ -47,7 +61,7 @@ export const feedingTaskRelations = {
       instructions: true,
       repeatEveryDays: true,
       archivedAt: true,
-      animal: { select: { archivedAt: true } },
+      animal: { select: { id: true, name: true, archivedAt: true } },
     },
   },
 } satisfies Prisma.FeedingTaskInclude;

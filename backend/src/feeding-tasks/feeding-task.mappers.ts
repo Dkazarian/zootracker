@@ -11,6 +11,8 @@ export function toFeedingTaskResponse(
     feedingPlanId: task.feedingPlanId,
     scheduledDueAt: task.scheduledDueAt,
     status: task.status,
+    claimedBy: task.claimedBy,
+    claimedAt: task.claimedAt,
     completedBy: task.completedBy,
     completedAt: task.completedAt,
     notes: task.notes,
@@ -20,6 +22,7 @@ export function toFeedingTaskResponse(
     plan: {
       id: task.feedingPlan.id,
       animalId: task.feedingPlan.animalId,
+      animalName: task.feedingPlan.animal.name,
       name: task.feedingPlan.name,
       instructions: task.feedingPlan.instructions,
       repeatEveryDays: task.feedingPlan.repeatEveryDays,

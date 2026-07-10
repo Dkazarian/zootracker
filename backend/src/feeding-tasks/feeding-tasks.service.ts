@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,7 +14,11 @@ import type { UpdateFeedingTaskCompletionDto } from './dto/update-feeding-task-c
 import { toFeedingTaskResponse } from './feeding-task.mappers';
 import { getNextScheduledDueAt } from './feeding-task-schedule';
 import type {
+  ListOpenFeedingTasksInput,
   FeedingTaskResponse,
+  FeedingTaskQueueAvailability,
+  FeedingTaskQueueDueState,
+  FeedingTaskRecord,
   ScheduledTaskCreationOperations,
 } from './feeding-task.types';
 import { FeedingTasksRepository } from './feeding-tasks.repository';
@@ -31,6 +36,22 @@ export class FeedingTasksService {
   ): Promise<FeedingTaskResponse[]> {
     await this.requireVisibleAnimal(animalId, role);
     return (await this.repository.listCompleted(animalId)).map(
+      toFeedingTaskResponse,
+    );
+  }
+
+  async listOpen(input: {
+    availability?: FeedingTaskQueueAvailability;
+    due?: FeedingTaskQueueDueState;
+    limit?: number;
+  }): Promise<FeedingTaskResponse[]> {
+    const listInput: ListOpenFeedingTasksInput = {
+      availability: input.availability ?? 'all',
+      due: input.due ?? 'all',
+      limit: input.limit,
+      now: new Date(),
+    };
+    return (await this.repository.listOpen(listInput)).map(
       toFeedingTaskResponse,
     );
   }
@@ -100,6 +121,39 @@ export class FeedingTasksService {
     return toFeedingTaskResponse(completed);
   }
 
+  async claim(taskId: string, userId: string): Promise<FeedingTaskResponse> {
+    const task = await this.requireTask(taskId);
+    this.requireClaimableTask(task);
+    if (task.claimedById) {
+      throw new ConflictException('Feeding task is already claimed');
+    }
+    const claimed = await this.repository.claim(taskId, userId, new Date());
+    if (!claimed) {
+      throw new ConflictException('Feeding task is already claimed');
+    }
+    return toFeedingTaskResponse(claimed);
+  }
+
+  async releaseClaim(
+    taskId: string,
+    userId: string,
+    role: ApplicationRole,
+  ): Promise<FeedingTaskResponse> {
+    const task = await this.requireTask(taskId);
+    this.requireClaimableTask(task);
+    if (!task.claimedById) {
+      throw new ConflictException('Feeding task is not claimed');
+    }
+    if (role !== 'admin' && task.claimedById !== userId) {
+      throw new ForbiddenException("You cannot release another keeper's claim");
+    }
+    const released = await this.repository.releaseClaim(taskId, userId);
+    if (!released) {
+      throw new ConflictException('Feeding task is not claimed');
+    }
+    return toFeedingTaskResponse(released);
+  }
+
   async updateCompletion(
     taskId: string,
     input: UpdateFeedingTaskCompletionDto,
@@ -153,6 +207,19 @@ export class FeedingTasksService {
     const task = await this.repository.findById(taskId);
     if (!task) throw new NotFoundException('Feeding task not found');
     return task;
+  }
+
+  private requireClaimableTask(task: FeedingTaskRecord): void {
+    if (task.status !== 'AVAILABLE') {
+      throw new ConflictException(
+        'Only available feeding tasks can be claimed',
+      );
+    }
+    if (task.feedingPlan.archivedAt || task.feedingPlan.animal.archivedAt) {
+      throw new ConflictException(
+        'Feeding tasks cannot be claimed for an archived plan or animal',
+      );
+    }
   }
 
   private async requireVisibleAnimal(

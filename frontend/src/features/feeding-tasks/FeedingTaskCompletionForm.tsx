@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import FormError from '../../shared/components/form/FormError';
 import type { FeedingTaskCompletionInput } from './feeding-task-api';
 import { toDateTimeLocalValue } from './feeding-task-format';
 
@@ -71,11 +72,7 @@ function FeedingTaskCompletionForm({
         <textarea id="feeding-task-notes" rows={3} {...register('notes')} />
         {errors.notes && <p className="field-error">{errors.notes.message}</p>}
       </div>
-      {serverError && (
-        <p className="form-error" role="alert">
-          {serverError}
-        </p>
-      )}
+      {serverError && <FormError>{serverError}</FormError>}
       <div className="form-actions">
         <button type="submit" disabled={submitting}>
           {submitting ? 'Saving...' : submitLabel}
