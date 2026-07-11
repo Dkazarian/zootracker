@@ -6,15 +6,15 @@ physical schema.
 
 ## Status
 
-| Area | Status |
-|---|---|
-| Better Auth users, sessions, accounts, and verification | Implemented |
-| Animals | Implemented |
-| Feeding plans | Implemented |
-| Immutable feeding plans and archived history | Approved Phase 5 amendment |
-| Feeding tasks, claims, and completed history | Implemented |
-| Timestamp-based feeding schedules | Implemented |
-| Dashboard data | Derived read-only aggregation from existing tables |
+| Area                                                    | Status                                             |
+| ------------------------------------------------------- | -------------------------------------------------- |
+| Better Auth users, sessions, accounts, and verification | Implemented                                        |
+| Animals                                                 | Implemented                                        |
+| Feeding plans                                           | Implemented                                        |
+| Immutable feeding plans and archived history            | Approved Phase 5 amendment                         |
+| Feeding tasks, claims, and completed history            | Implemented                                        |
+| Timestamp-based feeding schedules                       | Implemented                                        |
+| Dashboard data                                          | Derived read-only aggregation from existing tables |
 
 ## Model
 
