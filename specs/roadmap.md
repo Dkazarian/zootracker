@@ -101,17 +101,27 @@ rather than postponed until the end.
 - Keep dashboards as views over existing workflows rather than introducing new
   business rules.
 
-## Phase 10 - Weight History
+## Phase 10 - API Documentation and Data Model Reference
+
+- Add Swagger/OpenAPI documentation for the product REST API.
+- Expose a local interactive API reference and machine-readable OpenAPI JSON.
+- Document cookie-session authentication, role expectations, request DTOs,
+  response shapes, and common error responses.
+- Update the entity relationship model so it reflects the implemented schema
+  through dashboards and shared feeding claims.
+- Keep this phase documentation-focused; do not add new product workflows.
+
+## Phase 11 - Weight History
 
 - Add weight records linked to animals and keepers.
 - Show an animal's chronological weight history.
 - Allow keepers to record and correct measurements.
 - Establish consistent units and validation rules.
 
-## Phase 11 - Integration-Ready API
+## Phase 12 - Integration-Ready API
 
 - Review the REST API as a stable interface for external clients.
-- Complete OpenAPI documentation and consistent error responses.
+- Refine OpenAPI documentation and consistent error responses as needed.
 - Add service-to-service authentication for authorized clients.
 - Add idempotency support for feeding-task completion requests that may be
   retried.
@@ -122,7 +132,7 @@ personnel, animal management, feeding history, feeding plans, shared feeding
 work with temporary claims, role-aware dashboards, weight history, and external
 API access.
 
-## Phase 12 - Trends and Operational Summaries
+## Phase 13 - Trends and Operational Summaries
 
 - Visualize weight changes over time for an animal.
 - Summarize feeding activity over a selected period.
@@ -131,7 +141,7 @@ API access.
 - Add useful filters and CSV export where appropriate.
 - Present observations without veterinary diagnosis or prediction.
 
-## Phase 13 - Responsive and Accessible Experience
+## Phase 14 - Responsive and Accessible Experience
 
 - Refine the visual design and shared component patterns.
 - Support desktop and mobile layouts.
@@ -140,7 +150,7 @@ API access.
   including the personnel deactivation confirmation deferred from Phase 3.
 - Add clear loading, empty, success, and error states.
 
-## Phase 14 - Production Readiness
+## Phase 15 - Production Readiness
 
 - Add structured logging, request identifiers, and health checks.
 - Review authentication, authorization, validation, rate limiting, and secure configuration.
