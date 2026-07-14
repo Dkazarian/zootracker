@@ -19,7 +19,7 @@
     "test:watch": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --watch",
     "test:cov": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json",
+    "test:e2e": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand",
     "test:auth:e2e": "cross-env RUN_DATABASE_TESTS=true node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand auth-flow.e2e-spec.ts",
     "test:personnel:e2e": "cross-env RUN_DATABASE_TESTS=true node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand personnel-flow.e2e-spec.ts",
     "test:animals:e2e": "cross-env RUN_DATABASE_TESTS=true node --experimental-vm-modules ../node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand animals-flow.e2e-spec.ts",
